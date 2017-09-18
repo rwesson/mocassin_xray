@@ -1,4 +1,4 @@
-! Copyright (C) 2007 Barbara Ercolano 
+! Copyright (C) 2007 Barbara Ercolano
 ! Harvard-Smithsonian
 ! Center for Astrophysics
 ! 60 Garden Street
@@ -11,7 +11,7 @@
 ! modify it under the terms of the GNU General Public License
 ! as published by the Free Software Foundation; either version 2
 ! of the License, or (at your option) any later version. This requires
-! that any chnages or improvements made to the program should also be 
+! that any chnages or improvements made to the program should also be
 ! made freely available.
 
 ! This program is distributed in the hope that it will be useful,
@@ -23,11 +23,11 @@
 ! along with this program; if not, write to the Free Software
 ! Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
-!  
-! MoCaSSiN = MOnte CArlo SImulationS of Nebulae 
+!
+! MoCaSSiN = MOnte CArlo SImulationS of Nebulae
 ! Version 3.00
 ! this is the main driver of the simulation
-!  
+!
 program MoCaSSiN
     use common_mod
     use constants_mod
@@ -54,21 +54,21 @@ program MoCaSSiN
     if (taskid == 0) then
         print*, "MOCASSIN 2007 Version 3"
         print*, " "
-    end if 
+    end if
 
     ! read the input parameters of the simulation
-    call readInput()      
+    call readInput()
 
     if (taskid == 0) then
         print*, " "
     end if
 
     ! initialize the 3D cartesian grid
-    
+
     do iGrid = 1, nGrids
        call initCartesianGrid(grid3D(iGrid), nxIn(iGrid), nyIn(iGrid), nzIn(iGrid))
     end do
-    
+
     ! initialize opacities x sections array
     call initXSecArray()
 
@@ -81,17 +81,17 @@ program MoCaSSiN
 
     if (taskid==0) then
        do iGrid = 1, nGrids
-          print*, 'Grid : ', iGrid 
+          print*, 'Grid : ', iGrid
           print*, 'active cells: ', grid3D(iGrid)%nCells
        end do
     end if
 
     ! prepare atomica data stuff
     if (lgGas) call makeElements()
-    
+
     print*, 'active elements: ', nElementsUsed
 
-    ! if grains are included, calculate the dust opacity     
+    ! if grains are included, calculate the dust opacity
     if (lgDust) then
        if (taskid==0) print*, '! mocassin: calling dustDriver'
        do iGrid = 1, nGrids
@@ -117,10 +117,10 @@ program MoCaSSiN
        end if
     end if
 
-    if (taskid==0) print*, '! mocassin: calling MCIterationDriver'    
+    if (taskid==0) print*, '! mocassin: calling MCIterationDriver'
     ! start the Monte Carlo simulation
     call MCIterationDriver(grid3D(1:nGrids))
-    if (taskid==0) print*, '! mocassin: MCIterationDriver done'    
+    if (taskid==0) print*, '! mocassin: MCIterationDriver done'
 
     if (taskid ==  0) then
         ! determine final statistics
@@ -138,5 +138,3 @@ program MoCaSSiN
     stop '! MoCaSSin: end simulation reached - clean exit -'
 
 end program MoCaSSiN
-   
-    

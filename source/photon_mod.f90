@@ -1,5 +1,5 @@
-! Copyright (C) 2008 Barbara Ercolano 
-! 
+! Copyright (C) 2008 Barbara Ercolano
+!
 ! Version 3.04
 module photon_mod
     use common_mod
@@ -10,18 +10,18 @@ module photon_mod
     use pathIntegration_mod
     use vector_mod
 
-    ! common variables 
+    ! common variables
 
     real :: Qphot = 0.
     real :: QfluoBins(14) = 0.
     real :: QFluo(14) = 0.
-    real, dimension(14) :: fluorescenceTot 
+    real, dimension(14) :: fluorescenceTot
 
 
     type(vector), parameter :: origin=vector(0.,0.,0.)  ! origin of the cartesian grid axes
 
     integer     , parameter :: safeLim = 10000          ! safety limit for the loops
-    integer                        :: totalEscaped  
+    integer                        :: totalEscaped
 
     contains
 
@@ -37,23 +37,23 @@ module photon_mod
         type(vector)                   :: posVector   ! initial position vector for dust emi
         type(vector)                   :: absPosition ! position of packet absorption
         type(vector)                   :: positionIn  ! position of packet absorption
-        
-        integer, intent(in)            :: n           ! number of energy packets 
-        integer, intent(in)            :: iStar       ! central star index 
 
-        integer                        :: gPIn        ! 
-        integer                        :: igp         ! 1= mother 2 =sub 
+        integer, intent(in)            :: n           ! number of energy packets
+        integer, intent(in)            :: iStar       ! central star index
+
+        integer                        :: gPIn        !
+        integer                        :: igp         ! 1= mother 2 =sub
         integer                        :: ian         ! angle counter
         integer                        :: ifreq       ! freq counter
         integer                        :: iview       ! viewing angle counter
         integer                        :: freqP       ! pointer to frequency
-        integer                        :: i,j,k,iG,ii ! counters        
+        integer                        :: i,j,k,iG,ii ! counters
         integer                        :: iCell       ! cell counter
         integer                        :: igrid,ix,iy,iz ! location indeces
         integer                        :: ierr        ! allocation error status
         integer                        :: iPhot       ! counter
         integer                        :: plotNum     ! counter
-        integer                        :: seedSize    ! pseudo random number generator seed 
+        integer                        :: seedSize    ! pseudo random number generator seed
         integer, dimension(2)          :: inX,inY,inZ ! initial position indeces
         integer, pointer               :: seed(:)     ! seed array
         integer                        :: msec        ! millisecs of the sec
@@ -67,17 +67,17 @@ module photon_mod
              & :: gpLoc                               ! local grid (only used for extra diffuse sources)
         integer, intent(inout) &
              & :: cellLoc(3)                          ! local cell (only used for extra diffuse sources)
-       
+
         type(plot_type), intent(inout) &
              & :: plot                                ! only used in the mocassinPlot version
 
         type(grid_type), dimension(:), intent(inout) :: grid        ! the grid(s)
-        
+
         character(len=7)               :: chTypeD     ! character type for driver
-        character(len=7)               :: chTypeIn    ! character type 
+        character(len=7)               :: chTypeIn    ! character type
 
 
-        
+
 
         if (iStar == 0) then
 !           deltaE(0) = grid(gpLoc)%LdiffuseLoc(grid(gpLoc)%active(cellLoc(1),cellLoc(2),cellLoc(3)))/NphotonsDiffuseLoc
@@ -97,7 +97,7 @@ module photon_mod
         call date_and_time(values=dt)
         msec=dt(8)
 
-        call random_seed(seedSize) 
+        call random_seed(seedSize)
 
         allocate(seed(1:seedSize), stat= ierr)
         if (ierr /= 0) then
@@ -108,11 +108,11 @@ module photon_mod
         seed = 0
 
         call random_seed(get = seed)
- 
+
         seed = seed + msec + taskid
 
         call random_seed(put = seed)
-        
+
         if (associated(seed)) deallocate(seed)
 
         Qphot = 0.
@@ -125,7 +125,7 @@ module photon_mod
         if (taskid ==0 .and. lgPlaneIonization .and. nIterateMC==1) then
            allocate(JnuStart(grid(1)%nx, grid(1)%nz, nbins))
            JnuStart = 0.
-        end if        
+        end if
 
         trapped = 0
 
@@ -133,7 +133,7 @@ module photon_mod
 
            if (iStar>=1) then
 
-              chTypeD = "stellar"                            
+              chTypeD = "stellar"
 
               if (starIndeces(iStar,4)==1) then
                  igp = 1
@@ -158,7 +158,7 @@ module photon_mod
               positionIn = starPosition(iStar)
               gPIn = starIndeces(iStar,4)
               reRun = 0
-              do i = 1, recursionLimit        
+              do i = 1, recursionLimit
                  call energyPacketRun(chTypeIn, positionIn, inX, inY, &
                       &inZ, gPIn, reRun)
                  if (rerun == 0) exit
@@ -166,7 +166,7 @@ module photon_mod
 !                    call energyPacketRun(chTypeIn, positionIn, inX, inY, &
 !                      &inZ, gPIn, reRun)
 !                 else
-!                    print*, "! energyPacketDriver: insane reRun value ", reRun 
+!                    print*, "! energyPacketDriver: insane reRun value ", reRun
 !                    stop
 !                 end if
               end do
@@ -174,7 +174,7 @@ module photon_mod
 
            else if (iStar==0) then
 
-              chTypeD = "diffExt"              
+              chTypeD = "diffExt"
               inX=-1
               inY=-1
               inZ=-1
@@ -198,12 +198,12 @@ module photon_mod
 
 !              countRecursive = 0
 
-              
+
               chTypeIn = chTypeD
               positionIn = posDiff
               gPIn = gPLoc
               reRun = 0
-              do i = 1, recursionLimit        
+              do i = 1, recursionLimit
                  call energyPacketRun(chTypeIn, positionIn, inX, inY, &
                       &inZ, gPIn, reRun)
                  if (rerun == 0) exit
@@ -211,14 +211,14 @@ module photon_mod
 !                    call energyPacketRun(chTypeIn, positionIn, inX, inY, &
 !                      &inZ, gPIn, reRun)
 !                 else
-!                    print*, "! energyPacketDriver: insane reRun value ", reRun 
+!                    print*, "! energyPacketDriver: insane reRun value ", reRun
 !                    stop
 !                 end if
               end do
               if (i>=recursionLimit) trapped = trapped+1
 
 
-!              call energyPacketRun(chType=chTypeD, position=posDiff, xp=inX, & 
+!              call energyPacketRun(chType=chTypeD, position=posDiff, xp=inX, &
 !                   & yp=inY, zp=inZ, gp=gpLoc)
 
            else
@@ -227,7 +227,7 @@ module photon_mod
               stop
 
            end if
-           
+
 
         end do
 
@@ -313,31 +313,31 @@ module photon_mod
                                 posVector%x = grid(igrid)%xAxis(ix)
                                 posVector%y = grid(igrid)%yAxis(iy)
                                 posVector%z = grid(igrid)%zAxis(iz)
-                                
+
                                 inX=-1
                                 inY=-1
                                 inZ=-1
                                 inX(igp)=ix
                                 inY(igp)=iy
                                 inZ(igp)=iz
-                                
+
                                 if (igrid>1) then
                                    ! check location on mother grid
                                    call locate(grid(grid(igrid)%motherP)%xAxis, &
                                         & posVector%x,inX(1))
                                    if (posVector%x > (grid(grid(igrid)%motherP)%xAxis(inX(1))+&
                                         & grid(grid(igrid)%motherP)%xAxis(inX(1)+1) )/2.) &
-                                        & inX(1) = inX(1)+1                                   
+                                        & inX(1) = inX(1)+1
                                    call locate(grid(grid(igrid)%motherP)%yAxis, &
                                         & posVector%y,inY(1))
                                    if (posVector%y > (grid(grid(igrid)%motherP)%yAxis(inY(1))+&
                                         & grid(grid(igrid)%motherP)%yAxis(inY(1)+1) )/2.) &
-                                        & inY(1) = inY(1)+1                                   
+                                        & inY(1) = inY(1)+1
                                    call locate(grid(grid(igrid)%motherP)%zAxis, &
                                         & posVector%z,inZ(1))
                                    if (posVector%z > (grid(grid(igrid)%motherP)%zAxis(inZ(1))+&
                                         & grid(grid(igrid)%motherP)%zAxis(inZ(1)+1) )/2.) &
-                                        & inZ(1) = inZ(1)+1                                   
+                                        & inZ(1) = inZ(1)+1
                                 end if
 
 
@@ -347,7 +347,7 @@ module photon_mod
                                 gPIn = igrid
                                 reRun = 0
 
-                                do i = 1, recursionLimit        
+                                do i = 1, recursionLimit
                                    call energyPacketRun(chTypeIn, positionIn, inX, inY, &
                                         &inZ, gPIn, reRun)
                                    if (rerun == 0) exit
@@ -355,7 +355,7 @@ module photon_mod
 !                                      call energyPacketRun(chTypeIn, positionIn, inX, inY, &
 !                                           &inZ, gPIn, reRun)
 !                                   else
-!                                      print*, "! energyPacketDriver: insane reRun value ", reRun 
+!                                      print*, "! energyPacketDriver: insane reRun value ", reRun
 !                                      stop
 !                                   end if
                                 end do
@@ -380,7 +380,7 @@ module photon_mod
 
         if (iStar>0) print*, 'Qphot = ', Qphot, taskid
         print*, 'Packets trapped = ', trapped, taskid
-        
+
 
         ! evaluate Jste and Jdif
         ! NOTE : deltaE is in units of [E36 erg/s] however we also need a factor of
@@ -389,16 +389,16 @@ module photon_mod
         ! multiply by 1.E-9
         ! NOTE : Jste and Jdif calculated this way are in units of
         ! [erg sec^-1 cm^-2] -> no Hz^-1 as they are summed over separate bins (see
-        ! Lucy A&A (1999)                                                                                                                                   
+        ! Lucy A&A (1999)
 
         if(iStar>0.) then
-           print*, 'Lstar', Lstar(iStar)           
+           print*, 'Lstar', Lstar(iStar)
         end if
 
         if (taskid==0 .and. lgPlaneIonization .and. niterateMC ==1) then
-           
+
            if (taskid == 0 ) then
-              close(29) 
+              close(29)
               open(unit=29, status='unknown', position='rewind', file='output/radField0.out',  action="write")
               do i = 1, grid(1)%nx
                  do j = 1, grid(1)%nz
@@ -420,32 +420,32 @@ module photon_mod
 
             type(vector),intent(inout) :: position         ! the position of the photon
 
-            real :: number 
-            real, save :: ionPhot = 0.       
+            real :: number
+            real, save :: ionPhot = 0.
 
             integer, dimension(2), intent(inout)    :: xP, yP, &
-                 & zP                                            ! cartesian axes indeces 
+                 & zP                                            ! cartesian axes indeces
                                                                  ! 1= mother; 2=sub
 
-            
+
             integer, intent(inout) :: rR               ! rerun?
             integer, intent(inout) :: gP               ! grid index
             integer                          :: igpr             ! grid pointer 1= mother 2=sub
             integer                          :: difSourceL(3)    ! cell indeces
 
             integer                          :: err              ! allocation error status
-            integer                          :: i, j             ! counters  
+            integer                          :: i, j             ! counters
             integer                          :: idirP, idirT     ! direction cosines
             integer                          :: nP
 
             type(photon_packet)              :: enPacket         ! the energu packet
 
             character(len=7), intent(inout)     :: chType           ! stellar or diffuse?
-        
+
 !            countRecursive = countRecursive+1
 !            if (countRecursive > recursionLimit) then
 !               trapped = trapped+1
-!               return               
+!               return
 !            end if
 
             rR = 0
@@ -470,14 +470,14 @@ module photon_mod
                        & start at the stellar position"
                   stop
                end if
-               
-               ! create the packet        
+
+               ! create the packet
                enPacket = newPhotonPacket(chType,position, xp, yp, zp, gp, noCellLoc,nP)
 
                if (nP == 1) then
 
                    ! the packet escapes without further interaction
-                   
+
                    idirT = int(acos(enPacket%direction%z)/dTheta)+1
                    if (idirT>totangleBinsTheta) then
                       idirT=totangleBinsTheta
@@ -491,39 +491,39 @@ module photon_mod
                    if (enPacket%direction%x<1.e-35) then
                       idirP = 0
                    else
-                      idirP = int(atan(enPacket%direction%y/enPacket%direction%x)/dPhi)             
+                      idirP = int(atan(enPacket%direction%y/enPacket%direction%x)/dPhi)
                    end if
                    if (idirP<0) idirP=totAngleBinsPhi+idirP
                    idirP=idirP+1
                    if (idirP>totangleBinsPhi) then
                       idirP=totangleBinsPhi
                    end if
-                   
+
                    if (idirP<1 .or. idirP>totAngleBinsPhi) then
                       print*, '! energyPacketRun: error in Phi direction cosine assignment',&
                            &  idirP, enPacket, dPhi, totAngleBinsPhi
                       stop
                    end if
 
-               
+
                    if (nAngleBins>0) then
-                      if ( (totangleBinsPhi>1 .and. viewPointPtheta(idirT) == viewPointPphi(idirP)) .or. &            
+                      if ( (totangleBinsPhi>1 .and. viewPointPtheta(idirT) == viewPointPphi(idirP)) .or. &
                            & (totangleBinsPhi==1 .and. viewPointPtheta(idirT)>0) ) then
                          grid(1)%escapedPackets(1, enPacket%nuP,&
                               & viewPointPtheta(idirT)) = &
                               &grid(1)%escapedPackets(1, &
                               & enPacket%nuP,viewPointPtheta(idirT)) +  deltaEUsed
                          grid(1)%escapedPackets(1, enPacket%nuP,0)=&
-                              &grid(1)%escapedPackets(1, &  
-                              & enPacket%nuP,0) +  deltaEUsed                                    
+                              &grid(1)%escapedPackets(1, &
+                              & enPacket%nuP,0) +  deltaEUsed
                          if (lgSeparateSED) then
                             grid(1)%escapedPacketsComponents(1, enPacket%nuP,&
                                  & viewPointPtheta(idirT),0) = &
                                  &grid(1)%escapedPacketsComponents(1, &
                                  & enPacket%nuP,viewPointPtheta(idirT),0) +  deltaEUsed
                             grid(1)%escapedPacketsComponents(1, enPacket%nuP,0,0)=&
-                                 &grid(1)%escapedPacketsComponents(1, &  
-                                 & enPacket%nuP,0,0) +  deltaEUsed                
+                                 &grid(1)%escapedPacketsComponents(1, &
+                                 & enPacket%nuP,0,0) +  deltaEUsed
                          end if
                       else
                          grid(1)%escapedPackets(1,enPacket%nuP,0) = &
@@ -536,8 +536,8 @@ module photon_mod
                                  &(1,  enPacket%nuP,0,enPacket%SEDtype) +  deltaEUsed
                          endif
                       end if
-                   else                              
-                      grid(1)%escapedPackets(1, & 
+                   else
+                      grid(1)%escapedPackets(1, &
                            enPacket%nuP,0) = &
                            & grid(1)%escapedPackets(1, &
                            & enPacket%nuP,0) +  deltaEUsed
@@ -547,10 +547,10 @@ module photon_mod
                               & grid(1)%escapedPacketsComponents(1, &
                               & enPacket%nuP,0,enPacket%SEDtype) +  deltaEUsed
                       end if
-                      
+
                    end if
-                   
-                   
+
+
                    return
                 end if
 
@@ -568,8 +568,8 @@ module photon_mod
                 difSourceL(2) = yP(igpr)
                 difSourceL(3) = zP(igpr)
 
-                
-                ! create the packet        
+
+                ! create the packet
 !                if (.not.present(gP)) gP=1
 
                 enPacket = newPhotonPacket(chType, position, xp, yp, zp, gP, difSourceL, nP)
@@ -591,7 +591,7 @@ module photon_mod
 !                         & energy packet has not been specified"
 !                    stop
 !                end if
-                ! check also that grid index have been carried through 
+                ! check also that grid index have been carried through
 !                if (.not.(present(gP))) then
 !                    print*, "! energyPacketRun: cartesian axes indeces of the new diffuse &
 !                         & energy packet has not been specified"
@@ -629,7 +629,7 @@ module photon_mod
                 enPacket = newPhotonPacket(chType=chType, position=position, xP=xP, yP=yP, &
                      &zP=zP, gP=gP, difSource = noCellLoc,  nextPacket=nP)
 
-            end select 
+            end select
 
             if (.not.lgDust .and. enPacket%nu < ionEdge(1) .and. .not.enPacket%lgLine) then
 
@@ -643,12 +643,12 @@ module photon_mod
                        &  idirT, enPacket, dTheta, totAngleBinsTheta
                   stop
                end if
-              
+
 
                if (enPacket%direction%x<1.e-35) then
                   idirP = 0
                else
-                  idirP = int(atan(enPacket%direction%y/enPacket%direction%x)/dPhi)             
+                  idirP = int(atan(enPacket%direction%y/enPacket%direction%x)/dPhi)
                end if
                if (idirP<0) idirP=totAngleBinsPhi+idirP
                idirP=idirP+1
@@ -658,7 +658,7 @@ module photon_mod
 !                  print*, '! energyPacketRun: idir>totanglebins - error corrected', &
 !                       & idir, totanglebins, enPacket%direction, dtheta
                end if
-             
+
                if (idirP<1 .or. idirP>totAngleBinsPhi) then
                   print*, '! energyPacketRun: error in phi direction cosine assignment',&
                        &  idirP, enPacket, dPhi, totAngleBinsPhi
@@ -667,32 +667,32 @@ module photon_mod
 
 
                if (nAngleBins>0) then
-                  if ( (totangleBinsPhi>1 .and. viewPointPtheta(idirT) == viewPointPphi(idirP)) .or. &            
+                  if ( (totangleBinsPhi>1 .and. viewPointPtheta(idirT) == viewPointPphi(idirP)) .or. &
                        & (totangleBinsPhi==1 .and. viewPointPtheta(idirT)>0) ) then
-                     grid(enPacket%origin(1))%escapedPackets(enPacket%origin(2), enPacket%nuP,&                   
-                          & viewPointPtheta(idirT)) = &                                                           
-                          &grid(enPacket%origin(1))%escapedPackets(enPacket%origin(2), &                          
-                          & enPacket%nuP,viewPointPtheta(idirT)) +  deltaEUsed                                    
+                     grid(enPacket%origin(1))%escapedPackets(enPacket%origin(2), enPacket%nuP,&
+                          & viewPointPtheta(idirT)) = &
+                          &grid(enPacket%origin(1))%escapedPackets(enPacket%origin(2), &
+                          & enPacket%nuP,viewPointPtheta(idirT)) +  deltaEUsed
                      grid(enPacket%origin(1))%escapedPackets(enPacket%origin(2), enPacket%nuP,0) = &
-                          &grid(enPacket%origin(1))%escapedPackets(enPacket%origin(2), &                          
-                          & enPacket%nuP,0) +  deltaEUsed                                    
+                          &grid(enPacket%origin(1))%escapedPackets(enPacket%origin(2), &
+                          & enPacket%nuP,0) +  deltaEUsed
 
                      if (lgSeparateSED) then
                         grid(enPacket%origin(1))%escapedPacketsComponents&
-                             & (enPacket%origin(2), enPacket%nuP,& 
-                             & viewPointPtheta(idirT),enPacket%SEDtype) = &                 
+                             & (enPacket%origin(2), enPacket%nuP,&
+                             & viewPointPtheta(idirT),enPacket%SEDtype) = &
                              &grid(enPacket%origin(1))%escapedPacketsComponents&
-                             &(enPacket%origin(2), &   
-                             & enPacket%nuP,viewPointPtheta(idirT),enPacket%SEDtype) +  deltaEUsed 
+                             &(enPacket%origin(2), &
+                             & enPacket%nuP,viewPointPtheta(idirT),enPacket%SEDtype) +  deltaEUsed
                         grid(enPacket%origin(1))%escapedPacketsComponents&
                              &(enPacket%origin(2), enPacket%nuP,0,enPacket%SEDtype) = &
-                             &grid(enPacket%origin(1))%escapedPacketsComponents(enPacket%origin(2), & 
+                             &grid(enPacket%origin(1))%escapedPacketsComponents(enPacket%origin(2), &
                              & enPacket%nuP,0,enPacket%SEDtype) +  deltaEUsed
                      endif
                   else
                      grid(enPacket%origin(1))%escapedPackets(enPacket%origin(2),enPacket%nuP,0) = &
-                          & grid(enPacket%origin(1))%escapedPackets(enPacket%origin(2), &  
-                          & enPacket%nuP,0) +  deltaEUsed   
+                          & grid(enPacket%origin(1))%escapedPackets(enPacket%origin(2), &
+                          & enPacket%nuP,0) +  deltaEUsed
                      if (lgSeparateSED) then
                         grid(enPacket%origin(1))%escapedPacketsComponents&
                              &(enPacket%origin(2),enPacket%nuP,0,enPacket%SEDtype) = &
@@ -701,8 +701,8 @@ module photon_mod
                      endif
 
                   end if
-               else                              
-                  grid(enPacket%origin(1))%escapedPackets(enPacket%origin(2), & 
+               else
+                  grid(enPacket%origin(1))%escapedPackets(enPacket%origin(2), &
                        & enPacket%nuP,0) = &
                        & grid(enPacket%origin(1))%escapedPackets(enPacket%origin(2), &
                        & enPacket%nuP,0) +  deltaEUsed
@@ -726,7 +726,7 @@ module photon_mod
 
                 return
 
-            else ! if the packet is a line packet 
+            else ! if the packet is a line packet
                 ! add to respective line packet bin
 
                if (lgDebug) &
@@ -745,12 +745,12 @@ module photon_mod
             implicit none
 
             type(vector), intent(in) :: position          ! the position at which the photon
-                                                          ! packet is created       
+                                                          ! packet is created
             real                     :: random            ! random number
 
             integer, intent(in)      :: nuP               ! the frequency of the photon packet
             integer, intent(in),dimension(2) :: xP, yP, &
-                 & zP                                     ! indeces of position on the x, y and z axes            
+                 & zP                                     ! indeces of position on the x, y and z axes
             integer, intent(in)      :: gP                ! grid index
             integer                  :: igpi              ! grid pointer 1=mother, 2=sub
             integer                  :: i, irepeat        ! counter
@@ -763,18 +763,18 @@ module photon_mod
             initPhotonPacket%position = position
 
             initPhotonPacket%iG  = gP
-            
+
             if (gP==1) then
-               igpi=1 
+               igpi=1
             else if (gp>1) then
                igpi=2
             else
                print*, "! initPhotonPacket: insane gridp pointer"
                stop
             end if
-           
-            initPhotonPacket%nuP      = nuP       
-           
+
+            initPhotonPacket%nuP      = nuP
+
             initPhotonPacket%lgStellar = lgStellar
 
             ! check if photon packen is line or continuum photon
@@ -785,7 +785,7 @@ module photon_mod
             else
                 ! continuum photon
                 initPhotonPacket%nu       = nuArray(nuP)
-                initPhotonPacket%lgLine   = .false.          
+                initPhotonPacket%lgLine   = .false.
             end if
 
             initPhotonPacket%xP  = xP
@@ -794,16 +794,16 @@ module photon_mod
 
             ! cater for plane parallel ionization case
             if (initPhotonPacket%lgStellar .and. lgPlaneIonization) then
-               
+
                ! get position
-               
+
                ! x-direction
                call random_number(random)
                random = 1. - random
                initPhotonPacket%position%x = &
                     & grid(gP)%xAxis(1) + random*( &
                     & grid(gP)%xAxis(grid(gP)%nx)-grid(gP)%xAxis(1))
-               if (initPhotonPacket%position%x<grid(gP)%xAxis(1) .or.& 
+               if (initPhotonPacket%position%x<grid(gP)%xAxis(1) .or.&
                     &initPhotonPacket%position%x>grid(gP)%xAxis(grid(gP)%nx) ) then
                   print*, ' ! initPhotonPacket: planeParallelIonisation &
                        &photon born at insane x-location', random
@@ -827,27 +827,27 @@ module photon_mod
                initPhotonPacket%position%z = &
                     & grid(gP)%zAxis(1) + random*( &
                     & grid(gP)%zAxis(grid(gP)%nz)-grid(gP)%zAxis(1))
-               if (initPhotonPacket%position%z<grid(gP)%zAxis(1) .or.& 
+               if (initPhotonPacket%position%z<grid(gP)%zAxis(1) .or.&
                     &initPhotonPacket%position%z>grid(gP)%zAxis(grid(gP)%nz) ) then
                   print*, ' ! initPhotonPacket: planeParallelIonisation &
                        &photon born at insane z-location', random
                   stop
                end if
                call locate(grid(gP)%zAxis, initPhotonPacket%position%z, initPhotonPacket%zP(igpi))
-               if (initPhotonPacket%zP(igpi) < grid(gP)%nz) then               
+               if (initPhotonPacket%zP(igpi) < grid(gP)%nz) then
                   if (initPhotonPacket%position%z >= (grid(gP)%zAxis(initPhotonPacket%zP(igpi))+&
-                       & grid(gP)%zAxis(initPhotonPacket%zP(igpi)+1))/2.) initPhotonPacket%zP(igpi) =& 
+                       & grid(gP)%zAxis(initPhotonPacket%zP(igpi)+1))/2.) initPhotonPacket%zP(igpi) =&
                        & initPhotonPacket%zP(igpi)+1
                end if
-               
-               if (initPhotonPacket%xP(igpi)<1) initPhotonPacket%xP(igpi)=1             
+
+               if (initPhotonPacket%xP(igpi)<1) initPhotonPacket%xP(igpi)=1
                if (initPhotonPacket%zP(igpi)<1) initPhotonPacket%zP(igpi)=1
 
                ! direction is parallel to y-axis direction
                initPhotonPacket%direction%x = 0.
                initPhotonPacket%direction%y = 1.
                initPhotonPacket%direction%z = 0.
-               
+
                if (initPhotonPacket%xP(igpi) >  grid(gP)%xAxis(grid(gP)%nx) .or. &
                     & initPhotonPacket%zP(igpi) >  grid(gP)%zAxis(grid(gP)%nz)) then
                   print*, "! initPhotonPacket: insanity in planeIonisation init"
@@ -866,8 +866,8 @@ module photon_mod
                 do irepeat = 1, 1000000
                    ! get a random direction
                    initPhotonPacket%direction = randomUnitVector()
-                   if (initPhotonPacket%direction%x/=0. .and. & 
-                        & initPhotonPacket%direction%y/=0. .and. & 
+                   if (initPhotonPacket%direction%x/=0. .and. &
+                        & initPhotonPacket%direction%y/=0. .and. &
                         & initPhotonPacket%direction%z/=0.) exit
                 end do
             end if
@@ -883,9 +883,9 @@ module photon_mod
 
             initPhotonPacket%origin(1) = gP
             if (initPhotonPacket%xP(igpi)>0 .and. initPhotonPacket%yP(igpi) > 0. .and. &
-                 & initPhotonPacket%zP(igpi) > 0.) then               
+                 & initPhotonPacket%zP(igpi) > 0.) then
                initPhotonPacket%origin(2) = grid(gP)%active(initPhotonPacket%xP(igpi),&
-                    & initPhotonPacket%yP(igpi), initPhotonPacket%zP(igpi))                        
+                    & initPhotonPacket%yP(igpi), initPhotonPacket%zP(igpi))
             else
                initPhotonPacket%origin(2) = 0
             end if
@@ -895,13 +895,13 @@ module photon_mod
 
         end function initPhotonPacket
 
-    
+
         ! this subroutine determines the frequency of a newly created photon packet
         ! according to the given probability density
         subroutine getNu(probDen, nuP)
 
             real, dimension(:), intent(in) :: probDen    ! probability density function
-       
+
             integer, intent(out)           :: nuP         ! frequency index of the new
 
             ! local variables
@@ -912,7 +912,7 @@ module photon_mod
 
             random = 1.-random
 
-            ! see what frequency random corresponds to 
+            ! see what frequency random corresponds to
             call locate(probDen, random, nuP)
              if (nuP <= 0) nuP = 1
 
@@ -930,14 +930,14 @@ module photon_mod
             real, dimension(:), intent(in) :: probDen    ! probability density function
 
             real                           :: random     ! random number
-       
+
             integer, intent(out)           :: nuP        ! frequency index of the new
 
-            integer                        :: isearch,i  !  
+            integer                        :: isearch,i  !
 
             ! get a random number
             call random_number(random)
-            
+
             do i = 1, 10000
                if (random==0 .or. random==1.) then
                   call random_number(random)
@@ -950,15 +950,15 @@ module photon_mod
                stop
             end if
 
-            ! see what frequency random corresponds to 
+            ! see what frequency random corresponds to
             nuP=1
             do isearch = 1, nbins
                if (random>=probDen(isearch)) then
                   nuP=isearch
-               else 
-                  exit                  
+               else
+                  exit
                end if
-            end do            
+            end do
 
             if (nuP<nbins) then
                nuP=nuP+1
@@ -971,10 +971,10 @@ module photon_mod
 
           end subroutine getNu2
 
-        
+
         ! this function creates a new photon packet
         function newPhotonPacket(chType, position, xP, yP, zP, gP, difSource,nextPacket)
-    
+
             type(photon_packet)                :: newPhotonPacket! the photon packet to be created
             type(vector), intent(in)           :: position       ! the position of the photon packet
             type(vector)                       :: positionLoc    ! the position of the photon packet
@@ -984,8 +984,8 @@ module photon_mod
 
             integer                            :: nuP            ! the frequency index of the photon packet
             integer, dimension(2)         :: orX,orY,orZ    ! dummy
-            integer, dimension(2),intent(in) :: xP, yP, & 
-                 & zP                                            ! cartesian axes indeces    
+            integer, dimension(2),intent(in) :: xP, yP, &
+                 & zP                                            ! cartesian axes indeces
             integer, intent(in)      :: difSource(3)  ! grid and cell indeces
             integer                            :: ids            ! counter
 
@@ -1042,7 +1042,7 @@ module photon_mod
                    print*, "inSpectrumProbDen: ",iStar,inSpectrumProbDen(iStar,:), nuP
                    stop
                 end if
-                
+
                 if (nuP < 1) then
                     print*, "! newPhotonPacket: insanity occured in stellar photon &
                          &nuP assignment"
@@ -1060,7 +1060,7 @@ module photon_mod
                    if (grid(starIndeces(iStar,4))%active(orX(igpn),&
                         &  orY(igpn), orZ(igpn)) < 0.) then
                       print*, "! newPhotonPacket: new packet cannot be&
-                           & emitted from re-mapped cell -1-" 
+                           & emitted from re-mapped cell -1-"
                       print*, "chType, nuP, starPosition(iStar), .false., &
                            & .true., orX,orY,orZ, gp"
                       print*, chType, nuP, starPosition(iStar), .false., .true., orX,orY,orZ, gp
@@ -1091,15 +1091,15 @@ module photon_mod
                    dSz=0.
 !print*, xloc, yloc, zloc
 
-!newPhotonPacket%direction%x = 0. 
-!newPhotonPacket%direction%y = 0. 
+!newPhotonPacket%direction%x = 0.
+!newPhotonPacket%direction%y = 0.
 !newPhotonPacket%direction%z = -1.
 
 !print*, newPhotonPacket%direction%x, newPhotonPacket%direction%y, newPhotonPacket%direction%z
 
                    if ( xloc > grid(1)%xAxis(grid(1)%nx) .or. &
                         & xloc < grid(1)%xAxis(1)) then
-                      
+
                       if (xloc < grid(1)%xAxis(1) .and. lgSymmetricXYZ) then
                          print*, ' ! newPhotonPacket: star cannot be placed &
                               &behind a mirror -x', xloc
@@ -1127,7 +1127,7 @@ module photon_mod
 
                    if ( yloc > grid(1)%yAxis(grid(1)%ny) .or. &
                         & yloc < grid(1)%yAxis(1)) then
-                      
+
                       if (yloc < grid(1)%yAxis(1) .and. lgSymmetricXYZ) then
                          print*, ' ! newPhotonPacket: star cannot be placed &
                               &behind a mirror -y', yloc
@@ -1155,7 +1155,7 @@ module photon_mod
 
                    if ( zloc > grid(1)%zAxis(grid(1)%nz) .or. &
                         & zloc < grid(1)%zAxis(1)) then
-                      
+
                       if (zloc < grid(1)%zAxis(1) .and. lgSymmetricXYZ) then
                          print*, ' ! newPhotonPacket: star cannot be placed &
                               &behind a mirror -z', zloc
@@ -1214,7 +1214,7 @@ module photon_mod
                    if (dS == 0.) then ! this packet is not going to hit the grid
                       nextPacket = 1
                    else
-                      do ids = 1, 3                          
+                      do ids = 1, 3
                          if (ids == 2) then
                             if (dSbis /= 0.) then
                                dS = dSbis-dS
@@ -1229,13 +1229,13 @@ module photon_mod
                                exit
                             end if
                          end if
-                         
-                         if (ids ==1 ) then 
+
+                         if (ids ==1 ) then
 
                             if (dS == dSx .and. dSx /= 0.) then
                                if (xloc> grid(1)%xAxis(grid(1)%nx)) orX(igpn) = grid(1)%nx
                                if (xloc< grid(1)%xAxis(1)) orX(igpn) = 1
-                               
+
                                newPhotonPacket%position = newPhotonPacket%position + &
                                     &dS*newPhotonPacket%direction
 
@@ -1247,18 +1247,18 @@ module photon_mod
                                         orY(igpn) = orY(igpn)+1
                                      end if
                                   end if
-                               elseif (newPhotonPacket%position%y >  grid(1)%yAxis(grid(1)%ny).and. & 
+                               elseif (newPhotonPacket%position%y >  grid(1)%yAxis(grid(1)%ny).and. &
                                     & newPhotonPacket%position%y <= &
-                                    &(3.*grid(1)%yAxis(grid(1)%ny)-grid(1)%yAxis(grid(1)%ny-1))/2.) then 
+                                    &(3.*grid(1)%yAxis(grid(1)%ny)-grid(1)%yAxis(grid(1)%ny-1))/2.) then
                                   orY(igpn)  = grid(1)%ny
-                               elseif (newPhotonPacket%position%y <  grid(1)%yAxis(1) .and. & 
+                               elseif (newPhotonPacket%position%y <  grid(1)%yAxis(1) .and. &
                                     & newPhotonPacket%position%y >= &
-                                    &(3.*grid(1)%yAxis(1)-grid(1)%yAxis(2))/2.) then 
+                                    &(3.*grid(1)%yAxis(1)-grid(1)%yAxis(2))/2.) then
                                   orY(igpn)  = 1
                                else
                                   orY(igpn) = -1
                                endif
-                               
+
                                if (newPhotonPacket%position%z <=  grid(1)%zAxis(grid(1)%nz)) then
                                   call locate( grid(1)%zAxis, newPhotonPacket%position%z,  orZ(igpn))
                                   if (orZ(igpn) < grid(1)%nz.and. igpn >0) then
@@ -1267,18 +1267,18 @@ module photon_mod
                                         orZ(igpn) = orZ(igpn)+1
                                      end if
                                   end if
-                               elseif (newPhotonPacket%position%z >  grid(1)%zAxis(grid(1)%nz).and. & 
+                               elseif (newPhotonPacket%position%z >  grid(1)%zAxis(grid(1)%nz).and. &
                                     & newPhotonPacket%position%z <= &
-                                    &(3.*grid(1)%zAxis(grid(1)%nz)-grid(1)%zAxis(grid(1)%nz-1))/2.) then 
+                                    &(3.*grid(1)%zAxis(grid(1)%nz)-grid(1)%zAxis(grid(1)%nz-1))/2.) then
                                   orZ(igpn)  = grid(1)%nz
-                               elseif (newPhotonPacket%position%z <  grid(1)%zAxis(1) .and. & 
+                               elseif (newPhotonPacket%position%z <  grid(1)%zAxis(1) .and. &
                                     & newPhotonPacket%position%z >= &
-                                    &(3.*grid(1)%zAxis(1)-grid(1)%zAxis(2))/2.) then 
+                                    &(3.*grid(1)%zAxis(1)-grid(1)%zAxis(2))/2.) then
                                   orZ(igpn)  = 1
                                else
-                                  orZ(igpn) = -1                                                                    
+                                  orZ(igpn) = -1
                                endif
-                               
+
                             elseif  (dS == dSy .and. dSy /= 0.) then
                                if (yloc> grid(1)%yAxis(grid(1)%ny)) orY(igpn) = grid(1)%ny
                                if (yloc< grid(1)%yAxis(1)) orY(igpn) = 1
@@ -1293,18 +1293,18 @@ module photon_mod
                                         orX(igpn) = orX(igpn)+1
                                      end if
                                   end if
-                               elseif (newPhotonPacket%position%x >  grid(1)%xAxis(grid(1)%nx).and. & 
+                               elseif (newPhotonPacket%position%x >  grid(1)%xAxis(grid(1)%nx).and. &
                                     & newPhotonPacket%position%x <= &
-                                    &(3.*grid(1)%xAxis(grid(1)%nx)-grid(1)%xAxis(grid(1)%nx-1))/2.) then 
+                                    &(3.*grid(1)%xAxis(grid(1)%nx)-grid(1)%xAxis(grid(1)%nx-1))/2.) then
                                   orX(igpn)  = grid(1)%nx
-                               elseif (newPhotonPacket%position%x <  grid(1)%xAxis(1) .and. & 
+                               elseif (newPhotonPacket%position%x <  grid(1)%xAxis(1) .and. &
                                     & newPhotonPacket%position%x >= &
-                                    &(3.*grid(1)%xAxis(1)-grid(1)%xAxis(2))/2.) then 
+                                    &(3.*grid(1)%xAxis(1)-grid(1)%xAxis(2))/2.) then
                                   orX(igpn)  = 1
                                else
-                                  orX(igpn) = -1                                                                    
+                                  orX(igpn) = -1
                                endif
-                               
+
                                if (newPhotonPacket%position%z <=  grid(1)%zAxis(grid(1)%nz)) then
                                   call locate( grid(1)%zAxis, newPhotonPacket%position%z,  orZ(igpn))
                                   if (orZ(igpn) < grid(1)%nz.and. igpn >0) then
@@ -1313,16 +1313,16 @@ module photon_mod
                                         orZ(igpn) = orZ(igpn)+1
                                      end if
                                   end if
-                               elseif (newPhotonPacket%position%z >  grid(1)%zAxis(grid(1)%nz).and. & 
+                               elseif (newPhotonPacket%position%z >  grid(1)%zAxis(grid(1)%nz).and. &
                                     & newPhotonPacket%position%z <= &
-                                    &(3.*grid(1)%zAxis(grid(1)%nz)-grid(1)%zAxis(grid(1)%nz-1))/2.) then 
+                                    &(3.*grid(1)%zAxis(grid(1)%nz)-grid(1)%zAxis(grid(1)%nz-1))/2.) then
                                   orZ(igpn)  = grid(1)%nz
-                               elseif (newPhotonPacket%position%z <  grid(1)%zAxis(1) .and. & 
+                               elseif (newPhotonPacket%position%z <  grid(1)%zAxis(1) .and. &
                                     & newPhotonPacket%position%z >= &
-                                    &(3.*grid(1)%zAxis(1)-grid(1)%zAxis(2))/2.) then 
+                                    &(3.*grid(1)%zAxis(1)-grid(1)%zAxis(2))/2.) then
                                   orZ(igpn)  = 1
                                else
-                                  orZ(igpn) = -1                                  
+                                  orZ(igpn) = -1
                                endif
 
                             elseif  (dS == dSz .and. dSz /= 0.) then
@@ -1340,19 +1340,19 @@ module photon_mod
                                      end if
                                   end if
 
-                               elseif (newPhotonPacket%position%y >  grid(1)%yAxis(grid(1)%ny).and. & 
+                               elseif (newPhotonPacket%position%y >  grid(1)%yAxis(grid(1)%ny).and. &
                                     & newPhotonPacket%position%y <= &
-                                    &(3.*grid(1)%yAxis(grid(1)%ny)-grid(1)%yAxis(grid(1)%ny-1))/2.) then 
+                                    &(3.*grid(1)%yAxis(grid(1)%ny)-grid(1)%yAxis(grid(1)%ny-1))/2.) then
                                   orY(igpn)  = grid(1)%ny
 
-                               elseif (newPhotonPacket%position%y <  grid(1)%yAxis(1) .and. & 
+                               elseif (newPhotonPacket%position%y <  grid(1)%yAxis(1) .and. &
                                     & newPhotonPacket%position%y >= &
-                                    &(3.*grid(1)%yAxis(1)-grid(1)%yAxis(2))/2.) then 
+                                    &(3.*grid(1)%yAxis(1)-grid(1)%yAxis(2))/2.) then
                                   orY(igpn)  = 1
 
 
                                else
-                                  orY(igpn) = -1                                  
+                                  orY(igpn) = -1
                                endif
 
 
@@ -1364,18 +1364,18 @@ module photon_mod
                                         orX(igpn) = orX(igpn)+1
                                      end if
                                   end if
-                               elseif (newPhotonPacket%position%x >  grid(1)%xAxis(grid(1)%nx).and. & 
+                               elseif (newPhotonPacket%position%x >  grid(1)%xAxis(grid(1)%nx).and. &
                                     & newPhotonPacket%position%x <= &
-                                    &(3.*grid(1)%xAxis(grid(1)%nx)-grid(1)%xAxis(grid(1)%nx-1))/2.) then 
+                                    &(3.*grid(1)%xAxis(grid(1)%nx)-grid(1)%xAxis(grid(1)%nx-1))/2.) then
                                   orX(igpn)  = grid(1)%nx
-                               elseif (newPhotonPacket%position%x <  grid(1)%xAxis(1) .and. & 
+                               elseif (newPhotonPacket%position%x <  grid(1)%xAxis(1) .and. &
                                     & newPhotonPacket%position%x >= &
-                                    &(3.*grid(1)%xAxis(1)-grid(1)%xAxis(2))/2.) then 
+                                    &(3.*grid(1)%xAxis(1)-grid(1)%xAxis(2))/2.) then
                                   orX(igpn)  = 1
                                else
-                                  orX(igpn) = -1                                  
+                                  orX(igpn) = -1
                                end if
-                               
+
                             else
                                print*, '! newPhotonPacket: insane dS', dS, dSx, dSy, dSz
                                stop
@@ -1392,16 +1392,16 @@ module photon_mod
                                      orY(igpn) = orY(igpn)+1
                                   end if
                                end if
-                            elseif (newPhotonPacket%position%y >  grid(1)%yAxis(grid(1)%ny).and. & 
+                            elseif (newPhotonPacket%position%y >  grid(1)%yAxis(grid(1)%ny).and. &
                                  & newPhotonPacket%position%y <= &
-                                 &(3.*grid(1)%yAxis(grid(1)%ny)-grid(1)%yAxis(grid(1)%ny-1))/2.) then 
+                                 &(3.*grid(1)%yAxis(grid(1)%ny)-grid(1)%yAxis(grid(1)%ny-1))/2.) then
                                orY(igpn)  = grid(1)%ny
-                            elseif (newPhotonPacket%position%y <  grid(1)%yAxis(1) .and. & 
+                            elseif (newPhotonPacket%position%y <  grid(1)%yAxis(1) .and. &
                                  & newPhotonPacket%position%y >= &
-                                 &(3.*grid(1)%yAxis(1)-grid(1)%yAxis(2))/2.) then 
+                                 &(3.*grid(1)%yAxis(1)-grid(1)%yAxis(2))/2.) then
                                orY(igpn)  = 1
                             else
-                               orY(igpn) = -1                                  
+                               orY(igpn) = -1
                             endif
 
                             if (newPhotonPacket%position%x <=  grid(1)%xAxis(grid(1)%nx)) then
@@ -1412,18 +1412,18 @@ module photon_mod
                                      orX(igpn) = orX(igpn)+1
                                   end if
                                end if
-                            elseif (newPhotonPacket%position%x >  grid(1)%xAxis(grid(1)%nx).and. & 
+                            elseif (newPhotonPacket%position%x >  grid(1)%xAxis(grid(1)%nx).and. &
                                  & newPhotonPacket%position%x <= &
-                                 &(3.*grid(1)%xAxis(grid(1)%nx)-grid(1)%xAxis(grid(1)%nx-1))/2.) then 
+                                 &(3.*grid(1)%xAxis(grid(1)%nx)-grid(1)%xAxis(grid(1)%nx-1))/2.) then
                                orX(igpn)  = grid(1)%nx
-                            elseif (newPhotonPacket%position%x <  grid(1)%xAxis(1) .and. & 
+                            elseif (newPhotonPacket%position%x <  grid(1)%xAxis(1) .and. &
                                  & newPhotonPacket%position%x >= &
-                                 &(3.*grid(1)%xAxis(1)-grid(1)%xAxis(2))/2.) then 
+                                 &(3.*grid(1)%xAxis(1)-grid(1)%xAxis(2))/2.) then
                                orX(igpn)  = 1
                             else
-                               orX(igpn) = -1                                  
+                               orX(igpn) = -1
                             endif
-                            
+
                             if (newPhotonPacket%position%z <=  grid(1)%zAxis(grid(1)%nz)) then
                                call locate( grid(1)%zAxis, newPhotonPacket%position%z,  orZ(igpn))
                                if (orZ(igpn) < grid(1)%nz.and. igpn >0) then
@@ -1432,24 +1432,24 @@ module photon_mod
                                      orZ(igpn) = orZ(igpn)+1
                                   end if
                                end if
-                            elseif (newPhotonPacket%position%z >  grid(1)%zAxis(grid(1)%nz).and. & 
+                            elseif (newPhotonPacket%position%z >  grid(1)%zAxis(grid(1)%nz).and. &
                                  & newPhotonPacket%position%z <= &
-                                 &(3.*grid(1)%zAxis(grid(1)%nz)-grid(1)%zAxis(grid(1)%nz-1))/2.) then 
+                                 &(3.*grid(1)%zAxis(grid(1)%nz)-grid(1)%zAxis(grid(1)%nz-1))/2.) then
                                orZ(igpn)  = grid(1)%nz
-                            elseif (newPhotonPacket%position%z <  grid(1)%zAxis(1) .and. & 
+                            elseif (newPhotonPacket%position%z <  grid(1)%zAxis(1) .and. &
                                  & newPhotonPacket%position%z >= &
-                                 &(3.*grid(1)%zAxis(1)-grid(1)%zAxis(2))/2.) then 
-                               orZ(igpn)  = 1                               
+                                 &(3.*grid(1)%zAxis(1)-grid(1)%zAxis(2))/2.) then
+                               orZ(igpn)  = 1
                             else
-                               orZ(igpn) = -1                                  
-                            endif                            
+                               orZ(igpn) = -1
+                            endif
 
                          end if
 
                          if (orX(igpn) >= 1 .and. orY(igpn) >= 1 .and. orZ(igpn) >= 1)  exit
 
                       end do
-                      
+
                    end if
 
                    if (orX(igpn) < 1 .or. orY(igpn) < 1 .or.orZ(igpn) < 1  ) then
@@ -1459,11 +1459,11 @@ module photon_mod
                       newPhotonPacket%xP(igPn) =  orX(igpn)
                       newPhotonPacket%yP(igPn) =  orY(igpn)
                       newPhotonPacket%zP(igPn) =  orZ(igpn)
-                      
+
                       newPhotonPacket%origin(1) = newPhotonPacket%iG
                       newPhotonPacket%origin(2) = &
                            &grid(newPhotonPacket%iG)%active(newPhotonPacket%xP(igpn),&
-                           & newPhotonPacket%yP(igpn), newPhotonPacket%zP(igpn)) 
+                           & newPhotonPacket%yP(igpn), newPhotonPacket%zP(igpn))
                    end if
 
                 endif
@@ -1471,46 +1471,46 @@ module photon_mod
                 if (newPhotonPacket%nu>=1.) then
                    Qphot = Qphot + deltaEUsed/(2.1799153e-11*newPhotonPacket%nu)
                 end if
-                
+
                 if (lgFluorescence) then
                    do i = 1, 14
                       if (newPhotonPacket%nu>=fluoThreshArray(i)) then
                          Qfluo(i) = Qfluo(i) + deltaEUsed/(ryd2erg*newPhotonPacket%nu)
                       end if
-                      if (newPhotonPacket%nuP == FeKaColdP) & 
+                      if (newPhotonPacket%nuP == FeKaColdP) &
                            & QfluoBins(1) = QfluoBins(1) + deltaEUsed
 
-                      if (newPhotonPacket%nuP == FeL1P) & 
+                      if (newPhotonPacket%nuP == FeL1P) &
                            & QfluoBins(2) = QfluoBins(2) + deltaEUsed
-                      if (newPhotonPacket%nuP == FeL2P) & 
+                      if (newPhotonPacket%nuP == FeL2P) &
                            & QfluoBins(3) = QfluoBins(3) + deltaEUsed
-                      if (newPhotonPacket%nuP == CKaP) & 
+                      if (newPhotonPacket%nuP == CKaP) &
                            & QfluoBins(4) = QfluoBins(4) + deltaEUsed
-                      if (newPhotonPacket%nuP == NKaP) & 
+                      if (newPhotonPacket%nuP == NKaP) &
                            & QfluoBins(5) = QfluoBins(5) + deltaEUsed
-                      if (newPhotonPacket%nuP == OKaP) & 
+                      if (newPhotonPacket%nuP == OKaP) &
                            & QfluoBins(6) = QfluoBins(6) + deltaEUsed
-                      if (newPhotonPacket%nuP == NeKaP) & 
+                      if (newPhotonPacket%nuP == NeKaP) &
                            & QfluoBins(7) = QfluoBins(7) + deltaEUsed
-                      if (newPhotonPacket%nuP == MgKaP) & 
+                      if (newPhotonPacket%nuP == MgKaP) &
                            & QfluoBins(8) = QfluoBins(8) + deltaEUsed
-                      if (newPhotonPacket%nuP == AlKaP) & 
+                      if (newPhotonPacket%nuP == AlKaP) &
                            & QfluoBins(9) = QfluoBins(9) + deltaEUsed
-                      if (newPhotonPacket%nuP == SiKaP) & 
+                      if (newPhotonPacket%nuP == SiKaP) &
                            & QfluoBins(10) = QfluoBins(10) + deltaEUsed
-                      if (newPhotonPacket%nuP == SKaP) & 
+                      if (newPhotonPacket%nuP == SKaP) &
                            & QfluoBins(11) = QfluoBins(11) + deltaEUsed
-                      if (newPhotonPacket%nuP == ArKaP) & 
+                      if (newPhotonPacket%nuP == ArKaP) &
                            & QfluoBins(12) = QfluoBins(12) + deltaEUsed
-                      if (newPhotonPacket%nuP == CaKaP) & 
+                      if (newPhotonPacket%nuP == CaKaP) &
                            & QfluoBins(13) = QfluoBins(13) + deltaEUsed
-                      if (newPhotonPacket%nuP == TiKaP) & 
+                      if (newPhotonPacket%nuP == TiKaP) &
                            & QfluoBins(14) = QfluoBins(14) + deltaEUsed
                    end do
                 end if
 
                 if (taskid==0 .and. niterateMC==1 .and. lgPlaneIonization) then
-                   JnuStart(newPhotonPacket%xP(igpn),newPhotonPacket%zP(igpn),& 
+                   JnuStart(newPhotonPacket%xP(igpn),newPhotonPacket%zP(igpn),&
                         & newPhotonPacket%nuP) = &
                         &  JnuStart(newPhotonPacket%xP(igpn),newPhotonPacket%zP(igpn),&
                         & newPhotonPacket%nuP)&
@@ -1580,7 +1580,7 @@ module photon_mod
 !                         & photon packet has not been specified"
 !                    stop
 !                end if
-            
+
                 ! check that the position indeces have been specified
 !                if (.not.(present(xP).and.present(yP).and.present(zP))) then
 !                    print*, "! newPhotonPacket: position indeces of the new diffuse &
@@ -1593,9 +1593,9 @@ module photon_mod
 !                         & photon packet has not been specified"
 !                    stop
 !                end if
- 
+
                 ! check that the position is not inside the inner region
-                if (grid(gP)%active(xP(igPn),yP(igPn),zP(igPn))<= 0) then                   
+                if (grid(gP)%active(xP(igPn),yP(igPn),zP(igPn))<= 0) then
                     print*, "! newPhotonPacket: position of the new diffuse &
                          & photon packet is inside the inner region", xP(igPn),yP(igPn),zP(igPn),gP
                     stop
@@ -1606,7 +1606,7 @@ module photon_mod
 
                 random = 1.-random
 
-                if (random <= grid(gP)%totalLines(grid(gP)%active(xP(igPn),yP(igPn),zP(igPn)))) then 
+                if (random <= grid(gP)%totalLines(grid(gP)%active(xP(igPn),yP(igPn),zP(igPn)))) then
                    ! line photon
                    ! line photons escape so don't care which one it is unless debugging
                    if (lgDebug) then
@@ -1617,9 +1617,9 @@ module photon_mod
                               & nuP assignment"
                          stop
                       end if
-                           
+
                    else
-                      
+
                       nuP = 0
 
                    end if
@@ -1635,7 +1635,7 @@ module photon_mod
                    newPhotonPacket = initPhotonPacket(nuP, position, .true., .false., xP, yP, zP, gP)
                    newPhotonPacket%SEDtype = 0
 
-                else 
+                else
                     ! continuum photon
 
                     call getNu2(grid(gP)%recPDF(grid(gP)%active(xP(igPn),yP(igPn),zP(igPn)),1:nbins), nuP)
@@ -1650,7 +1650,7 @@ module photon_mod
 
                     if (nuP < 1) then
                         print*, "! newPhotonPacket: insanity occured in diffuse photon &
-                             & nuP assignment", nuP, xP(igPn),yP(igPn),zP(igPn), & 
+                             & nuP assignment", nuP, xP(igPn),yP(igPn),zP(igPn), &
                              & grid(gP)%active(xP(igPn),yP(igPn),zP(igPn))
                        print*, "recPDF: ", grid(gP)%recPDF(grid(gP)%active(xP(igPn),yP(igPn),zP(igPn)),:)
                         stop
@@ -1741,20 +1741,20 @@ module photon_mod
                       stop
                    end if
 
-               newPhotonPacket = initPhotonPacket(nuP, position, .false., .false., xP, yP, zP, gP)               
+               newPhotonPacket = initPhotonPacket(nuP, position, .false., .false., xP, yP, zP, gP)
                newPhotonPacket%SEDtype = 0
 
 
             ! if the photon packet type is wrong or missing
             case default
-        
+
                 print*, "! newPhotonPacket: wrong photon packet type - 'stellar', 'diffuse' and &
                      & dust emitted types allowed-"
                 stop
             end select
 
         end function newPhotonPacket
-            
+
         subroutine pathSegment(enPacket)
           implicit none
 
@@ -1763,13 +1763,13 @@ module photon_mod
           type(vector)                    :: rVec     ! position vector
           type(vector)                    :: rVecloc  ! position vector
 
-          real                            :: costheta ! 
+          real                            :: costheta !
           real                            :: absTau   ! optical depth
           real                            :: dlLoc    ! local displacement
-          real                            :: dx, dy, dz 
-          real                            :: dSx, dSy, dSz 
+          real                            :: dx, dy, dz
+          real                            :: dSx, dSy, dSz
                                                       ! distances from x,y and z wall
-          real                            :: dS       ! distance from nearest wall 
+          real                            :: dS       ! distance from nearest wall
           real                            :: dV       ! lume of this cell
           real                            :: passProb ! prob of passing the next segment
           real                            :: probSca  ! prob that the packet scatters
@@ -1805,13 +1805,13 @@ module photon_mod
              igpp = 1
           else if (enPacket%iG>1) then
              igpp = 2
-          else 
+          else
              print*, "! pathSegment: insane grid index"
              stop
           end if
 
           ! check that the input position is not outside the grid
-          if ( (enPacket%iG <= 0).or.(enPacket%iG > nGrids) ) then   
+          if ( (enPacket%iG <= 0).or.(enPacket%iG > nGrids) ) then
              print*, "! pathSegment: starting position not in any defined gridhses",&
                   & enPacket
              stop
@@ -1820,16 +1820,16 @@ module photon_mod
              print*, "! pathSegment: starting position in x is outside the grid",&
                   & enPacket
              stop
-          else if ( (enPacket%yP(igpp) <= 0).or. & 
+          else if ( (enPacket%yP(igpp) <= 0).or. &
                & (enPacket%yP(igpp) > grid(enPacket%iG)%ny) ) then
              print*, "! pathSegment: starting position in y is outside the grid",&
                   & enPacket
              stop
-          else if ( (enPacket%zP(igpp) <= 0).or.& 
-               & (enPacket%zP(igpp) > grid(enPacket%iG)%nz) ) then   
+          else if ( (enPacket%zP(igpp) <= 0).or.&
+               & (enPacket%zP(igpp) > grid(enPacket%iG)%nz) ) then
              print*, "! pathSegment: starting position in z is outside the grid",&
                   & enPacket
-             stop          
+             stop
           end if
 
           ! define vHat and rVec
@@ -1839,7 +1839,7 @@ module photon_mod
           ! initialize xP, yP,zP
           xP = enPacket%xP(igpp)
           yP = enPacket%yP(igpp)
-          zP = enPacket%zP(igpp) 
+          zP = enPacket%zP(igpp)
           gP = enPacket%iG
 
           ! initialise distance from walls
@@ -1865,8 +1865,8 @@ module photon_mod
 
           ! get a random number
           call random_number(random)
-                          
-          ! calculate the probability 
+
+          ! calculate the probability
           passProb = -log(1.-random)
 
           ! speed up photons that my be trapped
@@ -1923,18 +1923,18 @@ module photon_mod
                 if (xP > grid(gP)%nx .or. xP < 1 .or. &
                      & yP > grid(gP)%ny .or. yP < 1 .or. &
                      & zP > grid(gP)%nz .or. zP < 1 ) then
-                   print*, "! pathSegment: insanity [gp,xp,yp,zp,j,i]", & 
+                   print*, "! pathSegment: insanity [gp,xp,yp,zp,j,i]", &
                         & gp, xp, yp, zp, j, i
                    stop
                 end if
 
-                if (grid(gP)%active(xP,yP,zP)<0) then                
+                if (grid(gP)%active(xP,yP,zP)<0) then
 
                    ! packet is entering a subgrid
                    enPacket%xP(1) = xP
                    enPacket%yP(1) = yP
                    enPacket%zP(1) = zP
-                   
+
                    gP = abs(grid(gP)%active(xP,yP,zP))
 
                    ! where is the packet in the sub-grid?
@@ -1959,7 +1959,7 @@ module photon_mod
                       if (rVec%z >  (grid(gP)%zAxis(zP+1)+grid(gP)%zAxis(zP))/2.) &
                            & zP = zP + 1
                    end if
-                   
+
                 end if
 
                 enPacket%iG = gP
@@ -2006,21 +2006,21 @@ module photon_mod
                 else if (vHat%x<0.) then
                    if (xP>1) then
                       dSx = ( (grid(gP)%xAxis(xP)+grid(gP)%xAxis(xP-1))/2.-rVec%x)/vHat%x
-                      if (abs(dSx)<1.e-5) then             
+                      if (abs(dSx)<1.e-5) then
                          rVec%x=(grid(gP)%xAxis(xP)+grid(gP)%xAxis(xP-1))/2.
                          xP = xP-1
                       end if
                    else
                       dSx = (grid(gP)%xAxis(1)-rVec%x)/vHat%x
-                      if (abs(dSx)<1.e-5) then             
+                      if (abs(dSx)<1.e-5) then
                          rVec%x=grid(gP)%xAxis(1)
                       end if
                    end if
                 else if (vHat%x==0.) then
                    dSx = grid(gP)%xAxis(grid(gP)%nx)
                 end if
-                
-                if (.not.lg1D) then 
+
+                if (.not.lg1D) then
                    if (vHat%y>0.) then
                       if (yP<grid(gP)%ny) then
                          dSy = ( (grid(gP)%yAxis(yP+1)+grid(gP)%yAxis(yP))/2.-rVec%y)/vHat%y
@@ -2038,13 +2038,13 @@ module photon_mod
                    else if (vHat%y<0.) then
                       if (yP>1) then
                          dSy = ( (grid(gP)%yAxis(yP)+grid(gP)%yAxis(yP-1))/2.-rVec%y)/vHat%y
-                         if (abs(dSy)<1.e-5) then             
+                         if (abs(dSy)<1.e-5) then
                             rVec%y=(grid(gP)%yAxis(yP)+grid(gP)%yAxis(yP-1))/2.
                             yP = yP-1
                          end if
-                      else 
+                      else
                          dSy = ( grid(gP)%yAxis(1)-rVec%y)/vHat%y
-                         if (abs(dSy)<1.e-5) then             
+                         if (abs(dSy)<1.e-5) then
                             rVec%y=grid(gP)%yAxis(1)
                          end if
                       end if
@@ -2067,26 +2067,26 @@ module photon_mod
                          end if
                       end if
                    else if (vHat%z<0.) then
-                      if (zP>1) then             
+                      if (zP>1) then
                          dSz = ( (grid(gP)%zAxis(zP)+grid(gP)%zAxis(zP-1))/2.-rVec%z)/vHat%z
-                         if (abs(dSz)<1.e-5) then             
+                         if (abs(dSz)<1.e-5) then
                             rVec%z=(grid(gP)%zAxis(zP)+grid(gP)%zAxis(zP-1))/2.
                             zP = zP-1
                          end if
                       else
                          dSz = ( grid(gP)%zAxis(1)-rVec%z)/vHat%z
-                         if (abs(dSz)<1.e-5) then             
+                         if (abs(dSz)<1.e-5) then
                             rVec%z=grid(gP)%zAxis(1)
                          end if
                       end if
                    else if (vHat%z==0.) then
                       dSz = grid(gP)%zAxis(grid(gP)%nz)
                    end if
-                   
+
                    if (xP > grid(gP)%nx .or. xP < 1 .or. &
                         & yP > grid(gP)%ny .or. yP < 1 .or. &
                         & zP > grid(gP)%nz .or. zP < 1 ) then
-                      print*, "! pathSegment: insanity -2- [gp,xp,yp,zp]", & 
+                      print*, "! pathSegment: insanity -2- [gp,xp,yp,zp]", &
                            & gp, xp, yp, zp
                       stop
                    end if
@@ -2136,7 +2136,7 @@ module photon_mod
                 stop
              end if
 
-             ! calculate the optical depth to the next cell wall 
+             ! calculate the optical depth to the next cell wall
              tauCell = dS*grid(gP)%opacity(grid(gP)%active(xP,yP,zP), enPacket%nuP)
 
              if (lg1D) then
@@ -2145,16 +2145,16 @@ module photon_mod
                    stop
                 end if
 
-                if (xP == 1) then              
+                if (xP == 1) then
 
                    dV = 4.*Pi* ( (grid(gP)%xAxis(xP+1)/1.e15)**3.)/3.
 
                 else if ( xP==grid(gP)%nx) then
-                   
+
                    dV = Pi* ( (3.*(grid(gP)%xAxis(xP)/1.e15)-(grid(gP)%xAxis(xP-1)/1.e15))**3. - &
                         & ((grid(gP)%xAxis(xP)/1.e15)+(grid(gP)%xAxis(xP-1)/1.e15))**3. ) / 6.
 
-                else 
+                else
 
                    dV = Pi* ( ((grid(gP)%xAxis(xP+1)/1.e15)+(grid(gP)%xAxis(xP)/1.e15))**3. - &
                         & ((grid(gP)%xAxis(xP-1)/1.e15)+(grid(gP)%xAxis(xP)/1.e15))**3. ) / 6.
@@ -2171,14 +2171,14 @@ module photon_mod
                 else if ( xP==1 ) then
                    if (lgSymmetricXYZ .or. gP>1 .or. lgPlaneIonization) then
                       dx = abs(grid(gP)%xAxis(xP+1)-grid(gP)%xAxis(xP))/2.
-                   else 
+                   else
                       dx = abs(grid(gP)%xAxis(xP+1)-grid(gP)%xAxis(xP))
                    end if
                 else if ( xP==grid(gP)%nx ) then
                    if (gP > 1 .or. lgPlaneIonization) then
                       dx = abs(grid(gP)%xAxis(xP)  -grid(gP)%xAxis(xP-1))/2.
-                   else 
-                      dx = abs(grid(gP)%xAxis(xP)  -grid(gP)%xAxis(xP-1))                      
+                   else
+                      dx = abs(grid(gP)%xAxis(xP)  -grid(gP)%xAxis(xP-1))
                    end if
                 end if
 
@@ -2198,15 +2198,15 @@ module photon_mod
                    end if
                 end if
 
-                if ( (zP>1) .and. (zP<grid(gP)%nz) ) then    
-                   dz = abs(grid(gP)%zAxis(zP+1)-grid(gP)%zAxis(zP-1))/2.    
-                 else if ( zP==1 ) then    
+                if ( (zP>1) .and. (zP<grid(gP)%nz) ) then
+                   dz = abs(grid(gP)%zAxis(zP+1)-grid(gP)%zAxis(zP-1))/2.
+                 else if ( zP==1 ) then
                    if (lgSymmetricXYZ .or. gP>1 .or. lgPlaneIonization) then
                       dz = abs(grid(gP)%zAxis(zP+1)-grid(gP)%zAxis(zP))/2.
                    else
                       dz = abs(grid(gP)%zAxis(zP+1)-grid(gP)%zAxis(zP))
                    end if
-                else if ( zP==grid(gP)%nz ) then    
+                else if ( zP==grid(gP)%nz ) then
                    if (gP>1 .or. lgPlaneIonization) then
                       dz = abs(grid(gP)%zAxis(zP)-grid(gP)%zAxis(zP-1))/2.
                    else
@@ -2216,7 +2216,7 @@ module photon_mod
 
                 dx = dx/1.e15
                 dy = dy/1.e15
-                dz = dz/1.e15      
+                dz = dz/1.e15
 
 
                 ! calculate the volume
@@ -2230,7 +2230,7 @@ module photon_mod
                 costheta = ((rVec%x*vHat%x)+(rVec%y*vHat%y)+(rVec%z*vHat%z))/&
                      & (1.e10*sqrt( ((rVec%x)/1.e10)*((rVec%x)/1.e10)+&
                      & ((rVec%y)/1.e10)*((rVec%y)/1.e10)+ ((rVec%z)/1.e10)*((rVec%z)/1.e10)))
-                
+
                 if (isnan(costheta) .or. costheta > 1.1) then
                    print*, costheta
                    print*, (1.e10*sqrt( ((rVec%x)/1.e10)*((rVec%x)/1.e10)+&
@@ -2239,12 +2239,12 @@ module photon_mod
                    stop
                 end if
              end if
-             
+
              ! check if the paintckets interacts within this cell
              if ((absTau+tauCell > passProb) .and. (grid(gP)%active(xP,yP,zP)>0)) then
 
                 ! packet interacts
-                
+
                 ! calculate where within this cell the packet is absorbed
                 dlLoc = (passProb-absTau)/grid(gP)%opacity(grid(gP)%active(xP,yP,zP), enPacket%nuP)
 
@@ -2288,14 +2288,14 @@ module photon_mod
                            grid(gP)%H(grid(gP)%active(xP,yP,zP),enPacket%nuP) + &
                            & (dlLoc*deltaEUsed)*costheta / dV
                    end if
-                end if                  
+                end if
 
                 ! check if the position within the cell is still within the outer radius
                 if ( sqrt( (rvec%x/1.e10)**2. + (rvec%y/1.e10)**2. + (rvec%z/1.e10)**2.)*1.e10 >= R_out &
                      & .and. R_out > 0.) then
-                   
+
                    ! the packet escapes without further interaction
-                   
+
                    idirT = int(acos(enPacket%direction%z)/dTheta)+1
                    if (idirT>totangleBinsTheta) then
                       idirT=totangleBinsTheta
@@ -2309,24 +2309,24 @@ module photon_mod
                    if (enPacket%direction%x<1.e-35) then
                       idirP = 0
                    else
-                      idirP = int(atan(enPacket%direction%y/enPacket%direction%x)/dPhi)             
+                      idirP = int(atan(enPacket%direction%y/enPacket%direction%x)/dPhi)
                    end if
                    if (idirP<0) idirP=totAngleBinsPhi+idirP
                    idirP=idirP+1
                    if (idirP>totangleBinsPhi) then
                       idirP=totangleBinsPhi
                    end if
-                   
+
                    if (idirP<1 .or. idirP>totAngleBinsPhi) then
                       print*, '! pathSegment: error in Phi direction cosine assignment',&
                            &  idirP, enPacket, dPhi, totAngleBinsPhi
                       stop
                    end if
-               
+
 
                    if (nAngleBins>0) then
                       if ( (totangleBinsPhi>1 .and. viewPointPtheta(idirT) == &
-                           &viewPointPphi(idirP)) .or. &            
+                           &viewPointPphi(idirP)) .or. &
                            & (totangleBinsPhi==1 .and. viewPointPtheta(idirT)>0) ) then
                          grid(enPacket%origin(1))%escapedPackets(enPacket%origin(2), enPacket%nuP,&
                               & viewPointPtheta(idirT)) = &
@@ -2334,8 +2334,8 @@ module photon_mod
                               & enPacket%nuP,viewPointPtheta(idirT)) +  deltaEUsed
 
                          grid(enPacket%origin(1))%escapedPackets(enPacket%origin(2), enPacket%nuP,0)=&
-                              &grid(enPacket%origin(1))%escapedPackets(enPacket%origin(2), &  
-                              & enPacket%nuP,0) +  deltaEUsed                                    
+                              &grid(enPacket%origin(1))%escapedPackets(enPacket%origin(2), &
+                              & enPacket%nuP,0) +  deltaEUsed
 
                          if (lgSeparateSED) then
                             grid(enPacket%origin(1))%escapedPacketsComponents&
@@ -2351,7 +2351,7 @@ module photon_mod
                                  & enPacket%nuP,0,enPacket%SEDtype) +  deltaEUsed
 
                          endif
-                         
+
                       else
                          grid(enPacket%origin(1))%escapedPackets(enPacket%origin(2),enPacket%nuP,0) = &
                               & grid(enPacket%origin(1))%escapedPackets(enPacket%origin(2), &
@@ -2363,8 +2363,8 @@ module photon_mod
                                  &(enPacket%origin(2),  enPacket%nuP,0,enPacket%SEDtype) +  deltaEUsed
                          endif
                       end if
-                   else                              
-                      grid(enPacket%origin(1))%escapedPackets(enPacket%origin(2), & 
+                   else
+                      grid(enPacket%origin(1))%escapedPackets(enPacket%origin(2), &
                            enPacket%nuP,0) = &
                            & grid(enPacket%origin(1))%escapedPackets(enPacket%origin(2), &
                            & enPacket%nuP,0) +  deltaEUsed
@@ -2377,24 +2377,24 @@ module photon_mod
 
                    end if
 
-                   
+
                    return
                 end if
- 
-                ! check if the packet is absorbed or scattered 
+
+                ! check if the packet is absorbed or scattered
                 if (lgDust) then
 
                    probSca = grid(gP)%scaOpac(grid(gP)%active(xP,yP,zP),enPacket%nuP)/&
                         & (grid(gP)%opacity(grid(gP)%active(xP,yP,zP),enPacket%nuP))
-                   
+
                    call random_number(random)
-                   
+
                    random = 1.-random
 
                    if (random > probSca) then
-                      lgScattered = .false.         
+                      lgScattered = .false.
                    else if (random <= probSca) then
-                      lgScattered = .true.         
+                      lgScattered = .true.
                    else
                       print*, '! pathSegment: insanity occured and scattering/absorption &
                            & decision stage.'
@@ -2404,30 +2404,30 @@ module photon_mod
                    if (.not. lgScattered) then
 
                       absInt = absInt + 1.
-                            
+
                       if (.not.lgGas) then
 
                          ! packet is absobed by the dust
                          packetType = "dustEmi"
-                         exit                         
+                         exit
 
                       else
-                         ! HERE YOU MUST ADD COMPTON SCATTERING STUFF! 
+                         ! HERE YOU MUST ADD COMPTON SCATTERING STUFF!
 
                          ! packet is absobed by the dust+gas
                          packetType = "diffuse"
-                         exit    
+                         exit
 
                       end if
 
                    else
 
-                      scaInt = scaInt + 1.                           
-                      
+                      scaInt = scaInt + 1.
+
 !                      if (lgMultiDustChemistry) then
 !                         do nS = 1, nSpeciesPart(grid(gP)%dustAbunIndex(grid(gP)%active(xP,yP,zP)))
 !                            if (grainabun(grid(gP)%dustAbunIndex(grid(gP)%active(xP,yP,zP)),nS)>0. &
-!                                 &.and. grid(gP)%Tdust(nS, 0, & 
+!                                 &.and. grid(gP)%Tdust(nS, 0, &
 !                                 & grid(gP)%active(xP,yP,zP))<TdustSublime(dustComPoint(&
 !                                 &grid(gP)%dustAbunIndex(grid(gP)%active(xP,yP,zP)))-1+nS)) exit
 !                         end do
@@ -2440,7 +2440,7 @@ module photon_mod
 !                      else
 !                         do nS = 1, nSpeciesPart(1)
 !                            if (grainabun(1,nS)>0. &
-!                                 &.and. grid(gP)%Tdust(nS, 0, & 
+!                                 &.and. grid(gP)%Tdust(nS, 0, &
 !                                 & grid(gP)%active(xP,yP,zP))<TdustSublime(dustComPoint(&
 !                                 &1)-1+nS)) exit
 !                         end do
@@ -2453,7 +2453,7 @@ module photon_mod
 !                      end if
 
 !                      do nS = 1, nSpecies
-!                         if (grainabun(nS)>0. .and. grid(gP)%Tdust(nS, 0, & 
+!                         if (grainabun(nS)>0. .and. grid(gP)%Tdust(nS, 0, &
 !                              & grid(gP)%active(xP,yP,zP))<TdustSublime(nS)) exit
 !                      end do
 !                      if (nS>nSpecies) then
@@ -2461,18 +2461,18 @@ module photon_mod
 !                              &grains have sublimed."
 !                         print*, xP,yP,zP, grid(gP)%active(xP,yP,zP), tauCell, absTau, passProb
 !                         stop
-!                      end if                      
+!                      end if
 
                       ! packet is scattered by the grain
-                         
+
                       ! calculate new direction
                       ! for now assume scattering is isotropic, when phase
-                      ! function is introduced the following must be changed                         
-                         
+                      ! function is introduced the following must be changed
+
                       enPacket%xP(igpp) = xP
                       enPacket%yP(igpp) = yP
-                      enPacket%zP(igpp) = zP            
-                      
+                      enPacket%zP(igpp) = zP
+
                       if (grid(gP)%active(enPacket%xp(igpp), enPacket%yp(igpp), enPacket%zp(igpp)) < 0.) then
                          print*, "! pathSegment: new packet cannot be emitted from re-mapped cell -1-"
                          print*, "nuP, starPosition(iStar), .false., .true., xp,yp,zp, gp"
@@ -2482,27 +2482,27 @@ module photon_mod
 
                       enPacket = initPhotonPacket(enPacket%nuP, rVec, .false., .false., enPacket%xP(1:2), &
                            & enPacket%yP(1:2), enPacket%zP(1:2), gP)
-                      
-                      
+
+
                       vHat%x = enPacket%direction%x
                       vHat%y = enPacket%direction%y
                       vHat%z = enPacket%direction%z
-                      
+
                       ! initialize optical depth
                       absTau = 0.
-                      
+
                       ! get a random number
                       call random_number(random)
-                      
-                      ! calculate the probability 
+
+                      ! calculate the probability
                       passProb = -log(1.-random)
-                      
+
                    end if
 
                 else
-                   
 
-                   ! check if the packet is absorbed or scattered 
+
+                   ! check if the packet is absorbed or scattered
                    ! NOTE : we are ignoring dust
 
                    if (lgCompton) then
@@ -2513,33 +2513,33 @@ module photon_mod
                    else
                       probSca = 0.
                    end if
-                   
+
                    call random_number(random)
-                   
+
                    random = 1.-random
-                   
+
                    if (random > probSca) then
-                      lgScattered = .false.         
+                      lgScattered = .false.
                    else if (random <= probSca) then
-                      lgScattered = .true.         
+                      lgScattered = .true.
                    else
                       print*, '! pathSegment: insanity occured and scattering/absorption &
                            & decision stage.'
                       stop
                    end if
 
-                   if (lgScattered) then                                                             
-                      
-                      scaInt = scaInt + 1.                                                 
-                      ! packet is compton scattered                         
+                   if (lgScattered) then
+
+                      scaInt = scaInt + 1.
+                      ! packet is compton scattered
                       ! calculate new direction
                       ! for now assume scattering is isotropic, when phase
-                      ! function is introduced the following must be changed                         
-                         
+                      ! function is introduced the following must be changed
+
                       enPacket%xP(igpp) = xP
                       enPacket%yP(igpp) = yP
-                      enPacket%zP(igpp) = zP            
-                      
+                      enPacket%zP(igpp) = zP
+
                       if (grid(gP)%active(enPacket%xp(igpp), enPacket%yp(igpp), enPacket%zp(igpp)) < 0.) then
                          print*, "! pathSegment: new packet cannot be emitted from re-mapped cell -11-"
                          print*, "nuP, .false., .true., xp,yp,zp, gp"
@@ -2551,30 +2551,30 @@ module photon_mod
 
                       enPacket%origin(1) = gP
                       enPacket%origin(2) = grid(gP)%active(enPacket%xp(igpp), enPacket%yp(igpp), enPacket%zp(igpp))
-                      
+
 
                       vHat%x = enPacket%direction%x
                       vHat%y = enPacket%direction%y
                       vHat%z = enPacket%direction%z
-                      
+
                       ! initialize optical depth
                       absTau = 0.
-                      
+
                       ! get a random number
                       call random_number(random)
-                      
-                      ! calculate the probability 
+
+                      ! calculate the probability
                       passProb = -log(1.-random)
 
                    else
 
                       absInt = absInt + 1.
-                   
+
                       if (.not.lgGas) then
                          print*, "! pathSegment: Insanity occured - no gas present when no dust interaction"
                          stop
                       end if
-                   
+
 
                       if (lgFluorescence) then
                       ! transfer fluorescent photons
@@ -2649,14 +2649,14 @@ module photon_mod
                             end if
 
                             if (enPacket%nuP >= nu1P .and. enPacket%nuP <= highNuP) then
-                               ! calculate the local fluorescence luminosity 
+                               ! calculate the local fluorescence luminosity
                                deltaEOld = deltaEUsed
 
                                call getFLuorescenceL(deltaEUsed,enPacket%nuP,ifluoloc,&
                                     & gP,xp,yp,zp)
-                               
+
                                fluorescenceTot(ifluoloc) = fluorescenceTot(ifluoloc)+&
-                                    &deltaEUsed/(Ryd2erg*fluorescenceE)                               
+                                    &deltaEUsed/(Ryd2erg*fluorescenceE)
 
                                if (deltaEUsed > deltaEold) then
                                   print*, '! pathSegment:deltaEUsed > deltaEold', &
@@ -2664,7 +2664,7 @@ module photon_mod
                                   stop
                                end if
 
-                               deltaEUsed = deltaEUsed/20.                                  
+                               deltaEUsed = deltaEUsed/20.
                                if (deltaEUsed< 0.) then
                                   print*, "! pathSegment: deltaEUsed < 0! - 1"
                                   stop
@@ -2672,7 +2672,7 @@ module photon_mod
 
                                xploc = enPacket%xP
                                yploc = enPacket%yP
-                               zploc = enPacket%zP                                  
+                               zploc = enPacket%zP
                                rvecloc = rVec
                                gploc=gp
                                do ifluopacks = 1, 20
@@ -2682,7 +2682,7 @@ module photon_mod
                                end do
                                deltaEUsed = deltaEUsed*20.
 
-                               deltaEUsed = deltaEOld-deltaEUsed         
+                               deltaEUsed = deltaEOld-deltaEUsed
 
                                if (deltaEUsed< 0.) then
                                   print*, "! pathSegment: deltaEUsed < 0! - 2", deltaEOld,deltaEUsed
@@ -2691,21 +2691,21 @@ module photon_mod
 
                             end if
                          end do
-                      
+
                       end if
 
                       ! packet interacts with gas
                       packetType = "diffuse"
                       exit
-                   
+
                    end if
                 end if
-                
+
              else
-          
+
                 ! the packet is not absorbed within this cell
                 ! add contribution of the packet to the radiation field
-                
+
                 if (enPacket%lgStellar) then
                    grid(gP)%Jste(grid(gP)%active(xP,yP,zP),enPacket%nuP) = &
                         grid(gP)%Jste(grid(gP)%active(xP,yP,zP),enPacket%nuP) + dS*deltaEUsed / dV
@@ -2731,7 +2731,7 @@ module photon_mod
                            & (dS*deltaEUsed)*costheta / dV
                    end if
                 end if
-                
+
                 ! update absTau
                 absTau = absTau+tauCell
 
@@ -2741,8 +2741,8 @@ module photon_mod
                 ! keep track of where you are on mother grid
                 if (gP>1) then
 
-                   if (enPacket%xP(1) <= 0 .or. & 
-                        & enPacket%yP(1) <= 0 .or. & 
+                   if (enPacket%xP(1) <= 0 .or. &
+                        & enPacket%yP(1) <= 0 .or. &
                         & enPacket%zP(1) <= 0 ) then
 
                       ! locate where we are at on the mother grid
@@ -2750,32 +2750,32 @@ module photon_mod
                       if (enPacket%xP(1)<1) enPacket%xP(1)=1
                       if ( enPacket%xP(1)< grid(grid(gP)%motherP)%nx) then
                          if ( rvec%x >= ( grid(grid(gP)%motherP)%xAxis(enPacket%xP(1)) + &
-                              & grid(grid(gP)%motherP)%xAxis(enPacket%xP(1)+1)/2.) ) & 
+                              & grid(grid(gP)%motherP)%xAxis(enPacket%xP(1)+1)/2.) ) &
                               & enPacket%xP(1) = enPacket%xP(1)+1
-                      end if                      
+                      end if
 
                       call locate( grid(grid(gP)%motherP)%yAxis, rvec%y, enPacket%yP(1))
                       if (enPacket%yP(1)<1) enPacket%yP(1)=1
                       if ( enPacket%yP(1)< grid(grid(gP)%motherP)%ny) then
                          if ( rvec%y >= ( grid(grid(gP)%motherP)%yAxis(enPacket%yP(1)) + &
-                              & grid(grid(gP)%motherP)%yAxis(enPacket%yP(1)+1)/2.) ) & 
+                              & grid(grid(gP)%motherP)%yAxis(enPacket%yP(1)+1)/2.) ) &
                               & enPacket%yP(1) = enPacket%yP(1)+1
-                      end if                      
+                      end if
 
                       call locate(grid(grid(gP)%motherP)%zAxis, rvec%z, enPacket%zP(1))
                       if (enPacket%zP(1)<1) enPacket%zP(1)=1
                       if ( enPacket%zP(1)< grid(grid(gP)%motherP)%nz) then
                          if ( rvec%z >= ( grid(grid(gP)%motherP)%zAxis(enPacket%zP(1)) + &
-                              & grid(grid(gP)%motherP)%zAxis(enPacket%zP(1)+1)/2.) ) & 
+                              & grid(grid(gP)%motherP)%zAxis(enPacket%zP(1)+1)/2.) ) &
                               & enPacket%zP(1) = enPacket%zP(1)+1
-                      end if                      
+                      end if
 
-                      
+
                    else
-                      
+
                       if (vHat%x>0.) then
                          if ( enPacket%xP(1) < grid(grid(gP)%motherP)%nx ) then
-                            if ( rVec%x > (grid(grid(gP)%motherP)%xAxis(enPacket%xP(1))+& 
+                            if ( rVec%x > (grid(grid(gP)%motherP)%xAxis(enPacket%xP(1))+&
                                  & grid(grid(gP)%motherP)%xAxis(enPacket%xP(1)+1))/2. ) then
                                enPacket%xP(1) = enPacket%xP(1)+1
                             end if
@@ -2785,13 +2785,13 @@ module photon_mod
                          end if
                       else
                          if ( enPacket%xP(1) > 1 ) then
-                            if ( rVec%x <= (grid(grid(gP)%motherP)%xAxis(enPacket%xP(1)-1)+& 
+                            if ( rVec%x <= (grid(grid(gP)%motherP)%xAxis(enPacket%xP(1)-1)+&
                                  & grid(grid(gP)%motherP)%xAxis(enPacket%xP(1)))/2. ) then
                                enPacket%xP(1) = enPacket%xP(1)-1
                             end if
                          else
                             if (rVec%x < grid(grid(gP)%motherP)%xAxis(1)) then
-!                            print*, '! pathSegment: insanity occured at mother grid transfer (x axis-)',&  
+!                            print*, '! pathSegment: insanity occured at mother grid transfer (x axis-)',&
 !                                 & rVec%x, gP, grid(gP)%motherP
 !                            stop
                             end if
@@ -2799,7 +2799,7 @@ module photon_mod
                       end if
                       if (vHat%y>0.) then
                          if (  enPacket%yP(1) < grid(grid(gP)%motherP)%ny ) then
-                            if ( rVec%y > (grid(grid(gP)%motherP)%yAxis( enPacket%yP(1))+& 
+                            if ( rVec%y > (grid(grid(gP)%motherP)%yAxis( enPacket%yP(1))+&
                                  & grid(grid(gP)%motherP)%yAxis(enPacket%yP(1)+1))/2. ) then
                                enPacket%yP(1) =  enPacket%yP(1)+1
                             end if
@@ -2812,13 +2812,13 @@ module photon_mod
                          end if
                       else
                          if (  enPacket%yP(1) > 1 ) then
-                            if ( rVec%y <= (grid(grid(gP)%motherP)%yAxis( enPacket%yP(1)-1)+& 
+                            if ( rVec%y <= (grid(grid(gP)%motherP)%yAxis( enPacket%yP(1)-1)+&
                                  & grid(grid(gP)%motherP)%yAxis(enPacket%yP(1)))/2. ) then
                                enPacket%yP(1) =  enPacket%yP(1)-1
                             end if
                          else
                             if (rVec%y < grid(grid(gP)%motherP)%yAxis(1)) then
-!                            print*, '! pathSegment: insanity occured at mother grid transfer (y axis -)', & 
+!                            print*, '! pathSegment: insanity occured at mother grid transfer (y axis -)', &
 !                                 & rVec%y, gP, grid(gP)%motherP
 !                            stop
                             end if
@@ -2851,7 +2851,7 @@ module photon_mod
                             end if
                          end if
                       end if
-                     
+
                    end if
                 end if
 
@@ -2862,7 +2862,7 @@ module photon_mod
                       xP = xP-1
                    else if ( (dS == dSy) .and. (vHat%y > 0.) ) then
                       yP = yP+1
-                   else if ( (dS == dSy) .and. (vHat%y < 0.) ) then 
+                   else if ( (dS == dSy) .and. (vHat%y < 0.) ) then
                       yP = yP-1
                    else if ( (dS == dSz) .and. (vHat%z > 0.) ) then
                       zP = zP+1
@@ -2877,9 +2877,9 @@ module photon_mod
                         & (rVec%y/1.e10)*(rVec%y/1.e10) + &
                         & (rVec%z/1.e10)*(rVec%z/1.e10))
                    call locate(grid(gP)%xAxis, radius , xP)
-                   
+
                 end if
-                
+
                 ! be 6/6/06
                 if(.not.lgPlaneIonization.and..not.lgSymmetricXYZ) then
                    lgReturn=.false.
@@ -2897,23 +2897,23 @@ module photon_mod
                          if (enPacket%xP(1)<1) enPacket%xP(1)=1
                          if ( enPacket%xP(1)< grid(grid(gP)%motherP)%nx) then
                             if ( rvec%x >= ( grid(grid(gP)%motherP)%xAxis(enPacket%xP(1)) + &
-                                 & grid(grid(gP)%motherP)%xAxis(enPacket%xP(1)+1)/2.) ) & 
+                                 & grid(grid(gP)%motherP)%xAxis(enPacket%xP(1)+1)/2.) ) &
                                  & enPacket%xP(1) = enPacket%xP(1)+1
                          end if
 
                          call locate( grid(grid(gP)%motherP)%yAxis, rvec%y, enPacket%yP(1))
-                         if (enPacket%yP(1)<1) enPacket%yP(1)=1                           
+                         if (enPacket%yP(1)<1) enPacket%yP(1)=1
                          if ( enPacket%yP(1)< grid(grid(gP)%motherP)%ny) then
                             if ( rvec%y >= ( grid(grid(gP)%motherP)%yAxis(enPacket%yP(1)) + &
-                                 & grid(grid(gP)%motherP)%yAxis(enPacket%yP(1)+1)/2.) ) & 
+                                 & grid(grid(gP)%motherP)%yAxis(enPacket%yP(1)+1)/2.) ) &
                                  & enPacket%yP(1) = enPacket%yP(1)+1
                          end if
-                         
+
                          call locate(grid(grid(gP)%motherP)%zAxis, rvec%z, enPacket%zP(1))
                          if (enPacket%zP(1)<1) enPacket%zP(1)=1
-                         if ( enPacket%zP(1)< grid(grid(gP)%motherP)%nz) then                            
+                         if ( enPacket%zP(1)< grid(grid(gP)%motherP)%nz) then
                             if ( rvec%z >= ( grid(grid(gP)%motherP)%zAxis(enPacket%zP(1)) + &
-                                 & grid(grid(gP)%motherP)%zAxis(enPacket%zP(1)+1)/2.) ) & 
+                                 & grid(grid(gP)%motherP)%zAxis(enPacket%zP(1)+1)/2.) ) &
                                  & enPacket%zP(1) = enPacket%zP(1)+1
                          end if
 
@@ -2922,17 +2922,17 @@ module photon_mod
                          yP   = enPacket%yP(1)
                          zP   = enPacket%zP(1)
                          gP   = 1
-                         igpp = 1 
+                         igpp = 1
 
                       else
                          print*, '! pathSegment: insanity occured - invalid gP', gP
                          stop
                       end if
-                      
+
                    end if
-                   
+
                    if (rVec%y > grid(gP)%yAxis(grid(gP)%ny) .or. yP>grid(gP)%ny) then
-                      
+
                       if (gP==1) then
                          ! the energy packet escapes
                          yP = grid(gP)%ny
@@ -2944,7 +2944,7 @@ module photon_mod
                          if (enPacket%xP(1)<1) enPacket%xP(1)=1
                          if ( enPacket%xP(1)< grid(grid(gP)%motherP)%nx) then
                             if ( rvec%x >= ( grid(grid(gP)%motherP)%xAxis(enPacket%xP(1)) + &
-                                 & grid(grid(gP)%motherP)%xAxis(enPacket%xP(1)+1)/2.) ) & 
+                                 & grid(grid(gP)%motherP)%xAxis(enPacket%xP(1)+1)/2.) ) &
                                  & enPacket%xP(1) = enPacket%xP(1)+1
                          end if
 
@@ -2952,15 +2952,15 @@ module photon_mod
                          if (enPacket%yP(1)<1) enPacket%yP(1)=1
                          if ( enPacket%yP(1)< grid(grid(gP)%motherP)%ny) then
                             if ( rvec%y >= ( grid(grid(gP)%motherP)%yAxis(enPacket%yP(1)) + &
-                                 & grid(grid(gP)%motherP)%yAxis(enPacket%yP(1)+1)/2.) ) & 
+                                 & grid(grid(gP)%motherP)%yAxis(enPacket%yP(1)+1)/2.) ) &
                                  & enPacket%yP(1) = enPacket%yP(1)+1
                          end if
-                         
+
                          call locate(grid(grid(gP)%motherP)%zAxis, rvec%z, enPacket%zP(1))
-                         if (enPacket%zP(1)<1) enPacket%zP(1)=1                            
+                         if (enPacket%zP(1)<1) enPacket%zP(1)=1
                          if ( enPacket%zP(1)< grid(grid(gP)%motherP)%nz) then
                             if ( rvec%z >= ( grid(grid(gP)%motherP)%zAxis(enPacket%zP(1)) + &
-                                 & grid(grid(gP)%motherP)%zAxis(enPacket%zP(1)+1)/2.) ) & 
+                                 & grid(grid(gP)%motherP)%zAxis(enPacket%zP(1)+1)/2.) ) &
                                  & enPacket%zP(1) = enPacket%zP(1)+1
                          end if
 
@@ -2973,60 +2973,60 @@ module photon_mod
                          print*, '! pathSegment: insanity occured - invalid gP', gP
                          stop
                       end if
-                      
+
                    end if
 
                    if ( (rVec%x <= grid(gP)%xAxis(1) .or. xP<1) .and. gP==1) then
                       xP=1
-                      lgReturn=.true.                      
+                      lgReturn=.true.
                    end if
-                   
-                   
+
+
                    if ( (rVec%x <= grid(gP)%xAxis(1) .or. xP<1) &
                     & .and. gP>1) then
-                      
+
                       ! locate where we are at on the mother grid
                       call locate(grid(grid(gP)%motherP)%xAxis, rvec%x, enPacket%xP(1))
                       if (enPacket%xP(1)<1) enPacket%xP(1)=1
                       if ( enPacket%xP(1)< grid(grid(gP)%motherP)%nx) then
                          if ( rvec%x >= ( grid(grid(gP)%motherP)%xAxis(enPacket%xP(1)) + &
-                              & grid(grid(gP)%motherP)%xAxis(enPacket%xP(1)+1)/2.) ) & 
+                              & grid(grid(gP)%motherP)%xAxis(enPacket%xP(1)+1)/2.) ) &
                               & enPacket%xP(1) = enPacket%xP(1)+1
                       end if
-                      
+
                       call locate( grid(grid(gP)%motherP)%yAxis, rvec%y, enPacket%yP(1))
                       if (enPacket%yP(1)<1) enPacket%yP(1)=1
                       if ( enPacket%yP(1)< grid(grid(gP)%motherP)%ny) then
                          if ( rvec%y >= ( grid(grid(gP)%motherP)%yAxis(enPacket%yP(1)) + &
-                              & grid(grid(gP)%motherP)%yAxis(enPacket%yP(1)+1)/2.) ) & 
+                              & grid(grid(gP)%motherP)%yAxis(enPacket%yP(1)+1)/2.) ) &
                               & enPacket%yP(1) = enPacket%yP(1)+1
                       end if
-                         
+
                       call locate(grid(grid(gP)%motherP)%zAxis, rvec%z, enPacket%zP(1))
                       if (enPacket%zP(1)<1) enPacket%zP(1)=1
                       if ( enPacket%zP(1)< grid(grid(gP)%motherP)%nz) then
                          if ( rvec%z >= ( grid(grid(gP)%motherP)%zAxis(enPacket%zP(1)) + &
-                              & grid(grid(gP)%motherP)%zAxis(enPacket%zP(1)+1)/2.) ) & 
+                              & grid(grid(gP)%motherP)%zAxis(enPacket%zP(1)+1)/2.) ) &
                               & enPacket%zP(1) = enPacket%zP(1)+1
                       end if
-                      
+
 
                       xP   = enPacket%xP(1)
                       yP   = enPacket%yP(1)
                       zP   = enPacket%zP(1)
                       gP   = 1
                       igpp = 1
-                      
+
                    end if
-                   
-                   
+
+
                    if ( (rVec%x >=  grid(gP)%xAxis(grid(gP)%nx) &
                         & .or. xP>grid(gP)%nx) .and. gP==1 )then
                       xP = grid(gP)%nx
                       lgReturn=.true.
-                      
+
                    end if
-                   
+
                    if ( (rVec%x >=  grid(gP)%xAxis(grid(gP)%nx)&
                         & .or. xP>grid(gP)%nx) .and.  gP>1) then
 
@@ -3035,23 +3035,23 @@ module photon_mod
                       if (enPacket%xP(1)<1) enPacket%xP(1)=1
                       if ( enPacket%xP(1)< grid(grid(gP)%motherP)%nx) then
                          if ( rvec%x >= ( grid(grid(gP)%motherP)%xAxis(enPacket%xP(1)) + &
-                              & grid(grid(gP)%motherP)%xAxis(enPacket%xP(1)+1)/2.) ) & 
+                              & grid(grid(gP)%motherP)%xAxis(enPacket%xP(1)+1)/2.) ) &
                               & enPacket%xP(1) = enPacket%xP(1)+1
                       end if
-                      
+
                       call locate( grid(grid(gP)%motherP)%yAxis, rvec%y, enPacket%yP(1))
                       if (enPacket%yP(1)<1) enPacket%yP(1)=1
                       if ( enPacket%yP(1)< grid(grid(gP)%motherP)%ny) then
                          if ( rvec%y >= ( grid(grid(gP)%motherP)%yAxis(enPacket%yP(1)) + &
-                              & grid(grid(gP)%motherP)%yAxis(enPacket%yP(1)+1)/2.) ) & 
+                              & grid(grid(gP)%motherP)%yAxis(enPacket%yP(1)+1)/2.) ) &
                               & enPacket%yP(1) = enPacket%yP(1)+1
                       end if
-                         
+
                       call locate(grid(grid(gP)%motherP)%zAxis, rvec%z, enPacket%zP(1))
                       if (enPacket%zP(1)<1) enPacket%zP(1)=1
                       if ( enPacket%zP(1)< grid(grid(gP)%motherP)%nz) then
                          if ( rvec%z >= ( grid(grid(gP)%motherP)%zAxis(enPacket%zP(1)) + &
-                              & grid(grid(gP)%motherP)%zAxis(enPacket%zP(1)+1)/2.) ) & 
+                              & grid(grid(gP)%motherP)%zAxis(enPacket%zP(1)+1)/2.) ) &
                               & enPacket%zP(1) = enPacket%zP(1)+1
                       end if
 
@@ -3059,14 +3059,14 @@ module photon_mod
                       yP   = enPacket%yP(1)
                       zP   = enPacket%zP(1)
                       gP   = 1
-                      igpp = 1 
+                      igpp = 1
                    end if
-                   
+
                    if ( (rVec%z <= grid(gP)%zAxis(1) .or.zP<1) &
                         & .and. gP==1) then
                       zP=1
                       lgReturn=.true.
-                      
+
                    end if
 
                    if ( (rVec%z <= grid(gP)%zAxis(1) &
@@ -3077,43 +3077,43 @@ module photon_mod
                       if (enPacket%xP(1)<1) enPacket%xP(1)=1
                       if ( enPacket%xP(1)< grid(grid(gP)%motherP)%nx) then
                          if ( rvec%x >= ( grid(grid(gP)%motherP)%xAxis(enPacket%xP(1)) + &
-                              & grid(grid(gP)%motherP)%xAxis(enPacket%xP(1)+1)/2.) ) & 
+                              & grid(grid(gP)%motherP)%xAxis(enPacket%xP(1)+1)/2.) ) &
                               & enPacket%xP(1) = enPacket%xP(1)+1
                       end if
-                      
+
                       call locate( grid(grid(gP)%motherP)%yAxis, rvec%y, enPacket%yP(1))
                       if (enPacket%yP(1)<1) enPacket%yP(1)=1
                       if ( enPacket%yP(1)< grid(grid(gP)%motherP)%ny) then
                          if ( rvec%y >= ( grid(grid(gP)%motherP)%yAxis(enPacket%yP(1)) + &
-                              & grid(grid(gP)%motherP)%yAxis(enPacket%yP(1)+1)/2.) ) & 
+                              & grid(grid(gP)%motherP)%yAxis(enPacket%yP(1)+1)/2.) ) &
                               & enPacket%yP(1) = enPacket%yP(1)+1
                       end if
-                         
+
                       call locate(grid(grid(gP)%motherP)%zAxis, rvec%z, enPacket%zP(1))
                       if (enPacket%zP(1)<1) enPacket%zP(1)=1
                       if ( enPacket%zP(1)< grid(grid(gP)%motherP)%nz) then
                          if ( rvec%z >= ( grid(grid(gP)%motherP)%zAxis(enPacket%zP(1)) + &
-                              & grid(grid(gP)%motherP)%zAxis(enPacket%zP(1)+1)/2.) ) & 
+                              & grid(grid(gP)%motherP)%zAxis(enPacket%zP(1)+1)/2.) ) &
                               & enPacket%zP(1) = enPacket%zP(1)+1
                       end if
-                      
+
                       xP   = enPacket%xP(1)
                       yP   = enPacket%yP(1)
                       zP   = enPacket%zP(1)
                       gP   = 1
                       igpp = 1
-                      
+
                    end if
-                   
+
                    if ( (rVec%z >=  grid(gP)%zAxis(grid(gP)%nz) &
                         & .or. zP>grid(gP)%nz) &
                         & .and. gP==1) then
-                      
+
                       zP = grid(gP)%nz
                       lgReturn=.true.
-                      
+
                    end if
-                   
+
                    if ((rVec%z >=  grid(gP)%zAxis(grid(gP)%nz)&
                         & .or. zP>grid(gP)%nz) .and. gP>1) then
 
@@ -3122,26 +3122,26 @@ module photon_mod
                       if (enPacket%xP(1)<1) enPacket%xP(1)=1
                       if ( enPacket%xP(1)< grid(grid(gP)%motherP)%nx) then
                          if ( rvec%x >= ( grid(grid(gP)%motherP)%xAxis(enPacket%xP(1)) + &
-                              & grid(grid(gP)%motherP)%xAxis(enPacket%xP(1)+1)/2.) ) & 
+                              & grid(grid(gP)%motherP)%xAxis(enPacket%xP(1)+1)/2.) ) &
                               & enPacket%xP(1) = enPacket%xP(1)+1
                       end if
-                      
+
                       call locate( grid(grid(gP)%motherP)%yAxis, rvec%y, enPacket%yP(1))
                       if (enPacket%yP(1)<1) enPacket%yP(1)=1
                       if ( enPacket%yP(1)< grid(grid(gP)%motherP)%ny) then
                          if ( rvec%y >= ( grid(grid(gP)%motherP)%yAxis(enPacket%yP(1)) + &
-                              & grid(grid(gP)%motherP)%yAxis(enPacket%yP(1)+1)/2.) ) & 
+                              & grid(grid(gP)%motherP)%yAxis(enPacket%yP(1)+1)/2.) ) &
                               & enPacket%yP(1) = enPacket%yP(1)+1
                       end if
-                         
+
                       call locate(grid(grid(gP)%motherP)%zAxis, rvec%z, enPacket%zP(1))
                       if (enPacket%zP(1)<1) enPacket%zP(1)=1
                       if ( enPacket%zP(1)< grid(grid(gP)%motherP)%nz) then
                          if ( rvec%z >= ( grid(grid(gP)%motherP)%zAxis(enPacket%zP(1)) + &
-                              & grid(grid(gP)%motherP)%zAxis(enPacket%zP(1)+1)/2.) ) & 
+                              & grid(grid(gP)%motherP)%zAxis(enPacket%zP(1)+1)/2.) ) &
                               & enPacket%zP(1) = enPacket%zP(1)+1
                       end if
-                      
+
                       xP   = enPacket%xP(1)
                       yP   = enPacket%yP(1)
                       zP   = enPacket%zP(1)
@@ -3149,11 +3149,11 @@ module photon_mod
                       igpp = 1
 
                    end if
-                   
+
                    if (lgReturn) then
-                      
+
                       ! the packet escapes without further interaction
-                      
+
                       idirT = int(acos(enPacket%direction%z)/dTheta)+1
                       if (idirT>totangleBinsTheta) then
                          idirT=totangleBinsTheta
@@ -3163,8 +3163,8 @@ module photon_mod
                               &  idirT, enPacket, dTheta, totAngleBinsTheta
                          stop
                       end if
-                      
-                      
+
+
                       if (enPacket%direction%x<1.e-35) then
                          idirP = 0
                       else
@@ -3172,7 +3172,7 @@ module photon_mod
                       end if
                       if (idirP<0) idirP=totAngleBinsPhi+idirP
                       idirP=idirP+1
-                      
+
                       if (idirP>totangleBinsPhi) then
                          idirP=totangleBinsPhi
                       end if
@@ -3181,12 +3181,12 @@ module photon_mod
                               &  idirP, enPacket, dPhi, totAngleBinsPhi
                          stop
                       end if
-                      
+
                       if (nAngleBins>0) then
-                         if ( (totangleBinsPhi>1 .and. viewPointPtheta(idirT) == viewPointPphi(idirP)) .or. &            
+                         if ( (totangleBinsPhi>1 .and. viewPointPtheta(idirT) == viewPointPphi(idirP)) .or. &
                               & (totangleBinsPhi==1 .and. viewPointPtheta(idirT)>0) ) then
                             grid(enPacket%origin(1))%escapedPackets(enPacket%origin(2), enPacket%nuP,&
-                                 & viewPointPtheta(idirT)) = & 
+                                 & viewPointPtheta(idirT)) = &
                                  &grid(enPacket%origin(1))%escapedPackets(enPacket%origin(2), &
                                  & enPacket%nuP,viewPointPtheta(idirT)) +  deltaEUsed
                             grid(enPacket%origin(1))%escapedPackets(enPacket%origin(2), enPacket%nuP,0) = &
@@ -3209,7 +3209,7 @@ module photon_mod
                          else
                             grid(enPacket%origin(1))%escapedPackets&
                                  &(enPacket%origin(2),enPacket%nuP,0) = &
-                                 & grid(enPacket%origin(1))%escapedPackets(enPacket%origin(2), & 
+                                 & grid(enPacket%origin(1))%escapedPackets(enPacket%origin(2), &
                                  & enPacket%nuP,0) +  deltaEUsed
                             if (lgSeparateSED) then
                                grid(enPacket%origin(1))%escapedPacketsComponents&
@@ -3220,12 +3220,12 @@ module photon_mod
                             endif
 
                          end if
-                      else                              
-                         grid(enPacket%origin(1))%escapedPackets(enPacket%origin(2), & 
+                      else
+                         grid(enPacket%origin(1))%escapedPackets(enPacket%origin(2), &
                               enPacket%nuP,0) = &
                               & grid(enPacket%origin(1))%escapedPackets(enPacket%origin(2), &
                               & enPacket%nuP,0) +  deltaEUsed
-                         
+
                          if (lgSeparateSED) then
                             grid(enPacket%origin(1))%escapedPacketsComponents(enPacket%origin(2), &
                                  enPacket%nuP,0,enPacket%SEDtype) = &
@@ -3236,8 +3236,8 @@ module photon_mod
 
                       end if
 
-                      
-                      
+
+
                       return
                    end if
 
@@ -3248,10 +3248,10 @@ module photon_mod
 
                 if(lgPlaneIonization) then
                    lgReturn=.false.
-                   
-                   if ( rVec%y < grid(gP)%yAxis(1) .or. yP<1) then                  
+
+                   if ( rVec%y < grid(gP)%yAxis(1) .or. yP<1) then
                       ! the energy packet escapes this grid
-                      if (gP==1) then	
+                      if (gP==1) then
                          yP=1
                          lgReturn=.true.
                       else if (gP>1) then
@@ -3261,23 +3261,23 @@ module photon_mod
                          if (enPacket%xP(1)<1) enPacket%xP(1)=1
                          if ( enPacket%xP(1)< grid(grid(gP)%motherP)%nx) then
                             if ( rvec%x >= ( grid(grid(gP)%motherP)%xAxis(enPacket%xP(1)) + &
-                              & grid(grid(gP)%motherP)%xAxis(enPacket%xP(1)+1)/2.) ) & 
+                              & grid(grid(gP)%motherP)%xAxis(enPacket%xP(1)+1)/2.) ) &
                               & enPacket%xP(1) = enPacket%xP(1)+1
                          end if
-                      
+
                          call locate( grid(grid(gP)%motherP)%yAxis, rvec%y, enPacket%yP(1))
                          if (enPacket%yP(1)<1) enPacket%yP(1)=1
                          if ( enPacket%yP(1)< grid(grid(gP)%motherP)%ny) then
                             if ( rvec%y >= ( grid(grid(gP)%motherP)%yAxis(enPacket%yP(1)) + &
-                                 & grid(grid(gP)%motherP)%yAxis(enPacket%yP(1)+1)/2.) ) & 
+                                 & grid(grid(gP)%motherP)%yAxis(enPacket%yP(1)+1)/2.) ) &
                                  & enPacket%yP(1) = enPacket%yP(1)+1
                          end if
-                         
+
                          call locate(grid(grid(gP)%motherP)%zAxis, rvec%z, enPacket%zP(1))
                          if (enPacket%zP(1)<1) enPacket%zP(1)=1
                          if ( enPacket%zP(1)< grid(grid(gP)%motherP)%nz) then
                             if ( rvec%z >= ( grid(grid(gP)%motherP)%zAxis(enPacket%zP(1)) + &
-                                 & grid(grid(gP)%motherP)%zAxis(enPacket%zP(1)+1)/2.) ) & 
+                                 & grid(grid(gP)%motherP)%zAxis(enPacket%zP(1)+1)/2.) ) &
                                  & enPacket%zP(1) = enPacket%zP(1)+1
                          end if
 
@@ -3290,12 +3290,12 @@ module photon_mod
                          print*, '! pathSegment: insanity occured - invalid gP', gP
                          stop
                       end if
-                  
+
                    end if
-               
+
                    if (rVec%y > grid(gP)%yAxis(grid(gP)%ny) .or. yP>grid(gP)%ny) then
 
-                      if (gP==1) then	
+                      if (gP==1) then
 
                          ! the energy packet escapes
                          yP = grid(gP)%ny
@@ -3308,23 +3308,23 @@ module photon_mod
                          if (enPacket%xP(1)<1) enPacket%xP(1)=1
                          if ( enPacket%xP(1)< grid(grid(gP)%motherP)%nx) then
                             if ( rvec%x >= ( grid(grid(gP)%motherP)%xAxis(enPacket%xP(1)) + &
-                                 & grid(grid(gP)%motherP)%xAxis(enPacket%xP(1)+1)/2.) ) & 
+                                 & grid(grid(gP)%motherP)%xAxis(enPacket%xP(1)+1)/2.) ) &
                                  & enPacket%xP(1) = enPacket%xP(1)+1
                          end if
-                      
+
                          call locate( grid(grid(gP)%motherP)%yAxis, rvec%y, enPacket%yP(1))
                          if (enPacket%yP(1)<1) enPacket%yP(1)=1
                          if ( enPacket%yP(1)< grid(grid(gP)%motherP)%ny) then
                             if ( rvec%y >= ( grid(grid(gP)%motherP)%yAxis(enPacket%yP(1)) + &
-                                 & grid(grid(gP)%motherP)%yAxis(enPacket%yP(1)+1)/2.) ) & 
+                                 & grid(grid(gP)%motherP)%yAxis(enPacket%yP(1)+1)/2.) ) &
                                  & enPacket%yP(1) = enPacket%yP(1)+1
                          end if
-                         
+
                          call locate(grid(grid(gP)%motherP)%zAxis, rvec%z, enPacket%zP(1))
                          if (enPacket%zP(1)<1) enPacket%zP(1)=1
                          if ( enPacket%zP(1)< grid(grid(gP)%motherP)%nz) then
                             if ( rvec%z >= ( grid(grid(gP)%motherP)%zAxis(enPacket%zP(1)) + &
-                                 & grid(grid(gP)%motherP)%zAxis(enPacket%zP(1)+1)/2.) ) & 
+                                 & grid(grid(gP)%motherP)%zAxis(enPacket%zP(1)+1)/2.) ) &
                                  & enPacket%zP(1) = enPacket%zP(1)+1
                          end if
 
@@ -3338,41 +3338,41 @@ module photon_mod
                          print*, '! pathSegment: insanity occured - invalid gP', gP
                          stop
                       end if
-                      
+
                    end if
-               
+
                    if ( (rVec%x <= grid(1)%xAxis(1) .or. xP<1) ) then
                       xP=1
                       rVec%x = grid(gP)%xAxis(1)
                       vHat%x = -vHat%x
-                      
+
                    end if
-                   
+
                    if ( (rVec%x <= grid(gP)%xAxis(1) .or. xP<1) &
                         & .and. gP>1) then
-                      
+
                       ! locate where we are at on the mother grid
                       call locate(grid(grid(gP)%motherP)%xAxis, rvec%x, enPacket%xP(1))
                       if (enPacket%xP(1)<1) enPacket%xP(1)=1
                       if ( enPacket%xP(1)< grid(grid(gP)%motherP)%nx) then
                          if ( rvec%x >= ( grid(grid(gP)%motherP)%xAxis(enPacket%xP(1)) + &
-                              & grid(grid(gP)%motherP)%xAxis(enPacket%xP(1)+1)/2.) ) & 
+                              & grid(grid(gP)%motherP)%xAxis(enPacket%xP(1)+1)/2.) ) &
                               & enPacket%xP(1) = enPacket%xP(1)+1
                       end if
-                      
+
                       call locate( grid(grid(gP)%motherP)%yAxis, rvec%y, enPacket%yP(1))
                       if (enPacket%yP(1)<1) enPacket%yP(1)=1
                       if ( enPacket%yP(1)< grid(grid(gP)%motherP)%ny) then
                          if ( rvec%y >= ( grid(grid(gP)%motherP)%yAxis(enPacket%yP(1)) + &
-                              & grid(grid(gP)%motherP)%yAxis(enPacket%yP(1)+1)/2.) ) & 
+                              & grid(grid(gP)%motherP)%yAxis(enPacket%yP(1)+1)/2.) ) &
                               & enPacket%yP(1) = enPacket%yP(1)+1
                       end if
-                         
+
                       call locate(grid(grid(gP)%motherP)%zAxis, rvec%z, enPacket%zP(1))
                       if (enPacket%zP(1)<1) enPacket%zP(1)=1
                       if ( enPacket%zP(1)< grid(grid(gP)%motherP)%nz) then
                          if ( rvec%z >= ( grid(grid(gP)%motherP)%zAxis(enPacket%zP(1)) + &
-                              & grid(grid(gP)%motherP)%zAxis(enPacket%zP(1)+1)/2.) ) & 
+                              & grid(grid(gP)%motherP)%zAxis(enPacket%zP(1)+1)/2.) ) &
                               & enPacket%zP(1) = enPacket%zP(1)+1
                       end if
 
@@ -3383,40 +3383,40 @@ module photon_mod
                       igpp = 1
 
                    end if
-               
+
                    if ( (rVec%x >=  grid(1)%xAxis(grid(gP)%nx) &
                         & .or. xP>grid(gP)%nx)  )then
                       xP = grid(gP)%nx
                       rVec%x = grid(gP)%xAxis(grid(gP)%nx)
                       vHat%x = -vHat%x
-                      
+
                    end if
-               
+
                    if ( (rVec%x >=  grid(gP)%xAxis(grid(gP)%nx)&
                         & .or. xP>grid(gP)%nx) .and.  gP>1) then
-                      
+
                       ! locate where we are at on the mother grid
                       call locate(grid(grid(gP)%motherP)%xAxis, rvec%x, enPacket%xP(1))
-                      if (enPacket%xP(1)<1) enPacket%xP(1)=1                            
+                      if (enPacket%xP(1)<1) enPacket%xP(1)=1
                       if ( enPacket%xP(1)< grid(grid(gP)%motherP)%nx) then
                          if ( rvec%x >= ( grid(grid(gP)%motherP)%xAxis(enPacket%xP(1)) + &
-                              & grid(grid(gP)%motherP)%xAxis(enPacket%xP(1)+1)/2.) ) & 
+                              & grid(grid(gP)%motherP)%xAxis(enPacket%xP(1)+1)/2.) ) &
                               & enPacket%xP(1) = enPacket%xP(1)+1
                       end if
-                      
+
                       call locate( grid(grid(gP)%motherP)%yAxis, rvec%y, enPacket%yP(1))
-                      if (enPacket%yP(1)<1) enPacket%yP(1)=1                           
+                      if (enPacket%yP(1)<1) enPacket%yP(1)=1
                       if ( enPacket%yP(1)< grid(grid(gP)%motherP)%ny) then
                          if ( rvec%y >= ( grid(grid(gP)%motherP)%yAxis(enPacket%yP(1)) + &
-                              & grid(grid(gP)%motherP)%yAxis(enPacket%yP(1)+1)/2.) ) & 
+                              & grid(grid(gP)%motherP)%yAxis(enPacket%yP(1)+1)/2.) ) &
                               & enPacket%yP(1) = enPacket%yP(1)+1
                       end if
-                         
+
                       call locate(grid(grid(gP)%motherP)%zAxis, rvec%z, enPacket%zP(1))
                       if ( enPacket%zP(1)< grid(grid(gP)%motherP)%nz) then
                          if (enPacket%zP(1)<1) enPacket%zP(1)=1
                          if ( rvec%z >= ( grid(grid(gP)%motherP)%zAxis(enPacket%zP(1)) + &
-                              & grid(grid(gP)%motherP)%zAxis(enPacket%zP(1)+1)/2.) ) & 
+                              & grid(grid(gP)%motherP)%zAxis(enPacket%zP(1)+1)/2.) ) &
                               & enPacket%zP(1) = enPacket%zP(1)+1
                       end if
 
@@ -3426,38 +3426,38 @@ module photon_mod
                       gP = 1
                       igpp = 1
                    end if
-               
+
                    if ( (rVec%z <= grid(1)%zAxis(1) .or.zP<1) ) then
                       zP=1
                       rVec%z = grid(gP)%yAxis(1)
-                      vHat%z = -vHat%z                      
+                      vHat%z = -vHat%z
                    end if
-               
+
                    if ( (rVec%z <= grid(gP)%zAxis(1) &
                         & .or.zP<1) .and. gP>1) then
-                      
+
                       ! locate where we are at on the mother grid
                       call locate(grid(grid(gP)%motherP)%xAxis, rvec%x, enPacket%xP(1))
                       if (enPacket%xP(1)<1) enPacket%xP(1)=1
                       if ( enPacket%xP(1)< grid(grid(gP)%motherP)%nx) then
                          if ( rvec%x >= ( grid(grid(gP)%motherP)%xAxis(enPacket%xP(1)) + &
-                              & grid(grid(gP)%motherP)%xAxis(enPacket%xP(1)+1)/2.) ) & 
+                              & grid(grid(gP)%motherP)%xAxis(enPacket%xP(1)+1)/2.) ) &
                               & enPacket%xP(1) = enPacket%xP(1)+1
                       end if
-                      
+
                       call locate( grid(grid(gP)%motherP)%yAxis, rvec%y, enPacket%yP(1))
                       if (enPacket%yP(1)<1) enPacket%yP(1)=1
                       if ( enPacket%yP(1)< grid(grid(gP)%motherP)%ny) then
                          if ( rvec%y >= ( grid(grid(gP)%motherP)%yAxis(enPacket%yP(1)) + &
-                              & grid(grid(gP)%motherP)%yAxis(enPacket%yP(1)+1)/2.) ) & 
+                              & grid(grid(gP)%motherP)%yAxis(enPacket%yP(1)+1)/2.) ) &
                               & enPacket%yP(1) = enPacket%yP(1)+1
                       end if
-                         
+
                       call locate(grid(grid(gP)%motherP)%zAxis, rvec%z, enPacket%zP(1))
                       if (enPacket%zP(1)<1) enPacket%zP(1)=1
                       if ( enPacket%zP(1)< grid(grid(gP)%motherP)%nz) then
                          if ( rvec%z >= ( grid(grid(gP)%motherP)%zAxis(enPacket%zP(1)) + &
-                              & grid(grid(gP)%motherP)%zAxis(enPacket%zP(1)+1)/2.) ) & 
+                              & grid(grid(gP)%motherP)%zAxis(enPacket%zP(1)+1)/2.) ) &
                               & enPacket%zP(1) = enPacket%zP(1)+1
                       end if
 
@@ -3466,43 +3466,43 @@ module photon_mod
                       zP = enPacket%zP(1)
                       gP = 1
                       igpp = 1
-                      
+
                    end if
 
                    if ( (rVec%z >=  grid(1)%zAxis(grid(gP)%nz) .or. zP>grid(gP)%nz) &
                         & ) then
-                      
+
                       zP = grid(gP)%nz
                       rVec%z = grid(gP)%zAxis(grid(gP)%nz)
                       vHat%z = -vHat%z
-                      
+
                    end if
-               
+
                    if ((rVec%z >=  grid(gP)%zAxis(grid(gP)%nz) &
                         & .or. zP>grid(gP)%nz) .and. gP>1) then
-                      
+
                       ! locate where we are at on the mother grid
                       call locate(grid(grid(gP)%motherP)%xAxis, rvec%x, enPacket%xP(1))
                       if (enPacket%xP(1)<1) enPacket%xP(1)=1
                       if ( enPacket%xP(1)< grid(grid(gP)%motherP)%nx) then
                          if ( rvec%x >= ( grid(grid(gP)%motherP)%xAxis(enPacket%xP(1)) + &
-                              & grid(grid(gP)%motherP)%xAxis(enPacket%xP(1)+1)/2.) ) & 
+                              & grid(grid(gP)%motherP)%xAxis(enPacket%xP(1)+1)/2.) ) &
                               & enPacket%xP(1) = enPacket%xP(1)+1
                       end if
-                      
+
                       call locate( grid(grid(gP)%motherP)%yAxis, rvec%y, enPacket%yP(1))
                       if (enPacket%yP(1)<1) enPacket%yP(1)=1
                       if ( enPacket%yP(1)< grid(grid(gP)%motherP)%ny) then
                          if ( rvec%y >= ( grid(grid(gP)%motherP)%yAxis(enPacket%yP(1)) + &
-                              & grid(grid(gP)%motherP)%yAxis(enPacket%yP(1)+1)/2.) ) & 
+                              & grid(grid(gP)%motherP)%yAxis(enPacket%yP(1)+1)/2.) ) &
                               & enPacket%yP(1) = enPacket%yP(1)+1
                       end if
-                         
+
                       call locate(grid(grid(gP)%motherP)%zAxis, rvec%z, enPacket%zP(1))
                       if (enPacket%zP(1)<1) enPacket%zP(1)=1
                       if ( enPacket%zP(1)< grid(grid(gP)%motherP)%nz) then
                          if ( rvec%z >= ( grid(grid(gP)%motherP)%zAxis(enPacket%zP(1)) + &
-                              & grid(grid(gP)%motherP)%zAxis(enPacket%zP(1)+1)/2.) ) & 
+                              & grid(grid(gP)%motherP)%zAxis(enPacket%zP(1)+1)/2.) ) &
                               & enPacket%zP(1) = enPacket%zP(1)+1
                       end if
 
@@ -3511,14 +3511,14 @@ module photon_mod
                       zP = enPacket%zP(1)
                       gP = 1
                       igpp = 1
-                      
+
                    end if
 
-                   
-                   if (lgReturn) then            
+
+                   if (lgReturn) then
 
                       ! the packet escapes without further interaction
-                      
+
                       idirT = int(acos(enPacket%direction%z)/dTheta)+1
                       if (idirT>totangleBinsTheta) then
                          idirT=totangleBinsTheta
@@ -3528,8 +3528,8 @@ module photon_mod
                               &  idirT, enPacket, dTheta, totAngleBinsTheta
                          stop
                       end if
-                      
-                      
+
+
                       if (enPacket%direction%x<1.e-35) then
                          idirP = 0
                       else
@@ -3537,7 +3537,7 @@ module photon_mod
                       end if
                       if (idirP<0) idirP=totAngleBinsPhi+idirP
                       idirP=idirP+1
-                  
+
                       if (idirP>totangleBinsPhi) then
                          idirP=totangleBinsPhi
                       end if
@@ -3550,7 +3550,7 @@ module photon_mod
 
 
                       if (nAngleBins>0) then
-                         if ( (totangleBinsPhi>1 .and. viewPointPtheta(idirT) == viewPointPphi(idirP)) .or. &            
+                         if ( (totangleBinsPhi>1 .and. viewPointPtheta(idirT) == viewPointPphi(idirP)) .or. &
                               & (totangleBinsPhi==1 .and. viewPointPtheta(idirT)>0) ) then
                             grid(enPacket%origin(1))%escapedPackets(enPacket%origin(2), enPacket%nuP,&
                                  & viewPointPtheta(idirT)) = &
@@ -3558,7 +3558,7 @@ module photon_mod
                                  & enPacket%nuP,viewPointPtheta(idirT)) +  deltaEUsed
                             grid(enPacket%origin(1))%escapedPackets(enPacket%origin(2), enPacket%nuP,0) = &
                                  &grid(enPacket%origin(1))%escapedPackets(enPacket%origin(2), &
-                                 & enPacket%nuP,0) +  deltaEUsed                                    
+                                 & enPacket%nuP,0) +  deltaEUsed
 
                             if (lgSeparateSED) then
                                grid(enPacket%origin(1))%escapedPacketsComponents&
@@ -3585,8 +3585,8 @@ module photon_mod
                                     & enPacket%nuP,0,enPacket%SEDtype) +  deltaEUsed
                             endif
                          end if
-                      else                              
-                         grid(enPacket%origin(1))%escapedPackets(enPacket%origin(2), & 
+                      else
+                         grid(enPacket%origin(1))%escapedPackets(enPacket%origin(2), &
                               enPacket%nuP,0) = &
                               & grid(enPacket%origin(1))%escapedPackets(enPacket%origin(2), &
                               & enPacket%nuP,0) +  deltaEUsed
@@ -3599,26 +3599,26 @@ module photon_mod
                          endif
                       end if
 
-                      
+
                       return
                    end if
-               
+
                 end if
 
-                ! check if the path is still within the simulation region 
+                ! check if the path is still within the simulation region
                 radius = 1.e10*sqrt((rVec%x/1.e10)*(rVec%x/1.e10) + &
                      &                     (rVec%y/1.e10)*(rVec%y/1.e10) + &
                      &                     (rVec%z/1.e10)*(rVec%z/1.e10))
 
                 if (.not.lgPlaneIonization) then
 
-                   if ( (.not.lgSymmetricXYZ .and. (rVec%x<=grid(1)%xAxis(1) .or.& 
+                   if ( (.not.lgSymmetricXYZ .and. (rVec%x<=grid(1)%xAxis(1) .or.&
                         & rVec%y<=grid(1)%yAxis(1) .or. rVec%z<=grid(1)%zAxis(1))) .or.&
                         & (rVec%x >= grid(gP)%xAxis(grid(gP)%nx)) .or.&
                         &(rVec%y >= grid(gP)%yAxis(grid(gP)%ny)) .or.&
                         &(rVec%z >= grid(gP)%zAxis(grid(gP)%nz)) .or. &
                         & xP>grid(gP)%nx .or. yP>grid(gP)%ny .or. zP>grid(gP)%nz ) then
-                  
+
                       if (gP==1) then
 
                          if (enPacket%xP(1) > grid(1)%nx) xP = grid(1)%nx
@@ -3627,12 +3627,12 @@ module photon_mod
                          if (enPacket%xP(1) < 1) xP = 1
                          if (enPacket%yP(1) < 1) yP = 1
                          if (enPacket%zP(1) < 1) zP = 1
-                         
-                         
+
+
                          ! the energy packet escapes
-                         
+
                          ! the packet escapes without further interaction
-                         
+
                          idirT = int(acos(enPacket%direction%z)/dTheta)+1
                          if (idirT>totangleBinsTheta) then
                             idirT=totangleBinsTheta
@@ -3642,27 +3642,27 @@ module photon_mod
                                  &  idirT, enPacket, dTheta, totAngleBinsTheta
                             stop
                          end if
-                         
+
                          if (enPacket%direction%x<1.e-35) then
                             idirP = 0
                          else
-                            idirP = int(atan(enPacket%direction%y/enPacket%direction%x)/dPhi)             
+                            idirP = int(atan(enPacket%direction%y/enPacket%direction%x)/dPhi)
                          end if
                          if (idirP<0) idirP=totAngleBinsPhi+idirP
                          idirP=idirP+1
-                         
+
                          if (idirP>totangleBinsPhi) then
                             idirP=totangleBinsPhi
                          end if
-                         
+
                          if (idirP<1 .or. idirP>totAngleBinsPhi) then
                             print*, '! pathSegment: error in phi direction cosine assignment',&
                                  &  idirP, enPacket, dPhi, totAngleBinsPhi
                             stop
                          end if
-                         
+
                          if (nAngleBins>0) then
-                            if ( (totangleBinsPhi>1 .and. viewPointPtheta(idirT) == viewPointPphi(idirP)) .or. &            
+                            if ( (totangleBinsPhi>1 .and. viewPointPtheta(idirT) == viewPointPphi(idirP)) .or. &
                                  & (totangleBinsPhi==1 .and. viewPointPtheta(idirT)>0) ) then
                                grid(enPacket%origin(1))%escapedPackets(enPacket%origin(2), enPacket%nuP,&
                                     & viewPointPtheta(idirT)) = &
@@ -3671,7 +3671,7 @@ module photon_mod
                                grid(enPacket%origin(1))%escapedPackets(enPacket%origin(2), enPacket%nuP,0) = &
                                     &grid(enPacket%origin(1))%escapedPackets(enPacket%origin(2), &
                                     & enPacket%nuP,0) +  deltaEUsed
-                               
+
                                if (lgSeparateSED) then
                                   grid(enPacket%origin(1))%escapedPacketsComponents(enPacket%origin(2), &
                                        &enPacket%nuP,&
@@ -3683,22 +3683,22 @@ module photon_mod
                                        &grid(enPacket%origin(1))%escapedPacketsComponents(enPacket%origin(2), &
                                        & enPacket%nuP,0,enPacket%SEDtype) +  deltaEUsed
                                endif
-                               
+
                             else
                                grid(enPacket%origin(1))%escapedPackets(enPacket%origin(2),enPacket%nuP,0) = &
-                                    & grid(enPacket%origin(1))%escapedPackets(enPacket%origin(2), &                         
-                                    & enPacket%nuP,0) +  deltaEUsed                                                         
-                               
+                                    & grid(enPacket%origin(1))%escapedPackets(enPacket%origin(2), &
+                                    & enPacket%nuP,0) +  deltaEUsed
+
                                if (lgSeparateSED) then
                                   grid(enPacket%origin(1))%escapedPacketsComponents&
                                        &(enPacket%origin(2),enPacket%nuP,0,enPacket%SEDtype) = &
                                        & grid(enPacket%origin(1))%escapedPacketsComponents(enPacket%origin(2), &
                                        & enPacket%nuP,0,enPacket%SEDtype) +  deltaEUsed
                                endif
-                               
+
                             end if
-                         else                              
-                            grid(enPacket%origin(1))%escapedPackets(enPacket%origin(2), & 
+                         else
+                            grid(enPacket%origin(1))%escapedPackets(enPacket%origin(2), &
                                  enPacket%nuP,0) = &
                                  & grid(enPacket%origin(1))%escapedPackets(enPacket%origin(2), &
                                  & enPacket%nuP,0) +  deltaEUsed
@@ -3709,35 +3709,35 @@ module photon_mod
                                     & enPacket%nuP,0,enPacket%SEDtype) +  deltaEUsed
                             endif
                          end if
-                         
+
                          !b2.005
                          return
 
                       else if (gP>1) then
-                         
+
 
                          ! locate where we are at on the mother grid
                          call locate(grid(grid(gP)%motherP)%xAxis, rvec%x, enPacket%xP(1))
-                         if (enPacket%xP(1)<1) enPacket%xP(1)=1                            
+                         if (enPacket%xP(1)<1) enPacket%xP(1)=1
                          if ( enPacket%xP(1)< grid(grid(gP)%motherP)%nx) then
                             if ( rvec%x >= ( grid(grid(gP)%motherP)%xAxis(enPacket%xP(1)) + &
-                                 & grid(grid(gP)%motherP)%xAxis(enPacket%xP(1)+1)/2.) ) & 
+                                 & grid(grid(gP)%motherP)%xAxis(enPacket%xP(1)+1)/2.) ) &
                                  & enPacket%xP(1) = enPacket%xP(1)+1
                          end if
-                         
+
                          call locate( grid(grid(gP)%motherP)%yAxis, rvec%y, enPacket%yP(1))
                          if (enPacket%yP(1)<1) enPacket%yP(1)=1
                          if ( enPacket%yP(1)< grid(grid(gP)%motherP)%ny) then
                             if ( rvec%y >= ( grid(grid(gP)%motherP)%yAxis(enPacket%yP(1)) + &
-                                 & grid(grid(gP)%motherP)%yAxis(enPacket%yP(1)+1)/2.) ) & 
+                                 & grid(grid(gP)%motherP)%yAxis(enPacket%yP(1)+1)/2.) ) &
                                  & enPacket%yP(1) = enPacket%yP(1)+1
                          end if
-                      
+
                          call locate(grid(grid(gP)%motherP)%zAxis, rvec%z, enPacket%zP(1))
                          if (enPacket%zP(1)<1) enPacket%zP(1)=1
                          if ( enPacket%zP(1)< grid(grid(gP)%motherP)%nz) then
                             if ( rvec%z >= ( grid(grid(gP)%motherP)%zAxis(enPacket%zP(1)) + &
-                                 & grid(grid(gP)%motherP)%zAxis(enPacket%zP(1)+1)/2.) ) & 
+                                 & grid(grid(gP)%motherP)%zAxis(enPacket%zP(1)+1)/2.) ) &
                                  & enPacket%zP(1) = enPacket%zP(1)+1
                          end if
 
@@ -3746,35 +3746,35 @@ module photon_mod
                          zP = enPacket%zP(1)
                          gP = 1
                          igpp = 1
-                         
-                         
+
+
                          if (gP/=1) then
                             print*, '! pathSegment: nested multigrids still not implemented'
                             stop
                          end if
-                         
-                         if ( (radius >= R_out .and. R_out >= 0.) .or.&                   
-                              & (rVec%x >= grid(1)%xAxis(grid(1)%nx)) .or.&      
-                              &(rVec%y  >= grid(1)%yAxis(grid(1)%ny)) .or.&       
+
+                         if ( (radius >= R_out .and. R_out >= 0.) .or.&
+                              & (rVec%x >= grid(1)%xAxis(grid(1)%nx)) .or.&
+                              &(rVec%y  >= grid(1)%yAxis(grid(1)%ny)) .or.&
                               &(rVec%z  >= grid(1)%zAxis(grid(1)%nz)) .or. &
                               & (.not.lgSymmetricXYZ .and.  &
-                              & (rVec%x <= grid(1)%xAxis(1) .or.& 
+                              & (rVec%x <= grid(1)%xAxis(1) .or.&
                               &  rVec%y <= grid(1)%yAxis(1) .or.&
-                              &  rVec%z <= grid(1)%zAxis(1)))) then        
-                            
-                            
+                              &  rVec%z <= grid(1)%zAxis(1)))) then
+
+
                             if (xP > grid(gP)%nx) xP = grid(gP)%nx
                             if (yP > grid(gP)%ny) yP = grid(gP)%ny
                             if (zP > grid(gP)%nz) zP = grid(gP)%nz
-                            
+
                             if (xP < 1) xP = 1
                             if (yP < 1) yP = 1
                             if (zP < 1) zP = 1
-                            
+
                             ! the energy packet escapes
-                            
+
                             ! the packet escapes without further interaction
-                            
+
                             idirT = int(acos(enPacket%direction%z)/dTheta)+1
                             if (idirT>totangleBinsTheta) then
                                idirT=totangleBinsTheta
@@ -3784,32 +3784,32 @@ module photon_mod
                                     &  idirT, enPacket, dTheta, totAngleBinsTheta
                                stop
                             end if
-                            
+
                             if (enPacket%direction%x<1.e-35) then
                                idirP = 0
                             else
-                               idirP = int(atan(enPacket%direction%y/enPacket%direction%x)/dPhi)             
+                               idirP = int(atan(enPacket%direction%y/enPacket%direction%x)/dPhi)
                             end if
                             if (idirP<0) idirP=totAngleBinsPhi+idirP
                             idirP=idirP+1
-                            
+
                             if (idirP>totangleBinsPhi) then
                                idirP=totangleBinsPhi
                             end if
-                            
+
                             if (idirP<1 .or. idirP>totAngleBinsPhi) then
                                print*, '! pathSegment: error in phi direction cosine assignment',&
                                     &  idirP, enPacket, dPhi, totAngleBinsPhi
                                stop
                             end if
-                            
+
 
                             if (nAngleBins>0) then
-                               if ( (totangleBinsPhi>1 .and. viewPointPtheta(idirT) == viewPointPphi(idirP)) .or. &            
+                               if ( (totangleBinsPhi>1 .and. viewPointPtheta(idirT) == viewPointPphi(idirP)) .or. &
                                     & (totangleBinsPhi==1 .and. viewPointPtheta(idirT)>0) ) then
                               grid(enPacket%origin(1))%escapedPackets(enPacket%origin(2), enPacket%nuP,&
                                    & viewPointPtheta(idirT)) = &
-                                   &grid(enPacket%origin(1))%escapedPackets(enPacket%origin(2), & 
+                                   &grid(enPacket%origin(1))%escapedPackets(enPacket%origin(2), &
                                    & enPacket%nuP,viewPointPtheta(idirT)) +  deltaEUsed
                               grid(enPacket%origin(1))%escapedPackets(enPacket%origin(2), enPacket%nuP,0) = &
                                    &grid(enPacket%origin(1))%escapedPackets(enPacket%origin(2), &
@@ -3824,7 +3824,7 @@ module photon_mod
                                       &grid(enPacket%origin(1))%escapedPacketsComponents(enPacket%origin(2), &
                                       & enPacket%nuP,0,enPacket%SEDtype) +  deltaEUsed
                               endif
-                                    
+
                            else
                               grid(enPacket%origin(1))%escapedPackets(enPacket%origin(2),enPacket%nuP,0) = &
                                    & grid(enPacket%origin(1))%escapedPackets(enPacket%origin(2), &
@@ -3836,8 +3836,8 @@ module photon_mod
                                       & enPacket%nuP,0,enPacket%SEDtype) +  deltaEUsed
                               endif
                            end if
-                        else                              
-                           grid(enPacket%origin(1))%escapedPackets(enPacket%origin(2), & 
+                        else
+                           grid(enPacket%origin(1))%escapedPackets(enPacket%origin(2), &
                                 & enPacket%nuP,0) = &
                                 & grid(enPacket%origin(1))%escapedPackets(enPacket%origin(2), &
                                 & enPacket%nuP,0) +  deltaEUsed
@@ -3849,60 +3849,60 @@ module photon_mod
                            endif
                         end if
 
-                        
-                            
+
+
                             !b2.005
                             return
-                            
+
                          end if
                       else
                          print*, '! pathSegment: insanity occured - invalid gP - ', gP
                          stop
                       end if
-                      
+
                    end if
-                   
+
                    if (lgSymmetricXYZ ) then
                       if (lgPlaneIonization) then
                          print*, '! pathSegment: lgSymmetric and lgPlaneionization flags both raised'
                          stop
                       end if
-                      
+
                       if ( rVec%x <= grid(1)%xAxis(1) .or. (gP==1 .and. xP<1)) then
-                         if (vHat%x<0.) vHat%x = -vHat%x 
+                         if (vHat%x<0.) vHat%x = -vHat%x
                          enPacket%xP(1) = 1
                          xP = 1
                          rVec%x = grid(gP)%xAxis(1)
                       end if
                       if ( rVec%y <= grid(1)%yAxis(1) .or. (gP==1 .and. yP<1)) then
-                         if (vHat%y<0.) vHat%y = -vHat%y 
+                         if (vHat%y<0.) vHat%y = -vHat%y
                          enPacket%yP(1)=1
                          yP = 1
                          rVec%y = grid(gP)%yAxis(1)
                       end if
                       if ( rVec%z <= grid(1)%zAxis(1) .or. (gP==1 .and. zP<1)) then
-                         if (vHat%z<0.) vHat%z = -vHat%z 
+                         if (vHat%z<0.) vHat%z = -vHat%z
                          enPacket%zP(1) = 1
                          zP=1
                          rVec%z = grid(1)%zAxis(1)
                       end if
-                      
+
                    end if
-                   
+
                 end if
 
                 if (gP>1) then
 !print*, iPhot, rvec, vHat, xp, yp, zp, gp
                    if ( ( (rVec%x <= grid(gP)%xAxis(1) &
-                        &.or. xP<1) .and. vHat%x <=0.) .or. & 
+                        &.or. xP<1) .and. vHat%x <=0.) .or. &
                         & ( (rVec%y <= grid(gP)%yAxis(1) &
-                        & .or. yP<1) .and. vHat%y <=0.) .or. & 
+                        & .or. yP<1) .and. vHat%y <=0.) .or. &
                         & ( (rVec%z <= grid(gP)%zAxis(1) &
-                        &  .or. zP<1) .and. vHat%z <=0.) .or. & 
+                        &  .or. zP<1) .and. vHat%z <=0.) .or. &
                         & ( (rVec%x >= grid(gP)%xAxis(grid(gP)%nx) &
-                        &.or. xP>grid(gP)%nx) .and. vHat%x >=0.) .or. & 
+                        &.or. xP>grid(gP)%nx) .and. vHat%x >=0.) .or. &
                         & ( (rVec%y >= grid(gP)%yAxis(grid(gP)%ny) &
-                        & .or. yP>grid(gP)%ny) .and. vHat%y >=0.) .or. & 
+                        & .or. yP>grid(gP)%ny) .and. vHat%y >=0.) .or. &
                         & ( (rVec%z >= grid(gP)%zAxis(grid(gP)%nz) &
                         &  .or. zP>grid(gP)%nz) .and. vHat%z >=0.) ) then
 
@@ -3912,25 +3912,25 @@ module photon_mod
                       if (enPacket%xP(1)<1) enPacket%xP(1)=1
                       if ( enPacket%xP(1)< grid(grid(gP)%motherP)%nx) then
                          if ( rvec%x >= ( grid(grid(gP)%motherP)%xAxis(enPacket%xP(1)) + &
-                              & grid(grid(gP)%motherP)%xAxis(enPacket%xP(1)+1)/2.) ) & 
+                              & grid(grid(gP)%motherP)%xAxis(enPacket%xP(1)+1)/2.) ) &
                               & enPacket%xP(1) = enPacket%xP(1)+1
-                      end if                      
+                      end if
 
                       call locate( grid(grid(gP)%motherP)%yAxis, rvec%y, enPacket%yP(1))
                       if (enPacket%yP(1)<1) enPacket%yP(1)=1
                       if ( enPacket%yP(1)< grid(grid(gP)%motherP)%ny) then
                          if ( rvec%y >= ( grid(grid(gP)%motherP)%yAxis(enPacket%yP(1)) + &
-                              & grid(grid(gP)%motherP)%yAxis(enPacket%yP(1)+1)/2.) ) & 
+                              & grid(grid(gP)%motherP)%yAxis(enPacket%yP(1)+1)/2.) ) &
                               & enPacket%yP(1) = enPacket%yP(1)+1
-                      end if                      
+                      end if
 
                       call locate(grid(grid(gP)%motherP)%zAxis, rvec%z, enPacket%zP(1))
                       if (enPacket%zP(1)<1) enPacket%zP(1)=1
                       if ( enPacket%zP(1)< grid(grid(gP)%motherP)%nz) then
                          if ( rvec%z >= ( grid(grid(gP)%motherP)%zAxis(enPacket%zP(1)) + &
-                              & grid(grid(gP)%motherP)%zAxis(enPacket%zP(1)+1)/2.) ) & 
+                              & grid(grid(gP)%motherP)%zAxis(enPacket%zP(1)+1)/2.) ) &
                               & enPacket%zP(1) = enPacket%zP(1)+1
-                      end if                      
+                      end if
 
                       gP = 1
                       igpp = 1
@@ -3940,11 +3940,11 @@ module photon_mod
                       yP = enPacket%yP(1)
                       zP = enPacket%zP(1)
 
-                      
+
                    end if
-                      
+
                 end if
-            
+
 
              end if
 
@@ -3952,9 +3952,9 @@ module photon_mod
                   & .or. yP > grid(gP)%ny .or. zP > grid(gP)%nz) ) then
 
                 ! the energy packet escapes
-                
+
                 ! the packet escapes without further interaction
-                
+
                 idirT = int(acos(enPacket%direction%z)/dTheta)+1
                 if (idirT>totangleBinsTheta) then
                    idirT=totangleBinsTheta
@@ -3964,35 +3964,35 @@ module photon_mod
                         &  idirT, enPacket, dTheta, totAngleBinsTheta
                    stop
                 end if
-                
+
                 if (enPacket%direction%x<1.e-35) then
                    idirP = 0
                 else
-                   idirP = int(atan(enPacket%direction%y/enPacket%direction%x)/dPhi)             
+                   idirP = int(atan(enPacket%direction%y/enPacket%direction%x)/dPhi)
                 end if
                 if (idirP<0) idirP=totAngleBinsPhi+idirP
                 idirP=idirP+1
-                
+
                 if (idirP>totangleBinsPhi) then
                    idirP=totangleBinsPhi
                 end if
-                
+
                 if (idirP<1 .or. idirP>totAngleBinsPhi) then
                    print*, '! pathSegment: error in phi direction cosine assignment',&
                         &  idirP, enPacket, dPhi, totAngleBinsPhi
                    stop
                 end if
-                
+
             if (nAngleBins>0) then
-               if ( (totangleBinsPhi>1 .and. viewPointPtheta(idirT) == viewPointPphi(idirP)) .or. &            
+               if ( (totangleBinsPhi>1 .and. viewPointPtheta(idirT) == viewPointPphi(idirP)) .or. &
                     & (totangleBinsPhi==1 .and. viewPointPtheta(idirT)>0) ) then
-                  grid(enPacket%origin(1))%escapedPackets(enPacket%origin(2), enPacket%nuP,&                   
-                       & viewPointPtheta(idirT)) = &                                                           
-                       &grid(enPacket%origin(1))%escapedPackets(enPacket%origin(2), &                          
-                       & enPacket%nuP,viewPointPtheta(idirT)) +  deltaEUsed                                    
+                  grid(enPacket%origin(1))%escapedPackets(enPacket%origin(2), enPacket%nuP,&
+                       & viewPointPtheta(idirT)) = &
+                       &grid(enPacket%origin(1))%escapedPackets(enPacket%origin(2), &
+                       & enPacket%nuP,viewPointPtheta(idirT)) +  deltaEUsed
                   grid(enPacket%origin(1))%escapedPackets(enPacket%origin(2), enPacket%nuP,0) = &
-                       &grid(enPacket%origin(1))%escapedPackets(enPacket%origin(2), &                          
-                       & enPacket%nuP,0) +  deltaEUsed                                    
+                       &grid(enPacket%origin(1))%escapedPackets(enPacket%origin(2), &
+                       & enPacket%nuP,0) +  deltaEUsed
                   if (lgSeparateSED) then
                      grid(enPacket%origin(1))%escapedPacketsComponents(enPacket%origin(2), enPacket%nuP,&
                           & viewPointPtheta(idirT), enPacket%SEDtype) = &
@@ -4005,8 +4005,8 @@ module photon_mod
                   endif
                else
                   grid(enPacket%origin(1))%escapedPackets(enPacket%origin(2),enPacket%nuP,0) = &
-                       & grid(enPacket%origin(1))%escapedPackets(enPacket%origin(2), &                         
-                       & enPacket%nuP,0) +  deltaEUsed                                                         
+                       & grid(enPacket%origin(1))%escapedPackets(enPacket%origin(2), &
+                       & enPacket%nuP,0) +  deltaEUsed
                   if (lgSeparateSED) then
                      grid(enPacket%origin(1))%escapedPacketsComponents(enPacket%origin(2),&
                           &enPacket%nuP,0, enPacket%SEDtype) = &
@@ -4014,8 +4014,8 @@ module photon_mod
                           & enPacket%nuP,0, enPacket%SEDtype) +  deltaEUsed
                   endif
                end if
-            else                              
-               grid(enPacket%origin(1))%escapedPackets(enPacket%origin(2), & 
+            else
+               grid(enPacket%origin(1))%escapedPackets(enPacket%origin(2), &
                     enPacket%nuP,0) = &
                     & grid(enPacket%origin(1))%escapedPackets(enPacket%origin(2), &
                     & enPacket%nuP,0) +  deltaEUsed
@@ -4027,38 +4027,38 @@ module photon_mod
                endif
 
             end if
-                        
-            
+
+
                 !b2.005
                 return
-            
-            
+
+
              end if
-         
+
           end do ! safelimit loop
-      
+
           if (i>= safeLimit) then
              if (.not.lgPlaneIonization) then
                 print*, '! pathSegment: [warning] packet trajectory has exceeded&
-                     &  maximum number of events', safeLimit, gP, xP,yP,zP, grid(gP)%active(xP,yP,zP), & 
+                     &  maximum number of events', safeLimit, gP, xP,yP,zP, grid(gP)%active(xP,yP,zP), &
                      & rvec, vhat, enPacket, iphot
              end if
              return
-             
+
           end if
-          
+
           if (gP==1) then
              igpp = 1
           else if (gP>1) then
-             igpp = 2 
+             igpp = 2
           else
              print*, "! pathSegment: insane grid index "
              stop
           end if
-          
+
           enPacket%xP(igpp) = xP
           enPacket%yP(igpp) = yP
-          enPacket%zP(igpp) = zP   
+          enPacket%zP(igpp) = zP
 
           if (deltaEUsed/(Lstar(istar)/nPhotons(istar)) < 1.e-10) return
 
@@ -4067,7 +4067,7 @@ module photon_mod
 !             return
 !          end if
 
-          
+
 
           ! the energy packet has beenid absorbed - reemit a new packet from this position
 !          call energyPacketRun(packetType, rVec, enPacket%xP(1:2), enPacket%yP(1:2), &
@@ -4083,7 +4083,7 @@ module photon_mod
           return
 
         end subroutine pathSegment
- 
+
     subroutine getFluorescenceL(deltaE,nuPin,ifluoin,igin,xpin,ypin,zpin)
       implicit none
 
@@ -4093,15 +4093,15 @@ module photon_mod
       real :: fYieldFeKa(26)                  ! fluorescence yields for FeKa
       real :: fYieldFeL1                      ! fluorescence yields for FeL1
       real :: fYieldFeL2                      ! fluorescence yields for FeL2
-      real :: fYieldCKa                       ! fluorescence yields for CKa 
-      real :: fYieldNKa                       ! fluorescence yields for NKa 
-      real :: fYieldOKa                       ! fluorescence yields for OKa 
+      real :: fYieldCKa                       ! fluorescence yields for CKa
+      real :: fYieldNKa                       ! fluorescence yields for NKa
+      real :: fYieldOKa                       ! fluorescence yields for OKa
       real :: fYieldNeKa                      ! fluorescence yields for NeKa
       real :: fYieldMgKa                      ! fluorescence yields for MgKa
       real :: fYieldAlKa                      ! fluorescence yields for AlKa
       real :: fYieldSiKa                      ! fluorescence yields for SiKa
-      real :: fYieldSKa                       ! fluorescence yields for SKa 
-      real :: fYieldArKa                      ! fluorescence yields for ArK 
+      real :: fYieldSKa                       ! fluorescence yields for SKa
+      real :: fYieldArKa                      ! fluorescence yields for ArK
       real :: fYieldCaKa                      ! fluorescence yields for CaKa
       real :: fYieldTiKa                      ! fluorescence yields for TiKa
 
@@ -4110,15 +4110,15 @@ module photon_mod
       real :: branch                          ! branching ratio
       real :: phXsec, photoRateFluoFrac
 
-      integer, intent(in) :: ifluoin, nuPin      
+      integer, intent(in) :: ifluoin, nuPin
       integer, intent(in) :: xpin,ypin,zpin, igin
       integer :: ion, i, icell, elP
       integer :: nu1P, highNuP,xSecP
       integer :: isearch    ! counters
       integer :: err                          ! allocation error status
-      
+
 !      print*, 'in getFluorescenceL ', xpin,ypin,zpin
-                  
+
       ! Krolik&Kallman ApJL 320, 5
       fYieldFeKa = (/0.34, 0.34, 0.35, 0.35, 0.36, 0.37, 0.38, 0.39, 0.40, 0.41, 0.42, 0.43, &
            & 0.44, 0.45, 0.46, 0.47, 0.47, 0.48, 0.48, 0.49, 0.49, 0.11, 0.75, 0., 0., 0. /)
@@ -4135,7 +4135,7 @@ module photon_mod
       fYieldArKa = 1.15e-1
       fYieldCaKa = 1.60e-1
       fYieldTiKa = 4.01e-1
-      
+
       radField = deltaE
 
       photoRateFluoFrac = 0.
@@ -4149,14 +4149,14 @@ module photon_mod
       end if
 
       select case (fluorescenceLabel(ifluoin))
-      case ("FeKa")                                    
-            
+      case ("FeKa")
+
          branch = 0.882 ! Bambynek et al., 1972
          do ion = 1, min(nstages, 18)
-                           
+
             nu1P = elementP(26, ion, 1, 1)
             highNuP = elementP(26, ion, 1, 2)
-            xSecP = elementP(26, ion, 1, 3)                                       
+            xSecP = elementP(26, ion, 1, 3)
 
             phXsec = xSecArray(nuPin+xSecP-nu1P)
             if (phXsec < 1.e-35) then
@@ -4164,7 +4164,7 @@ module photon_mod
             end if
 
             if (nuPin<highnuP .and. nuPin>nu1P ) then
-               
+
                photoRateFluoFrac = phXsec*grid(igin)%elemAbun(grid(igin)%&
                     & abFileIndex(xPin,yPin,zPin),26)*grid(igin)%Hden(icell)*&
                     & grid(igin)%ionDen(icell,elementXref(26),ion)/&
@@ -4205,19 +4205,19 @@ module photon_mod
          deltaE = deltaE*1.03e-8
 
          ! "hot" iron contribution at 6.9 KeV could be implemented &
-         ! here similar fashion as above, just multiply 
+         ! here similar fashion as above, just multiply
          ! by correct energy (i.e. 1.11e-8 rather than 1.03e-8 erg)
 
-      case ("FeL1")                                    
+      case ("FeL1")
 
          elP = 26
 
          do ion = 1, min(nstages, elP+1)
-                           
+
             nu1P = elementP(elP, ion, 2, 1)
             highNuP = elementP(elP, ion, 2, 2)
-            xSecP = elementP(elP, ion, 2, 3)                                       
-               
+            xSecP = elementP(elP, ion, 2, 3)
+
             phXsec = xSecArray(nuPin+xSecP-nu1P)
             if (phXsec < 1.e-35) then
                phXsec = 0.
@@ -4237,16 +4237,16 @@ module photon_mod
 
          deltaE = deltaE*FeL1*Ryd2erg
 
-      case ("FeL2")                                    
+      case ("FeL2")
 
          elP = 26
 
          do ion = 1, min(nstages, elP+1)
-                           
+
             nu1P = elementP(elP, ion, 2, 1)
             highNuP = elementP(elP, ion, 2, 2)
-            xSecP = elementP(elP, ion, 2, 3)                                       
-               
+            xSecP = elementP(elP, ion, 2, 3)
+
             phXsec = xSecArray(nuPin+xSecP-nu1P)
             if (phXsec < 1.e-35) then
                phXsec = 0.
@@ -4266,16 +4266,16 @@ module photon_mod
 
          deltaE = deltaE*FeL2*Ryd2erg
 
-      case ("CKa")                                    
+      case ("CKa")
 
          elP = 6
 
          do ion = 1, min(nstages, elP+1)
-                           
+
             nu1P    = elementP(elP, ion, 1, 1)
             highNuP = elementP(elP, ion, 1, 2)
-            xSecP   = elementP(elP, ion, 1, 3)                                       
-               
+            xSecP   = elementP(elP, ion, 1, 3)
+
             phXsec = xSecArray(nuPin+xSecP-nu1P)
             if (phXsec < 1.e-35) then
                phXsec = 0.
@@ -4295,16 +4295,16 @@ module photon_mod
 
          deltaE = deltaE*CKa*Ryd2erg
 
-      case ("NKa")                                    
+      case ("NKa")
 
          elP = 7
 
          do ion = 1, min(nstages, elP+1)
-                           
+
             nu1P    = elementP(elP, ion, 1, 1)
             highNuP = elementP(elP, ion, 1, 2)
-            xSecP   = elementP(elP, ion, 1, 3)                                       
-               
+            xSecP   = elementP(elP, ion, 1, 3)
+
             phXsec = xSecArray(nuPin+xSecP-nu1P)
             if (phXsec < 1.e-35) then
                phXsec = 0.
@@ -4324,16 +4324,16 @@ module photon_mod
 
          deltaE = deltaE*NKa*Ryd2erg
 
-      case ("OKa")                                    
+      case ("OKa")
 
          elP = 8
 
          do ion = 1, min(nstages, elP+1)
-                           
+
             nu1P    = elementP(elP, ion, 1, 1)
             highNuP = elementP(elP, ion, 1, 2)
-            xSecP   = elementP(elP, ion, 1, 3)                                       
-               
+            xSecP   = elementP(elP, ion, 1, 3)
+
             phXsec = xSecArray(nuPin+xSecP-nu1P)
             if (phXsec < 1.e-35) then
                phXsec = 0.
@@ -4353,16 +4353,16 @@ module photon_mod
 
          deltaE = deltaE*OKa*Ryd2erg
 
-      case ("NeKa")                                    
+      case ("NeKa")
 
          elP = 10
 
          do ion = 1, min(nstages, elP+1)
-                           
+
             nu1P    = elementP(elP, ion, 1, 1)
             highNuP = elementP(elP, ion, 1, 2)
-            xSecP   = elementP(elP, ion, 1, 3)                                       
-               
+            xSecP   = elementP(elP, ion, 1, 3)
+
             phXsec = xSecArray(nuPin+xSecP-nu1P)
             if (phXsec < 1.e-35) then
                phXsec = 0.
@@ -4382,16 +4382,16 @@ module photon_mod
 
          deltaE = deltaE*NeKa*Ryd2erg
 
-      case ("MgKa")                                    
+      case ("MgKa")
 
          elP = 12
 
          do ion = 1, min(nstages, elP+1)
-                           
+
             nu1P    = elementP(elP, ion, 1, 1)
             highNuP = elementP(elP, ion, 1, 2)
-            xSecP   = elementP(elP, ion, 1, 3)                                       
-               
+            xSecP   = elementP(elP, ion, 1, 3)
+
             phXsec = xSecArray(nuPin+xSecP-nu1P)
             if (phXsec < 1.e-35) then
                phXsec = 0.
@@ -4411,16 +4411,16 @@ module photon_mod
 
          deltaE = deltaE*MgKa*Ryd2erg
 
-      case ("AlKa")                                    
+      case ("AlKa")
 
          elP = 13
 
          do ion = 1, min(nstages, elP+1)
-                           
+
             nu1P    = elementP(elP, ion, 1, 1)
             highNuP = elementP(elP, ion, 1, 2)
-            xSecP   = elementP(elP, ion, 1, 3)                                       
-               
+            xSecP   = elementP(elP, ion, 1, 3)
+
             phXsec = xSecArray(nuPin+xSecP-nu1P)
             if (phXsec < 1.e-35) then
                phXsec = 0.
@@ -4440,16 +4440,16 @@ module photon_mod
 
          deltaE = deltaE*AlKa*Ryd2erg
 
-      case ("SiKa")                                    
+      case ("SiKa")
 
          elP = 14
 
          do ion = 1, min(nstages, elP+1)
-                           
+
             nu1P    = elementP(elP, ion, 1, 1)
             highNuP = elementP(elP, ion, 1, 2)
-            xSecP   = elementP(elP, ion, 1, 3)                                       
-               
+            xSecP   = elementP(elP, ion, 1, 3)
+
             phXsec = xSecArray(nuPin+xSecP-nu1P)
             if (phXsec < 1.e-35) then
                phXsec = 0.
@@ -4469,16 +4469,16 @@ module photon_mod
 
          deltaE = deltaE*SiKa*Ryd2erg
 
-      case ("SKa")                                    
+      case ("SKa")
 
          elP = 16
 
          do ion = 1, min(nstages, elP+1)
-                           
+
             nu1P    = elementP(elP, ion, 1, 1)
             highNuP = elementP(elP, ion, 1, 2)
-            xSecP   = elementP(elP, ion, 1, 3)                                       
-               
+            xSecP   = elementP(elP, ion, 1, 3)
+
             phXsec = xSecArray(nuPin+xSecP-nu1P)
             if (phXsec < 1.e-35) then
                phXsec = 0.
@@ -4498,16 +4498,16 @@ module photon_mod
 
          deltaE = deltaE*SKa*Ryd2erg
 
-      case ("ArKa")                                    
+      case ("ArKa")
 
          elP = 18
 
          do ion = 1, min(nstages, elP+1)
-                           
+
             nu1P    = elementP(elP, ion, 1, 1)
             highNuP = elementP(elP, ion, 1, 2)
-            xSecP   = elementP(elP, ion, 1, 3)                                       
-               
+            xSecP   = elementP(elP, ion, 1, 3)
+
             phXsec = xSecArray(nuPin+xSecP-nu1P)
             if (phXsec < 1.e-35) then
                phXsec = 0.
@@ -4527,16 +4527,16 @@ module photon_mod
 
          deltaE = deltaE*ArKa*Ryd2erg
 
-      case ("CaKa")                                    
+      case ("CaKa")
 
          elP = 20
 
          do ion = 1, min(nstages, elP+1)
-                           
+
             nu1P    = elementP(elP, ion, 1, 1)
             highNuP = elementP(elP, ion, 1, 2)
-            xSecP   = elementP(elP, ion, 1, 3)                                       
-               
+            xSecP   = elementP(elP, ion, 1, 3)
+
             phXsec = xSecArray(nuPin+xSecP-nu1P)
             if (phXsec < 1.e-35) then
                phXsec = 0.
@@ -4556,16 +4556,16 @@ module photon_mod
 
          deltaE = deltaE*CaKa*Ryd2erg
 
-      case ("TiKa")                                    
+      case ("TiKa")
 
          elP = 22
 
          do ion = 1, min(nstages, elP+1)
-                           
+
             nu1P    = elementP(elP, ion, 1, 1)
             highNuP = elementP(elP, ion, 1, 2)
-            xSecP   = elementP(elP, ion, 1, 3)                                       
-               
+            xSecP   = elementP(elP, ion, 1, 3)
+
             phXsec = xSecArray(nuPin+xSecP-nu1P)
             if (phXsec < 1.e-35) then
                phXsec = 0.
@@ -4584,17 +4584,17 @@ module photon_mod
          end do
 
          deltaE = deltaE*TiKa*Ryd2erg
-         
+
       case default
-         
+
          print*, "! setDiffuseFluorescenceL: fluorescence label not recognised", &
               & fluorescenceLabel(ifluoin), ifluoin
          stop
-                        
+
       end select
 
 
-      
+
 !print*, icell,  deltaE, ' getFluorescenceL'
 
 !      print*, 'out getFluorescenceL'
@@ -4605,34 +4605,34 @@ module photon_mod
 
       recursive subroutine fluorescencePacketRun(fType, rvecin, xPin, yPin, zPin, gPin, ifl)
         implicit none
-        
-        type(vector), intent(in)                  :: rVecin        ! 
-        type(vector)                              :: rVec        ! 
+
+        type(vector), intent(in)                  :: rVecin        !
+        type(vector)                              :: rVec        !
 
         character(len=4), intent(inout)                   :: fType ! what resonance line?
-        
+
         integer, intent(in)                       :: ifl
         integer, dimension(2), intent(in)         :: xPin, yPin, &
-             & zPin                                            ! cartesian axes indeces 
+             & zPin                                            ! cartesian axes indeces
         integer, dimension(2)                     :: xP, yP, &
-             & zP                                            ! cartesian axes indeces 
+             & zP                                            ! cartesian axes indeces
         ! 1= mother; 2=sub
-        
+
         integer, intent(inout)           :: gPin             ! grid index
         integer                          :: gP               ! grid index
         integer                          :: igpr             ! grid pointer 1= mother 2=sub
         integer                          :: difSourceL(3)    ! cell indeces
 
         ! local variables
-        
+
         type(photon_packet)              :: fluoPacket         ! the energu packet
-        
+
         integer                          :: err              ! allocation error status
-        integer                          :: i, j             ! counters  
+        integer                          :: i, j             ! counters
         integer                          :: idirP, idirT     ! direction cosines
-        
-        real :: number 
-        real, save :: ionPhot = 0.       
+
+        real :: number
+        real, save :: ionPhot = 0.
 
         rvec = rvecin
         xp = xpin
@@ -4648,7 +4648,7 @@ module photon_mod
            print*,  "! fluorescencePacketRun: insane grid index"
            stop
         end if
-        
+
         fluoPacket = newFluorescencePacket(chType=fType, gP=gP, &
              &orXf=xP,orYf=yP,orZf=zP, rvec=rvec)
 
@@ -4661,28 +4661,28 @@ module photon_mod
 
       end subroutine fluorescencePacketRun
 
-      
+
         ! this function initializes a photon packet
         function initFluorescencePacket(nuP,  position, lgLine, lgStellar, xP, yP, zP, gP)
           implicit none
-          
+
           type(photon_packet)      :: initFluorescencePacket  ! the photon packet
-          
+
           real                     :: random            ! random number
-          
+
           integer, intent(in)      :: nuP               ! the frequency of the photon packet
           integer, intent(in),dimension(2) :: xP, yP, &
-               & zP                                     ! indeces of position on the x, y and z axes            
+               & zP                                     ! indeces of position on the x, y and z axes
           integer, intent(in)      :: gP                ! grid index
           integer                  :: igpi              ! grid pointer 1=mother, 2=sub
-          
-          
+
+
           logical, intent(in)      :: lgLine, lgStellar ! line, stellar packet?
-          
+
           type(vector), intent(in) :: position          ! the position at which the photon
-                                                          ! packet is created    
+                                                          ! packet is created
           ! local variables
-          
+
           integer                  :: i, irepeat        ! counter
             !print*, 'inin'
 
@@ -4690,18 +4690,18 @@ module photon_mod
             initFluorescencePacket%position = position
 
             initFluorescencePacket%iG  = gP
-            
+
             if (gP==1) then
-               igpi=1 
+               igpi=1
             else if (gp>1) then
                igpi=2
             else
                print*, "! initFluorescencePacket: insane gridp pointer"
                stop
             end if
-           
-            initFluorescencePacket%nuP      = nuP       
-           
+
+            initFluorescencePacket%nuP      = nuP
+
             initFluorescencePacket%lgStellar = lgStellar
 
             ! check if photon packen is line or continuum photon
@@ -4712,7 +4712,7 @@ module photon_mod
             else
                 ! continuum photon
                 initFluorescencePacket%nu       = nuArray(nuP)
-                initFluorescencePacket%lgLine   = .false.          
+                initFluorescencePacket%lgLine   = .false.
             end if
 
             initFluorescencePacket%xP  = xP
@@ -4722,9 +4722,9 @@ module photon_mod
 
             ! cater for plane parallel ionization case
             if (initFluorescencePacket%lgStellar .and. lgPlaneIonization) then
-               
+
                ! get position
-               
+
                ! x-direction
                call random_number(random)
                random = 1. - random
@@ -4735,7 +4735,7 @@ module photon_mod
                     & grid(gP)%xAxis(grid(gP)%nx))
                if (initFluorescencePacket%position%x<grid(gP)%xAxis(1)) &
                     & initFluorescencePacket%position%x=grid(gP)%xAxis(1)
-               if (initFluorescencePacket%position%x>grid(gP)%xAxis(grid(gP)%nx)) & 
+               if (initFluorescencePacket%position%x>grid(gP)%xAxis(grid(gP)%nx)) &
                     initFluorescencePacket%position%x=grid(gP)%xAxis(grid(gP)%nx)
 
                call locate(grid(gP)%xAxis, initFluorescencePacket%position%x, initFluorescencePacket%xP(igpi))
@@ -4756,19 +4756,19 @@ module photon_mod
                     & (grid(gP)%zAxis(2)-grid(gP)%zAxis(1))/2.+&
                     & (grid(gP)%zAxis(grid(gP)%nz)-grid(gP)%zAxis(grid(gP)%nz-1))/2.+&
                     & grid(gP)%zAxis(grid(gP)%nz))
-               if (initFluorescencePacket%position%z<grid(gP)%zAxis(1)) & 
+               if (initFluorescencePacket%position%z<grid(gP)%zAxis(1)) &
                     & initFluorescencePacket%position%z=grid(gP)%zAxis(1)
-               if (initFluorescencePacket%position%z>grid(gP)%zAxis(grid(gP)%nz)) & 
+               if (initFluorescencePacket%position%z>grid(gP)%zAxis(grid(gP)%nz)) &
                     & initFluorescencePacket%position%z=grid(gP)%zAxis(grid(gP)%nz)
 
               call locate(grid(gP)%zAxis, initFluorescencePacket%position%z, initFluorescencePacket%zP(igpi))
-               if (initFluorescencePacket%zP(igpi) < grid(gP)%nz) then               
+               if (initFluorescencePacket%zP(igpi) < grid(gP)%nz) then
                   if (initFluorescencePacket%position%z >= (grid(gP)%xAxis(initFluorescencePacket%zP(igpi))+&
-                       & grid(gP)%zAxis(initFluorescencePacket%zP(igpi)+1))/2.) initFluorescencePacket%zP(igpi) =& 
+                       & grid(gP)%zAxis(initFluorescencePacket%zP(igpi)+1))/2.) initFluorescencePacket%zP(igpi) =&
                        & initFluorescencePacket%zP(igpi)+1
                end if
 
-               if (initFluorescencePacket%xP(igpi)<1) initFluorescencePacket%xP(igpi)=1             
+               if (initFluorescencePacket%xP(igpi)<1) initFluorescencePacket%xP(igpi)=1
                if (initFluorescencePacket%zP(igpi)<1) initFluorescencePacket%zP(igpi)=1
 
                ! direction is parallel to y-axis direction
@@ -4794,8 +4794,8 @@ module photon_mod
                 do irepeat = 1, 1000000
                    ! get a random direction
                    initFluorescencePacket%direction = randomUnitVector()
-                   if (initFluorescencePacket%direction%x/=0. .and. & 
-                        & initFluorescencePacket%direction%y/=0. .and. & 
+                   if (initFluorescencePacket%direction%x/=0. .and. &
+                        & initFluorescencePacket%direction%y/=0. .and. &
                         & initFluorescencePacket%direction%z/=0.) exit
                 end do
             end if
@@ -4811,21 +4811,21 @@ module photon_mod
 
             initFluorescencePacket%origin(1) = gP
             initFluorescencePacket%origin(2) = grid(gP)%active(initFluorescencePacket%xP(igpi),&
-                 & initFluorescencePacket%yP(igpi), initFluorescencePacket%zP(igpi))                           
+                 & initFluorescencePacket%yP(igpi), initFluorescencePacket%zP(igpi))
 
-!print*, 'origin ',  initFluorescencePacket%origin            
+!print*, 'origin ',  initFluorescencePacket%origin
 
 !print*, 'inout'
-          end function initFluorescencePacket    
-          
+          end function initFluorescencePacket
+
           ! this function creates a new fluorescence packet
           function newFluorescencePacket(chType, gP, orXf,orYf,orZf, rvec)
-    
+
             type(photon_packet)                :: newFluorescencePacket! the photon packet to be created
-            type(vector), intent(in)           :: rVec           ! 
+            type(vector), intent(in)           :: rVec           !
 
             character(len=4), intent(in)       :: chType         ! what line?
-            
+
             ! local variables
             type(vector)                       :: positionLoc    ! the position of the photon
                                                                  ! packet
@@ -4852,7 +4852,7 @@ module photon_mod
             positionLoc%x = rVec%x
             positionLoc%y = rVec%y
             positionLoc%z = rVec%z
-            
+
             ! initialize the new fluorescence packet
             if (grid(gP)%active(orXf(igpn), orYf(igpn), orZf(igpn)) < 0.) then
                print*, "! newFluorescencePacket: new packet cannot be emitted from re-mapped cell -3-"
@@ -4934,14 +4934,14 @@ module photon_mod
 
             ! if the photon packet type is wrong or missing
             case default
-        
+
                 print*, "! newFluorescencePacket: unsupported fluorescent transition.", chType
                 stop
-                
+
              end select
-             
+
            end function newFluorescencePacket
-            
+
            subroutine fluoPathSegment(enPacket)
              implicit none
 
@@ -4950,13 +4950,13 @@ module photon_mod
              ! local variables
              type(vector)                    :: vHat     ! direction vector
              type(vector)                    :: rVec     ! position vector
-          
+
              real                            :: absTau   ! optical depth
              real                            :: dlLoc    ! local displacement
-             real                            :: dx, dy, dz 
-             real                            :: dSx, dSy, dSz 
+             real                            :: dx, dy, dz
+             real                            :: dSx, dSy, dSz
                                                       ! distances from x,y and z wall
-             real                            :: dS       ! distance from nearest wall 
+             real                            :: dS       ! distance from nearest wall
              real                            :: dV       ! lume of this cell
              real                            :: passProb ! prob of passing the next segment
              real                            :: probSca  ! prob that the packet scatters
@@ -4981,13 +4981,13 @@ module photon_mod
                 igpp = 1
              else if (enPacket%iG>1) then
                 igpp = 2
-             else 
+             else
                 print*, "! fluoPathSegment: insane grid index"
                 stop
              end if
 
              ! check that the input position is not outside the grid
-             if ( (enPacket%iG <= 0).or.(enPacket%iG > nGrids) ) then   
+             if ( (enPacket%iG <= 0).or.(enPacket%iG > nGrids) ) then
                 print*, "! fluoPathSegment: starting position not in any defined gridhses",&
                      & enPacket
                 stop
@@ -4996,26 +4996,26 @@ module photon_mod
                 print*, "! fluoPathSegment: starting position in x is outside the grid",&
                      & enPacket
                 stop
-             else if ( (enPacket%yP(igpp) <= 0).or. & 
+             else if ( (enPacket%yP(igpp) <= 0).or. &
                   & (enPacket%yP(igpp) > grid(enPacket%iG)%ny) ) then
                 print*, "! fluoPathSegment: starting position in y is outside the grid",&
                      & enPacket
                 stop
-             else if ( (enPacket%zP(igpp) <= 0).or.& 
-                  & (enPacket%zP(igpp) > grid(enPacket%iG)%nz) ) then   
+             else if ( (enPacket%zP(igpp) <= 0).or.&
+                  & (enPacket%zP(igpp) > grid(enPacket%iG)%nz) ) then
                 print*, "! fluoPathSegment: starting position in z is outside the grid",&
                      & enPacket
-                stop          
+                stop
              end if
 
              ! define vHat and rVec
              rVec = enPacket%position
              vHat = enPacket%direction
-             
+
              ! initialize xP, yP,zP
              xP = enPacket%xP(igpp)
              yP = enPacket%yP(igpp)
-             zP = enPacket%zP(igpp) 
+             zP = enPacket%zP(igpp)
              gP = enPacket%iG
 
              ! initialise distance from walls
@@ -5039,8 +5039,8 @@ module photon_mod
 
              ! get a random number
              call random_number(random)
-                          
-             ! calculate the probability 
+
+             ! calculate the probability
              passProb = -log(1.-random)
 
              ! speed up photons that my be trapped
@@ -5066,7 +5066,7 @@ module photon_mod
                         & ((grid(gP)%xAxis(xP)+grid(gP)%xAxis(xP-1))/2.) < 2.e-2) &
                         & xP = xP-1
                 end if
-                
+
                 if (yP <  grid(gP)%ny) then
                    if (vHat%y > 0. .and. abs (rVec%y - &
                         & (grid(gP)%yAxis(yP)+grid(gP)%yAxis(yP+1))/2.)/ &
@@ -5079,7 +5079,7 @@ module photon_mod
                         & ((grid(gP)%yAxis(yP)+grid(gP)%yAxis(yP-1))/2.) < 2.e-2) &
                         & yP = yP-1
                 end if
-                
+
                 if (zP <  grid(gP)%nz) then
                    if (vHat%z > 0. .and. abs(rVec%z - &
                         & (grid(gP)%zAxis(zP)+grid(gP)%zAxis(zP+1))/2.)/ &
@@ -5098,22 +5098,22 @@ module photon_mod
                    if (xP > grid(gP)%nx .or. xP < 1 .or. &
                         & yP > grid(gP)%ny .or. yP < 1 .or. &
                         & zP > grid(gP)%nz .or. zP < 1 ) then
-                      print*, "! fluoPathSegment: insanity [gp,xp,yp,zp,j,i]", & 
+                      print*, "! fluoPathSegment: insanity [gp,xp,yp,zp,j,i]", &
                            & gp, xp, yp, zp, j, i
                       stop
                    end if
 
-                   if (grid(gP)%active(xP,yP,zP)<0) then                
+                   if (grid(gP)%active(xP,yP,zP)<0) then
 
                       ! packet is entering a subgrid
                       enPacket%xP(1) = xP
                       enPacket%yP(1) = yP
                       enPacket%zP(1) = zP
-                   
+
                       gP = abs(grid(gP)%active(xP,yP,zP))
 
                       ! where is the packet in the sub-grid?
-                      
+
                       call locate(grid(gP)%xAxis, rVec%x, xP)
                       if (xP==0) xP = xP+1
                       if (xP< grid(gP)%nx) then
@@ -5127,14 +5127,14 @@ module photon_mod
                          if (rVec%y >  (grid(gP)%yAxis(yP+1)+grid(gP)%yAxis(yP))/2.) &
                               & yP = yP + 1
                       end if
-                      
+
                       call locate(grid(gP)%zAxis, rVec%z, zP)
                       if (zP==0) zP=zP+1
                       if (zP< grid(gP)%nz) then
                          if (rVec%z >  (grid(gP)%zAxis(zP+1)+grid(gP)%zAxis(zP))/2.) &
                               & zP = zP + 1
                       end if
-                   
+
                    end if
 
                    enPacket%iG = gP
@@ -5164,9 +5164,9 @@ module photon_mod
 
                    if (vHat%x>0.) then
                       if (xP<grid(gP)%nx) then
-                         
+
                          dSx = ( (grid(gP)%xAxis(xP+1)+grid(gP)%xAxis(xP))/2.-rVec%x)/vHat%x
-                         
+
                          if (abs(dSx)<1.e-10) then
                             rVec%x=(grid(gP)%xAxis(xP+1)+grid(gP)%xAxis(xP))/2.
                             xP = xP+1
@@ -5181,21 +5181,21 @@ module photon_mod
                    else if (vHat%x<0.) then
                       if (xP>1) then
                          dSx = ( (grid(gP)%xAxis(xP)+grid(gP)%xAxis(xP-1))/2.-rVec%x)/vHat%x
-                         if (abs(dSx)<1.e-10) then             
+                         if (abs(dSx)<1.e-10) then
                             rVec%x=(grid(gP)%xAxis(xP)+grid(gP)%xAxis(xP-1))/2.
                             xP = xP-1
                          end if
                       else
                          dSx = (grid(gP)%xAxis(1)-rVec%x)/vHat%x
-                         if (abs(dSx)<1.e-10) then             
+                         if (abs(dSx)<1.e-10) then
                             rVec%x=grid(gP)%xAxis(1)
                          end if
                       end if
                    else if (vHat%x==0.) then
                       dSx = grid(gP)%xAxis(grid(gP)%nx)
                    end if
-                   
-                   if (.not.lg1D) then 
+
+                   if (.not.lg1D) then
                       if (vHat%y>0.) then
                          if (yP<grid(gP)%ny) then
                             dSy = ( (grid(gP)%yAxis(yP+1)+grid(gP)%yAxis(yP))/2.-rVec%y)/vHat%y
@@ -5213,20 +5213,20 @@ module photon_mod
                       else if (vHat%y<0.) then
                          if (yP>1) then
                             dSy = ( (grid(gP)%yAxis(yP)+grid(gP)%yAxis(yP-1))/2.-rVec%y)/vHat%y
-                            if (abs(dSy)<1.e-10) then             
+                            if (abs(dSy)<1.e-10) then
                                rVec%y=(grid(gP)%yAxis(yP)+grid(gP)%yAxis(yP-1))/2.
                                yP = yP-1
                             end if
-                         else 
+                         else
                             dSy = ( grid(gP)%yAxis(1)-rVec%y)/vHat%y
-                            if (abs(dSy)<1.e-10) then             
+                            if (abs(dSy)<1.e-10) then
                                rVec%y=grid(gP)%yAxis(1)
                             end if
                          end if
                       else if (vHat%y==0.) then
                          dSy = grid(gP)%yAxis(grid(gP)%ny)
                       end if
-                      
+
                       if (vHat%z>0.) then
                          if (zP<grid(gP)%nz) then
                             dSz = ( (grid(gP)%zAxis(zP+1)+grid(gP)%zAxis(zP))/2.-rVec%z)/vHat%z
@@ -5242,35 +5242,35 @@ module photon_mod
                             end if
                          end if
                       else if (vHat%z<0.) then
-                         if (zP>1) then             
+                         if (zP>1) then
                             dSz = ( (grid(gP)%zAxis(zP)+grid(gP)%zAxis(zP-1))/2.-rVec%z)/vHat%z
-                            if (abs(dSz)<1.e-10) then             
+                            if (abs(dSz)<1.e-10) then
                                rVec%z=(grid(gP)%zAxis(zP)+grid(gP)%zAxis(zP-1))/2.
                                zP = zP-1
                             end if
                          else
                             dSz = ( grid(gP)%zAxis(1)-rVec%z)/vHat%z
-                            if (abs(dSz)<1.e-10) then             
+                            if (abs(dSz)<1.e-10) then
                                rVec%z=grid(gP)%zAxis(1)
                             end if
                          end if
                       else if (vHat%z==0.) then
                          dSz = grid(gP)%zAxis(grid(gP)%nz)
                       end if
-                      
+
                       if (xP > grid(gP)%nx .or. xP < 1 .or. &
                            & yP > grid(gP)%ny .or. yP < 1 .or. &
                            & zP > grid(gP)%nz .or. zP < 1 ) then
-                         print*, "! fluoPathSegment: insanity -2- [gp,xp,yp,zp]", & 
+                         print*, "! fluoPathSegment: insanity -2- [gp,xp,yp,zp]", &
                               & gp, xp, yp, zp
                          stop
                       end if
-                      
+
                    end if
-                   
+
                    if (grid(gP)%active(xP,yP,zP)>=0) exit
                 end do
-                
+
                 ! cater for cells on cell wall
                 if ( abs(dSx)<1.e-10 ) dSx = grid(gP)%xAxis(grid(gP)%nx)
                 if ( abs(dSy)<1.e-10 ) dSy = grid(gP)%yAxis(grid(gP)%ny)
@@ -5280,7 +5280,7 @@ module photon_mod
                 dSx = abs(dSx)
                 dSy = abs(dSy)
                 dSz = abs(dSz)
-                
+
                 if (dSx<=0.) then
                    print*, '! fluoPathSegment: [warning] dSx <= 0.',dSx
                    print*, 'grid(gP)%xAxis ', grid(gP)%xAxis
@@ -5311,7 +5311,7 @@ module photon_mod
                    stop
                 end if
 !print*, 'ps4'
-                ! calculate the optical depth to the next cell wall 
+                ! calculate the optical depth to the next cell wall
                 tauCell = dS*grid(gP)%opacity(grid(gP)%active(xP,yP,zP), enPacket%nuP)
 
 !print*, 'ps5'
@@ -5325,21 +5325,21 @@ module photon_mod
                       stop
                    end if
 
-                   if (xP == 1) then              
+                   if (xP == 1) then
 
                       dV = 4.*Pi* ( (grid(gP)%xAxis(xP+1)/1.e15)**3.)/3.
 
 
                    else if ( xP==grid(gP)%nx) then
-                   
+
                       dV = Pi* ( (3.*(grid(gP)%xAxis(xP)/1.e15)-(grid(gP)%xAxis(xP-1)/1.e15))**3. - &
                            & ((grid(gP)%xAxis(xP)/1.e15)+(grid(gP)%xAxis(xP-1)/1.e15))**3. ) / 6.
 
-                   else 
+                   else
 
                       dV = Pi* ( ((grid(gP)%xAxis(xP+1)/1.e15)+(grid(gP)%xAxis(xP)/1.e15))**3. - &
                            & ((grid(gP)%xAxis(xP-1)/1.e15)+(grid(gP)%xAxis(xP)/1.e15))**3. ) / 6.
-                      
+
                    end if
 
                    dV = dV/8.
@@ -5347,22 +5347,22 @@ module photon_mod
                 else
 
                    if ( (xP>1) .and. (xP<grid(gP)%nx) ) then
-                      
+
                       dx = abs(grid(gP)%xAxis(xP+1)-grid(gP)%xAxis(xP-1))/2.
                    else if ( xP==1 ) then
                       if (lgSymmetricXYZ .or. gP>1 .or. lgPlaneIonization ) then
                          dx = abs(grid(gP)%xAxis(xP+1)-grid(gP)%xAxis(xP))/2.
-                      else 
+                      else
                          dx = abs(grid(gP)%xAxis(xP+1)-grid(gP)%xAxis(xP))
                       end if
                    else if ( xP==grid(gP)%nx ) then
                       if (gP > 1 .or. lgPlaneIonization) then
                          dx = abs(grid(gP)%xAxis(xP)  -grid(gP)%xAxis(xP-1))/2.
-                      else 
+                      else
                          dx = abs(grid(gP)%xAxis(xP)  -grid(gP)%xAxis(xP-1))
                       end if
                    end if
-                   
+
                    if ( (yP>1) .and. (yP<grid(gP)%ny) ) then
                       dy = abs(grid(gP)%yAxis(yP+1)-grid(gP)%yAxis(yP-1))/2.
                    else if ( yP==1 ) then
@@ -5378,27 +5378,27 @@ module photon_mod
                          dy = abs(grid(gP)%yAxis(yP)  -grid(gP)%yAxis(yP-1))
                       end if
                    end if
-                   
-                   if ( (zP>1) .and. (zP<grid(gP)%nz) ) then    
-                      dz = abs(grid(gP)%zAxis(zP+1)-grid(gP)%zAxis(zP-1))/2.    
-                   else if ( zP==1 ) then    
+
+                   if ( (zP>1) .and. (zP<grid(gP)%nz) ) then
+                      dz = abs(grid(gP)%zAxis(zP+1)-grid(gP)%zAxis(zP-1))/2.
+                   else if ( zP==1 ) then
                       if (lgSymmetricXYZ .or. gP>1 .or. lgPlaneIonization) then
                          dz = abs(grid(gP)%zAxis(zP+1)-grid(gP)%zAxis(zP))/2.
                       else
                          dz = abs(grid(gP)%zAxis(zP+1)-grid(gP)%zAxis(zP))
                       end if
-                   else if ( zP==grid(gP)%nz ) then    
+                   else if ( zP==grid(gP)%nz ) then
                       if (gP>1 .or. lgPlaneIonization) then
                          dz = abs(grid(gP)%zAxis(zP)-grid(gP)%zAxis(zP-1))/2.
                       else
                          dz = abs(grid(gP)%zAxis(zP)-grid(gP)%zAxis(zP-1))
                       end if
                    end if
-                   
+
                    dx = dx/1.e15
                    dy = dy/1.e15
-                   dz = dz/1.e15                         
-                   
+                   dz = dz/1.e15
+
                    ! calculate the volume
                    dV = dx*dy*dz
 
@@ -5408,7 +5408,7 @@ module photon_mod
                 if ((absTau+tauCell > passProb) .and. (grid(gP)%active(xP,yP,zP)>0)) then
 
                    ! packet interacts
-                
+
                    ! calculate where within this cell the packet interacts
                    dlLoc = (passProb-absTau)/grid(gP)%opacity(grid(gP)%active(xP,yP,zP), enPacket%nuP)
 
@@ -5447,8 +5447,8 @@ module photon_mod
                    ! check if the position within the cell is still within the outer radius
                    if ( sqrt( (rvec%x/1.e10)**2. + (rvec%y/1.e10)**2. + (rvec%z/1.e10)**2.)*1.e10 >= R_out &
                         & .and. R_out > 0.) then
-                   
-!print*, 'ps5 esc'                   
+
+!print*, 'ps5 esc'
                       ! the packet escapes without further interaction
                       idirT = int(acos(enPacket%direction%z)/dTheta)+1
                       if (idirT>totangleBinsTheta) then
@@ -5459,34 +5459,34 @@ module photon_mod
                               &  idirT, enPacket, dTheta, totAngleBinsTheta
                          stop
                       end if
-                   
+
                       if (enPacket%direction%x<1.e-35) then
                          idirP = 0
                       else
-                         idirP = int(atan(enPacket%direction%y/enPacket%direction%x)/dPhi)             
+                         idirP = int(atan(enPacket%direction%y/enPacket%direction%x)/dPhi)
                       end if
                       if (idirP<0) idirP=totAngleBinsPhi+idirP
                       idirP=idirP+1
                       if (idirP>totangleBinsPhi) then
                          idirP=totangleBinsPhi
                       end if
-                      
+
                       if (idirP<1 .or. idirP>totAngleBinsPhi) then
                          print*, '! fluorescencePacketRun: error in Phi direction cosine assignment',&
                               &  idirP, enPacket, dPhi, totAngleBinsPhi
                          stop
                       end if
-                      
+
                       if (nAngleBins>0) then
-                         if ( (totangleBinsPhi>1 .and. viewPointPtheta(idirT) == viewPointPphi(idirP)) .or. &            
+                         if ( (totangleBinsPhi>1 .and. viewPointPtheta(idirT) == viewPointPphi(idirP)) .or. &
                               & (totangleBinsPhi==1 .and. viewPointPtheta(idirT)>0) ) then
-                            grid(enPacket%origin(1))%escapedPackets(enPacket%origin(2), enPacket%nuP,&                   
-                                 & viewPointPtheta(idirT)) = &                                                           
-                                 &grid(enPacket%origin(1))%escapedPackets(enPacket%origin(2), &                          
-                                 & enPacket%nuP,viewPointPtheta(idirT)) +  deltaEUsed                                    
+                            grid(enPacket%origin(1))%escapedPackets(enPacket%origin(2), enPacket%nuP,&
+                                 & viewPointPtheta(idirT)) = &
+                                 &grid(enPacket%origin(1))%escapedPackets(enPacket%origin(2), &
+                                 & enPacket%nuP,viewPointPtheta(idirT)) +  deltaEUsed
                             grid(enPacket%origin(1))%escapedPackets(enPacket%origin(2), enPacket%nuP,0) = &
-                                 &grid(enPacket%origin(1))%escapedPackets(enPacket%origin(2), &                          
-                                 & enPacket%nuP,0) +  deltaEUsed                                    
+                                 &grid(enPacket%origin(1))%escapedPackets(enPacket%origin(2), &
+                                 & enPacket%nuP,0) +  deltaEUsed
 
                             if (lgSeparateSED) then
                                grid(enPacket%origin(1))%escapedPacketsComponents(enPacket%origin(2), enPacket%nuP,&
@@ -5501,8 +5501,8 @@ module photon_mod
 
                          else
                             grid(enPacket%origin(1))%escapedPackets(enPacket%origin(2),enPacket%nuP,0) = &
-                                 & grid(enPacket%origin(1))%escapedPackets(enPacket%origin(2), &                         
-                                 & enPacket%nuP,0) +  deltaEUsed                                                         
+                                 & grid(enPacket%origin(1))%escapedPackets(enPacket%origin(2), &
+                                 & enPacket%nuP,0) +  deltaEUsed
 
                             if (lgSeparateSED) then
                                grid(enPacket%origin(1))%escapedPacketsComponents&
@@ -5512,8 +5512,8 @@ module photon_mod
                             endif
 
                          end if
-                      else                              
-                         grid(enPacket%origin(1))%escapedPackets(enPacket%origin(2), & 
+                      else
+                         grid(enPacket%origin(1))%escapedPackets(enPacket%origin(2), &
                               & enPacket%nuP,0) = &
                               & grid(enPacket%origin(1))%escapedPackets(enPacket%origin(2), &
                               & enPacket%nuP,0) +  deltaEUsed
@@ -5526,28 +5526,28 @@ module photon_mod
 
                       end if
 
-!print*, 'ps5 esc out'                                      
+!print*, 'ps5 esc out'
                       return
                    end if
-                
+
 !print*, 'ps6 ', probSca, KNsigmaT(enPacket%nuP)*&
 !                        &grid(gP)%Ne(grid(gP)%active(xp,yp,zp)), (grid(gp)%opacity(grid(gp)%active(xp,yp,zp),&
 !                        &enPacket%nuP))
-                   ! check if the packet is absorbed or scattered 
+                   ! check if the packet is absorbed or scattered
                    ! NOTE : we are ignoring dust
                    probSca = KNsigmaT(enPacket%nuP)*&
                         &grid(gP)%Ne(grid(gP)%active(xp,yp,zp))/&
                         & (grid(gp)%opacity(grid(gp)%active(xp,yp,zp),&
                         &enPacket%nuP))
-                   
+
                    call random_number(random)
-                   
+
                    random = 1.-random
-                   
+
                    if (random > probSca) then
-                      lgScattered = .false.         
+                      lgScattered = .false.
                    else if (random <= probSca) then
-                      lgScattered = .true.         
+                      lgScattered = .true.
                    else
                       print*, '! fluoPathSegment: insanity occured and scattering/absorption &
                            & decision stage.'
@@ -5557,21 +5557,21 @@ module photon_mod
 !print*, 'ps7 sca', lgscattered
                    if (.not. lgScattered) then
 
-                      absInt = absInt + 1.                            
+                      absInt = absInt + 1.
                       exit
-                      
+
                    else
-                      
-                      scaInt = scaInt + 1.                                                 
-                      ! packet is compton scattered                         
+
+                      scaInt = scaInt + 1.
+                      ! packet is compton scattered
                       ! calculate new direction
                       ! for now assume scattering is isotropic, when phase
-                      ! function is introduced the following must be changed                         
-                         
+                      ! function is introduced the following must be changed
+
                       enPacket%xP(igpp) = xP
                       enPacket%yP(igpp) = yP
-                      enPacket%zP(igpp) = zP            
-                      
+                      enPacket%zP(igpp) = zP
+
                       if (grid(gP)%active(enPacket%xp(igpp), enPacket%yp(igpp), enPacket%zp(igpp)) < 0.) then
                          print*, "! fluoPathSegment: new packet cannot be emitted from re-mapped cell -1-"
                          print*, "nuP, .false., .true., xp,yp,zp, gp"
@@ -5583,31 +5583,31 @@ module photon_mod
 
 !                      enPacket = initFluorescencePacket(enPacket%nuP, rVec, .false., .false., enPacket%xP(1:2), &
 !                           & enPacket%yP(1:2), enPacket%zP(1:2), gP)
-                      
+
                       enPacket%origin(1) = gP
                       enPacket%origin(2) = grid(gP)%active(enPacket%xp(igpp), enPacket%yp(igpp), enPacket%zp(igpp))
-                      
+
 
                       vHat%x = enPacket%direction%x
                       vHat%y = enPacket%direction%y
                       vHat%z = enPacket%direction%z
-                      
+
                       ! initialize optical depth
                       absTau = 0.
-                      
+
                       ! get a random number
                       call random_number(random)
-                      
-                      ! calculate the probability 
+
+                      ! calculate the probability
                       passProb = -log(1.-random)
-!print*, 'sca out'                      
+!print*, 'sca out'
                    end if
-                   
+
                 else
 
                    ! the packet is not absorbed within this cell
                    ! add contribution of the packet to the radiation field
-                   
+
                    if (enPacket%lgStellar) then
                       grid(gP)%Jste(grid(gP)%active(xP,yP,zP),enPacket%nuP) = &
                            grid(gP)%Jste(grid(gP)%active(xP,yP,zP),enPacket%nuP) + dS*deltaEUsed / dV
@@ -5620,7 +5620,7 @@ module photon_mod
                               & grid(gP)%Jste(grid(gP)%active(xP,yP,zP),enPacket%nuP) + dS*deltaEUsed / dV
                       end if
                    end if
-                   
+
                    ! update absTau
                    absTau = absTau+tauCell
 
@@ -5630,58 +5630,58 @@ module photon_mod
                    ! keep track of where you are on mother grid
                    if (gP>1) then
 
-                      if (enPacket%xP(1) <= 0 .or. & 
-                           & enPacket%yP(1) <= 0 .or. & 
+                      if (enPacket%xP(1) <= 0 .or. &
+                           & enPacket%yP(1) <= 0 .or. &
                            & enPacket%zP(1) <= 0 ) then
-                         
+
                          ! locate where we are at on the mother grid
                          call locate(grid(grid(gP)%motherP)%xAxis, rvec%x, enPacket%xP(1))
                          if ( enPacket%xP(1)< grid(grid(gP)%motherP)%nx) then
                             if ( rvec%x > ( grid(grid(gP)%motherP)%xAxis(enPacket%xP(1)) + &
-                                 & grid(grid(gP)%motherP)%xAxis(enPacket%xP(1)+1)/2.) ) & 
+                                 & grid(grid(gP)%motherP)%xAxis(enPacket%xP(1)+1)/2.) ) &
                                  & enPacket%xP(1) = enPacket%xP(1)+1
                          end if
-                         
+
                          call locate( grid(grid(gP)%motherP)%yAxis, rvec%y, enPacket%yP(1))
                          if ( enPacket%yP(1)< grid(grid(gP)%motherP)%ny) then
                             if ( rvec%y > ( grid(grid(gP)%motherP)%yAxis(enPacket%yP(1)) + &
-                                 & grid(grid(gP)%motherP)%yAxis(enPacket%yP(1)+1)/2.) ) & 
+                                 & grid(grid(gP)%motherP)%yAxis(enPacket%yP(1)+1)/2.) ) &
                                  & enPacket%yP(1) = enPacket%yP(1)+1
                          end if
-                         
+
                          call locate(grid(grid(gP)%motherP)%zAxis, rvec%z, enPacket%zP(1))
                          if ( enPacket%zP(1)< grid(grid(gP)%motherP)%nz) then
                             if ( rvec%z > ( grid(grid(gP)%motherP)%zAxis(enPacket%zP(1)) + &
-                                 & grid(grid(gP)%motherP)%zAxis(enPacket%zP(1)+1)/2.) ) & 
+                                 & grid(grid(gP)%motherP)%zAxis(enPacket%zP(1)+1)/2.) ) &
                                  & enPacket%zP(1) = enPacket%zP(1)+1
                          end if
-                         
-                      
+
+
                       else
-                      
-!print*, 'ps8'                   
+
+!print*, 'ps8'
                          if (vHat%x>0.) then
                             if ( enPacket%xP(1) < grid(grid(gP)%motherP)%nx ) then
-                               if ( rVec%x > (grid(grid(gP)%motherP)%xAxis(enPacket%xP(1))+& 
+                               if ( rVec%x > (grid(grid(gP)%motherP)%xAxis(enPacket%xP(1))+&
                                     & grid(grid(gP)%motherP)%xAxis(enPacket%xP(1)+1))/2. ) then
                                   enPacket%xP(1) = enPacket%xP(1)+1
                                end if
                             else
                                if ( rVec%x > grid(grid(gP)%motherP)%xAxis(enPacket%xP(1))) then
-!                            print*, '! fluoPathSegment: insanity occured at mother grid transfer (x axis +)', & 
+!                            print*, '! fluoPathSegment: insanity occured at mother grid transfer (x axis +)', &
 !                                 & rVec%x, gP, grid(gP)%motherP
 !                            stop
                                end if
                             end if
                          else
                             if ( enPacket%xP(1) > 1 ) then
-                               if ( rVec%x <= (grid(grid(gP)%motherP)%xAxis(enPacket%xP(1)-1)+& 
+                               if ( rVec%x <= (grid(grid(gP)%motherP)%xAxis(enPacket%xP(1)-1)+&
                                     & grid(grid(gP)%motherP)%xAxis(enPacket%xP(1)))/2. ) then
                                   enPacket%xP(1) = enPacket%xP(1)-1
                                end if
                             else
                                if (rVec%x < grid(grid(gP)%motherP)%xAxis(1)) then
-!                            print*, '! fluoPathSegment: insanity occured at mother grid transfer (x axis-)',&  
+!                            print*, '! fluoPathSegment: insanity occured at mother grid transfer (x axis-)',&
 !                                 & rVec%x, gP, grid(gP)%motherP
 !                            stop
                                end if
@@ -5689,7 +5689,7 @@ module photon_mod
                          end if
                          if (vHat%y>0.) then
                             if (  enPacket%yP(1) < grid(grid(gP)%motherP)%ny ) then
-                               if ( rVec%y > (grid(grid(gP)%motherP)%yAxis( enPacket%yP(1))+& 
+                               if ( rVec%y > (grid(grid(gP)%motherP)%yAxis( enPacket%yP(1))+&
                                     & grid(grid(gP)%motherP)%yAxis(enPacket%yP(1)+1))/2. ) then
                                   enPacket%yP(1) =  enPacket%yP(1)+1
                                end if
@@ -5702,13 +5702,13 @@ module photon_mod
                             end if
                          else
                             if (  enPacket%yP(1) > 1 ) then
-                               if ( rVec%y <= (grid(grid(gP)%motherP)%yAxis( enPacket%yP(1)-1)+& 
+                               if ( rVec%y <= (grid(grid(gP)%motherP)%yAxis( enPacket%yP(1)-1)+&
                                     & grid(grid(gP)%motherP)%yAxis(enPacket%yP(1)))/2. ) then
                                   enPacket%yP(1) =  enPacket%yP(1)-1
                                end if
                             else
                                if (rVec%y < grid(grid(gP)%motherP)%yAxis(1)) then
-!                            print*, '! fluoPathSegment: insanity occured at mother grid transfer (y axis -)', & 
+!                            print*, '! fluoPathSegment: insanity occured at mother grid transfer (y axis -)', &
 !                                 & rVec%y, gP, grid(gP)%motherP
 !                            stop
                                end if
@@ -5741,10 +5741,10 @@ module photon_mod
                                end if
                             end if
                          end if
-!print*, 'ps9'                                            
+!print*, 'ps9'
                       end if
                    end if
-                   
+
                    if (.not.lg1D) then
                       if ( (dS == dSx) .and. (vHat%x > 0.)  ) then
                          xP = xP+1
@@ -5752,7 +5752,7 @@ module photon_mod
                          xP = xP-1
                       else if ( (dS == dSy) .and. (vHat%y > 0.) ) then
                          yP = yP+1
-                      else if ( (dS == dSy) .and. (vHat%y < 0.) ) then 
+                      else if ( (dS == dSy) .and. (vHat%y < 0.) ) then
                          yP = yP-1
                       else if ( (dS == dSz) .and. (vHat%z > 0.) ) then
                          zP = zP+1
@@ -5767,15 +5767,15 @@ module photon_mod
                            & (rVec%y/1.e10)*(rVec%y/1.e10) + &
                            & (rVec%z/1.e10)*(rVec%z/1.e10))
                       call locate(grid(gP)%xAxis, radius , xP)
-                      
+
                    end if
-!print*, 'ps10'                
+!print*, 'ps10'
                 ! be 6/6/06
                    if(.not.lgPlaneIonization.and..not.lgSymmetricXYZ) then
                       lgReturn=.false.
 
                       if ( rVec%y <= grid(gP)%yAxis(1)-grid(gP)%geoCorrY .or. yP<1) then
-                         
+
                          ! the energy packet escapes this grid
                          if (gP==1) then
                             yP=1
@@ -5789,11 +5789,11 @@ module photon_mod
                             print*, '! fluoPathSegment: insanity occured - invalid gP', gP
                             stop
                          end if
-                         
+
                       end if
-!print*, 'ps11', lgreturn                   
+!print*, 'ps11', lgreturn
                      if (rVec%y > grid(gP)%yAxis(grid(gP)%ny)+grid(gP)%geoCorrY .or. yP>grid(gP)%ny) then
-                     
+
                         if (gP==1) then
                            ! the energy packet escapes
                            yP = grid(gP)%ny
@@ -5807,84 +5807,84 @@ module photon_mod
                            print*, '! fluoPathSegment: insanity occured - invalid gP', gP
                            stop
                         end if
-!print*, 'ps12', lgreturn                                            
+!print*, 'ps12', lgreturn
                      end if
 
                      if ( (rVec%x <= grid(gP)%xAxis(1)-grid(gP)%geoCorrX .or. xP<1) .and. gP==1) then
                         xP=1
                         lgReturn=.true.
-!print*, 'ps12', lgreturn                                            
+!print*, 'ps12', lgreturn
                      end if
-                  
-                  
+
+
                      if ( (rVec%x <= grid(gP)%xAxis(1)-grid(gP)%geoCorrX .or. xP<1) &
                           & .and. gP>1) then
-                        
+
                         xP = enPacket%xP(grid(gP)%motherP)
                         yP =  enPacket%yP(grid(gP)%motherP)
                         zP =  enPacket%zP(grid(gP)%motherP)
                         gP = grid(gP)%motherP
-                        
+
                      end if
-                     
-                     
+
+
                      if ( (rVec%x >=  grid(gP)%xAxis(grid(gP)%nx)+grid(gP)%geoCorrX &
                           & .or. xP>grid(gP)%nx) .and. gP==1 )then
                         xP = grid(gP)%nx
                         lgReturn=.true.
-!print*, 'ps13', lgreturn                                            
+!print*, 'ps13', lgreturn
                      end if
-                     
+
                      if ( (rVec%x >=  grid(gP)%xAxis(grid(gP)%nx)+grid(gP)%geoCorrX&
                           & .or. xP>grid(gP)%nx) .and.  gP>1) then
-                        
+
                         xP = enPacket%xP(grid(gP)%motherP)
                         yP =  enPacket%yP(grid(gP)%motherP)
                         zP =  enPacket%zP(grid(gP)%motherP)
                         gP = grid(gP)%motherP
-                     
+
                      end if
-                  
+
                      if ( (rVec%z <= grid(gP)%zAxis(1)-grid(gP)%geoCorrZ .or.zP<1) &
                           & .and. gP==1) then
                         zP=1
                         lgReturn=.true.
-!print*, 'ps14', lgreturn                                            
+!print*, 'ps14', lgreturn
                     end if
 
                     if ( (rVec%z <= grid(gP)%zAxis(1)-grid(gP)%geoCorrZ &
                          & .or.zP<1) .and. gP>1) then
-                       
+
                        xP = enPacket%xP(grid(gP)%motherP)
                        yP =  enPacket%yP(grid(gP)%motherP)
                        zP =  enPacket%zP(grid(gP)%motherP)
                        gP = grid(gP)%motherP
-                       
+
                     end if
-                 
+
                     if ( (rVec%z >=  grid(gP)%zAxis(grid(gP)%nz)+grid(gP)%geoCorrZ &
                          & .or. zP>grid(gP)%nz) &
                          & .and. gP==1) then
-                       
+
                        zP = grid(gP)%nz
                        lgReturn=.true.
-!print*, 'ps15', lgreturn                                            
+!print*, 'ps15', lgreturn
                     end if
-                 
+
                     if ((rVec%z >=  grid(gP)%zAxis(grid(gP)%nz)+grid(gP)%geoCorrZ &
                          & .or. zP>grid(gP)%nz) .and. gP>1) then
-                       
+
                        xP = enPacket%xP(grid(gP)%motherP)
                        yP =  enPacket%yP(grid(gP)%motherP)
                        zP =  enPacket%zP(grid(gP)%motherP)
                        gP = grid(gP)%motherP
-                       
+
                     end if
-                 
+
                     if (lgReturn) then
-                    
+
                        ! the packet escapes without further interaction
-!print*, 'ps16', lgreturn                                            
+!print*, 'ps16', lgreturn
                        idirT = int(acos(enPacket%direction%z)/dTheta)+1
                        if (idirT>totangleBinsTheta) then
                           idirT=totangleBinsTheta
@@ -5894,8 +5894,8 @@ module photon_mod
                                &  idirT, enPacket, dTheta, totAngleBinsTheta
                           stop
                        end if
-                    
-                    
+
+
                        if (enPacket%direction%x<1.e-35) then
                           idirP = 0
                        else
@@ -5903,7 +5903,7 @@ module photon_mod
                        end if
                        if (idirP<0) idirP=totAngleBinsPhi+idirP
                        idirP=idirP+1
-                       
+
                        if (idirP>totangleBinsPhi) then
                           idirP=totangleBinsPhi
                        end if
@@ -5912,11 +5912,11 @@ module photon_mod
                                &  idirP, enPacket, dPhi, totAngleBinsPhi
                           stop
                        end if
-                       
-                       
+
+
 
                        if (nAngleBins>0) then
-                          if ( (totangleBinsPhi>1 .and. viewPointPtheta(idirT) == viewPointPphi(idirP)) .or. &            
+                          if ( (totangleBinsPhi>1 .and. viewPointPtheta(idirT) == viewPointPphi(idirP)) .or. &
                                & (totangleBinsPhi==1 .and. viewPointPtheta(idirT)>0) ) then
                              grid(enPacket%origin(1))%escapedPackets(enPacket%origin(2), enPacket%nuP,&
                                   & viewPointPtheta(idirT)) = &
@@ -5924,7 +5924,7 @@ module photon_mod
                                   & enPacket%nuP,viewPointPtheta(idirT)) +  deltaEUsed
                              grid(enPacket%origin(1))%escapedPackets(enPacket%origin(2), enPacket%nuP,0) = &
                                   &grid(enPacket%origin(1))%escapedPackets(enPacket%origin(2), &
-                                  & enPacket%nuP,0) +  deltaEUsed                                    
+                                  & enPacket%nuP,0) +  deltaEUsed
                              if (lgSeparateSED) then
                                 grid(enPacket%origin(1))%escapedPacketsComponents(enPacket%origin(2), enPacket%nuP,&
                                      & viewPointPtheta(idirT), enPacket%SEDtype) = &
@@ -5939,15 +5939,15 @@ module photon_mod
                              grid(enPacket%origin(1))%escapedPackets(enPacket%origin(2),enPacket%nuP,0) = &
                                   & grid(enPacket%origin(1))%escapedPackets(enPacket%origin(2), &
                                   & enPacket%nuP,0) +  deltaEUsed
-                             if (lgSeparateSED) then                                
+                             if (lgSeparateSED) then
                                 grid(enPacket%origin(1))%escapedPacketsComponents&
                                      &(enPacket%origin(2),enPacket%nuP,0, enPacket%SEDtype) = &
                                      & grid(enPacket%origin(1))%escapedPacketsComponents(enPacket%origin(2), &
                                      & enPacket%nuP,0, enPacket%SEDtype) +  deltaEUsed
                              end if
                           end if
-                       else                              
-                          grid(enPacket%origin(1))%escapedPackets(enPacket%origin(2), & 
+                       else
+                          grid(enPacket%origin(1))%escapedPackets(enPacket%origin(2), &
                                & enPacket%nuP,0) = &
                                & grid(enPacket%origin(1))%escapedPackets(enPacket%origin(2), &
                                & enPacket%nuP,0) +  deltaEUsed
@@ -5957,14 +5957,14 @@ module photon_mod
                                   & grid(enPacket%origin(1))%escapedPacketsComponents(enPacket%origin(2), &
                                   & enPacket%nuP,0, enPacket%SEDtype) +  deltaEUsed
                           endif
-                          
+
                        end if
 
 
-!print*, 'ps16 out'                   
+!print*, 'ps16 out'
                        return
                     end if
-                    
+
                  end if
 
                  ! end be 6/6/06
@@ -5972,11 +5972,11 @@ module photon_mod
 
                  if(lgPlaneIonization) then
                      lgReturn=.false.
-                     
+
                      if ( rVec%y <= grid(gP)%yAxis(1) .or. yP<1) then
-                        
+
                         ! the energy packet escapes this grid
-                        if (gP==1) then	
+                        if (gP==1) then
                            yP=1
                            lgReturn=.true.
                         else if (gP>1) then
@@ -5985,26 +5985,26 @@ module photon_mod
                            if (enPacket%xP(1)<1) enPacket%xP(1)=1
                            if ( enPacket%xP(1)< grid(grid(gP)%motherP)%nx) then
                               if ( rvec%x >= ( grid(grid(gP)%motherP)%xAxis(enPacket%xP(1)) + &
-                                   & grid(grid(gP)%motherP)%xAxis(enPacket%xP(1)+1)/2.) ) & 
+                                   & grid(grid(gP)%motherP)%xAxis(enPacket%xP(1)+1)/2.) ) &
                                    & enPacket%xP(1) = enPacket%xP(1)+1
                            end if
-                           
+
                            call locate( grid(grid(gP)%motherP)%yAxis, rvec%y, enPacket%yP(1))
                            if (enPacket%yP(1)<1) enPacket%yP(1)=1
                            if ( enPacket%yP(1)< grid(grid(gP)%motherP)%ny) then
                               if ( rvec%y >= ( grid(grid(gP)%motherP)%yAxis(enPacket%yP(1)) + &
-                                   & grid(grid(gP)%motherP)%yAxis(enPacket%yP(1)+1)/2.) ) & 
+                                   & grid(grid(gP)%motherP)%yAxis(enPacket%yP(1)+1)/2.) ) &
                                    & enPacket%yP(1) = enPacket%yP(1)+1
                            end if
-                           
+
                            call locate(grid(grid(gP)%motherP)%zAxis, rvec%z, enPacket%zP(1))
                            if (enPacket%zP(1)<1) enPacket%zP(1)=1
                            if ( enPacket%zP(1)< grid(grid(gP)%motherP)%nz) then
                               if ( rvec%z >= ( grid(grid(gP)%motherP)%zAxis(enPacket%zP(1)) + &
-                                   & grid(grid(gP)%motherP)%zAxis(enPacket%zP(1)+1)/2.) ) & 
+                                   & grid(grid(gP)%motherP)%zAxis(enPacket%zP(1)+1)/2.) ) &
                                    & enPacket%zP(1) = enPacket%zP(1)+1
                            end if
-                           
+
                            xP = enPacket%xP(1)
                            yP = enPacket%yP(1)
                            zP = enPacket%zP(1)
@@ -6014,12 +6014,12 @@ module photon_mod
                            print*, '! fluoPathSegment: insanity occured - invalid gP', gP
                            stop
                         end if
-                        
+
                      end if
-              
+
                      if (rVec%y > grid(gP)%yAxis(grid(gP)%ny) .or. yP>grid(gP)%ny) then
-                        
-                        if (gP==1) then	
+
+                        if (gP==1) then
                            ! the energy packet escapes
                            yP = grid(gP)%ny
                            lgReturn=.true.
@@ -6030,26 +6030,26 @@ module photon_mod
                            if (enPacket%xP(1)<1) enPacket%xP(1)=1
                            if ( enPacket%xP(1)< grid(grid(gP)%motherP)%nx) then
                               if ( rvec%x >= ( grid(grid(gP)%motherP)%xAxis(enPacket%xP(1)) + &
-                                   & grid(grid(gP)%motherP)%xAxis(enPacket%xP(1)+1)/2.) ) & 
+                                   & grid(grid(gP)%motherP)%xAxis(enPacket%xP(1)+1)/2.) ) &
                                    & enPacket%xP(1) = enPacket%xP(1)+1
                            end if
-                           
+
                            call locate( grid(grid(gP)%motherP)%yAxis, rvec%y, enPacket%yP(1))
                            if (enPacket%yP(1)<1) enPacket%yP(1)=1
                            if ( enPacket%yP(1)< grid(grid(gP)%motherP)%ny) then
                               if ( rvec%y >= ( grid(grid(gP)%motherP)%yAxis(enPacket%yP(1)) + &
-                                   & grid(grid(gP)%motherP)%yAxis(enPacket%yP(1)+1)/2.) ) & 
+                                   & grid(grid(gP)%motherP)%yAxis(enPacket%yP(1)+1)/2.) ) &
                                    & enPacket%yP(1) = enPacket%yP(1)+1
                            end if
-                           
+
                            call locate(grid(grid(gP)%motherP)%zAxis, rvec%z, enPacket%zP(1))
                            if (enPacket%zP(1)<1) enPacket%zP(1)=1
                            if ( enPacket%zP(1)< grid(grid(gP)%motherP)%nz) then
                               if ( rvec%z >= ( grid(grid(gP)%motherP)%zAxis(enPacket%zP(1)) + &
-                                 & grid(grid(gP)%motherP)%zAxis(enPacket%zP(1)+1)/2.) ) & 
+                                 & grid(grid(gP)%motherP)%zAxis(enPacket%zP(1)+1)/2.) ) &
                                  & enPacket%zP(1) = enPacket%zP(1)+1
                            end if
-                           
+
                            xP = enPacket%xP(1)
                            yP = enPacket%yP(1)
                            zP = enPacket%zP(1)
@@ -6059,45 +6059,45 @@ module photon_mod
                            print*, '! fluoPathSegment: insanity occured - invalid gP', gP
                            stop
                         end if
-                        
+
                      end if
-                     
+
                      if ( (rVec%x <= grid(1)%xAxis(1) .or. xP<1) ) then
                         xP=1
                         rVec%x = grid(gP)%xAxis(1)
                         vHat%x = -vHat%x
-                        
+
                      end if
-                     
+
                      if ( (rVec%x <= grid(gP)%xAxis(1) .or. xP<1) &
                           & .and. gP>1) then
-                        
+
 
                         ! locate where we are at on the mother grid
                         call locate(grid(grid(gP)%motherP)%xAxis, rvec%x, enPacket%xP(1))
                         if (enPacket%xP(1)<1) enPacket%xP(1)=1
                         if ( enPacket%xP(1)< grid(grid(gP)%motherP)%nx) then
                            if ( rvec%x >= ( grid(grid(gP)%motherP)%xAxis(enPacket%xP(1)) + &
-                                & grid(grid(gP)%motherP)%xAxis(enPacket%xP(1)+1)/2.) ) & 
+                                & grid(grid(gP)%motherP)%xAxis(enPacket%xP(1)+1)/2.) ) &
                                 & enPacket%xP(1) = enPacket%xP(1)+1
                         end if
-                        
+
                         call locate( grid(grid(gP)%motherP)%yAxis, rvec%y, enPacket%yP(1))
                         if (enPacket%yP(1)<1) enPacket%yP(1)=1
                         if ( enPacket%yP(1)< grid(grid(gP)%motherP)%ny) then
                            if ( rvec%y >= ( grid(grid(gP)%motherP)%yAxis(enPacket%yP(1)) + &
-                              & grid(grid(gP)%motherP)%yAxis(enPacket%yP(1)+1)/2.) ) & 
+                              & grid(grid(gP)%motherP)%yAxis(enPacket%yP(1)+1)/2.) ) &
                               & enPacket%yP(1) = enPacket%yP(1)+1
                         end if
-                      
+
                         call locate(grid(grid(gP)%motherP)%zAxis, rvec%z, enPacket%zP(1))
                         if (enPacket%zP(1)<1) enPacket%zP(1)=1
                         if ( enPacket%zP(1)< grid(grid(gP)%motherP)%nz) then
                            if ( rvec%z >= ( grid(grid(gP)%motherP)%zAxis(enPacket%zP(1)) + &
-                                & grid(grid(gP)%motherP)%zAxis(enPacket%zP(1)+1)/2.) ) & 
+                                & grid(grid(gP)%motherP)%zAxis(enPacket%zP(1)+1)/2.) ) &
                                 & enPacket%zP(1) = enPacket%zP(1)+1
                         end if
-                        
+
                         xP = enPacket%xP(1)
                         yP = enPacket%yP(1)
                         zP = enPacket%zP(1)
@@ -6105,42 +6105,42 @@ module photon_mod
                         igpp = 1
 
 
-                        
+
                      end if
-                     
+
                      if ( (rVec%x >=  grid(1)%xAxis(grid(gP)%nx) &
                           & .or. xP>grid(gP)%nx)  )then
                         xP = grid(gP)%nx
                         rVec%x = grid(gP)%xAxis(grid(gP)%nx)
                         vHat%x = -vHat%x
-                        
+
                      end if
-                     
+
                      if ( (rVec%x >=  grid(gP)%xAxis(grid(gP)%nx)&
                           & .or. xP>grid(gP)%nx) .and.  gP>1) then
 
                         ! locate where we are at on the mother grid
                         call locate(grid(grid(gP)%motherP)%xAxis, rvec%x, enPacket%xP(1))
-                        if (enPacket%xP(1)<1) enPacket%xP(1)=1                            
+                        if (enPacket%xP(1)<1) enPacket%xP(1)=1
                         if ( enPacket%xP(1)< grid(grid(gP)%motherP)%nx) then
                            if ( rvec%x >= ( grid(grid(gP)%motherP)%xAxis(enPacket%xP(1)) + &
-                                & grid(grid(gP)%motherP)%xAxis(enPacket%xP(1)+1)/2.) ) & 
+                                & grid(grid(gP)%motherP)%xAxis(enPacket%xP(1)+1)/2.) ) &
                                 & enPacket%xP(1) = enPacket%xP(1)+1
                         end if
-                        
+
                         call locate( grid(grid(gP)%motherP)%yAxis, rvec%y, enPacket%yP(1))
-                        if (enPacket%yP(1)<1) enPacket%yP(1)=1                           
+                        if (enPacket%yP(1)<1) enPacket%yP(1)=1
                         if ( enPacket%yP(1)< grid(grid(gP)%motherP)%ny) then
                            if ( rvec%y >= ( grid(grid(gP)%motherP)%yAxis(enPacket%yP(1)) + &
-                                & grid(grid(gP)%motherP)%yAxis(enPacket%yP(1)+1)/2.) ) & 
+                                & grid(grid(gP)%motherP)%yAxis(enPacket%yP(1)+1)/2.) ) &
                                 & enPacket%yP(1) = enPacket%yP(1)+1
                         end if
-                         
+
                         call locate(grid(grid(gP)%motherP)%zAxis, rvec%z, enPacket%zP(1))
                         if ( enPacket%zP(1)< grid(grid(gP)%motherP)%nz) then
                            if (enPacket%zP(1)<1) enPacket%zP(1)=1
                            if ( rvec%z >= ( grid(grid(gP)%motherP)%zAxis(enPacket%zP(1)) + &
-                                & grid(grid(gP)%motherP)%zAxis(enPacket%zP(1)+1)/2.) ) & 
+                                & grid(grid(gP)%motherP)%zAxis(enPacket%zP(1)+1)/2.) ) &
                                 & enPacket%zP(1) = enPacket%zP(1)+1
                         end if
 
@@ -6151,59 +6151,59 @@ module photon_mod
                         igpp = 1
 
                      end if
-                     
+
                      if ( (rVec%z <= grid(1)%zAxis(1) .or.zP<1) ) then
                         zP=1
                         rVec%z = grid(gP)%yAxis(1)
                         vHat%z = -vHat%z
-                        
+
                      end if
-              
+
                      if ( (rVec%z <= grid(gP)%zAxis(1) &
                           & .or.zP<1) .and. gP>1) then
-                        
+
                         ! locate where we are at on the mother grid
                         call locate(grid(grid(gP)%motherP)%xAxis, rvec%x, enPacket%xP(1))
                         if (enPacket%xP(1)<1) enPacket%xP(1)=1
                         if ( enPacket%xP(1)< grid(grid(gP)%motherP)%nx) then
                            if ( rvec%x >= ( grid(grid(gP)%motherP)%xAxis(enPacket%xP(1)) + &
-                                & grid(grid(gP)%motherP)%xAxis(enPacket%xP(1)+1)/2.) ) & 
+                                & grid(grid(gP)%motherP)%xAxis(enPacket%xP(1)+1)/2.) ) &
                                 & enPacket%xP(1) = enPacket%xP(1)+1
                         end if
-                      
+
                         call locate( grid(grid(gP)%motherP)%yAxis, rvec%y, enPacket%yP(1))
                         if (enPacket%yP(1)<1) enPacket%yP(1)=1
                         if ( enPacket%yP(1)< grid(grid(gP)%motherP)%ny) then
                            if ( rvec%y >= ( grid(grid(gP)%motherP)%yAxis(enPacket%yP(1)) + &
-                                & grid(grid(gP)%motherP)%yAxis(enPacket%yP(1)+1)/2.) ) & 
+                                & grid(grid(gP)%motherP)%yAxis(enPacket%yP(1)+1)/2.) ) &
                                 & enPacket%yP(1) = enPacket%yP(1)+1
                         end if
-                         
+
                         call locate(grid(grid(gP)%motherP)%zAxis, rvec%z, enPacket%zP(1))
                         if (enPacket%zP(1)<1) enPacket%zP(1)=1
                         if ( enPacket%zP(1)< grid(grid(gP)%motherP)%nz) then
                            if ( rvec%z >= ( grid(grid(gP)%motherP)%zAxis(enPacket%zP(1)) + &
-                                & grid(grid(gP)%motherP)%zAxis(enPacket%zP(1)+1)/2.) ) & 
+                                & grid(grid(gP)%motherP)%zAxis(enPacket%zP(1)+1)/2.) ) &
                                 & enPacket%zP(1) = enPacket%zP(1)+1
                         end if
-                        
+
                         xP = enPacket%xP(1)
                         yP = enPacket%yP(1)
                         zP = enPacket%zP(1)
                         gP = 1
                         igpp = 1
-                                              
+
                      end if
 
                      if ( (rVec%z >=  grid(1)%zAxis(grid(gP)%nz) .or. zP>grid(gP)%nz) &
                           & ) then
-                        
+
                         zP = grid(gP)%nz
                         rVec%z = grid(gP)%zAxis(grid(gP)%nz)
                         vHat%z = -vHat%z
-                        
+
                      end if
-                     
+
                      if ((rVec%z >=  grid(gP)%zAxis(grid(gP)%nz) &
                           & .or. zP>grid(gP)%nz) .and. gP>1) then
 
@@ -6212,26 +6212,26 @@ module photon_mod
                         if (enPacket%xP(1)<1) enPacket%xP(1)=1
                         if ( enPacket%xP(1)< grid(grid(gP)%motherP)%nx) then
                            if ( rvec%x >= ( grid(grid(gP)%motherP)%xAxis(enPacket%xP(1)) + &
-                                & grid(grid(gP)%motherP)%xAxis(enPacket%xP(1)+1)/2.) ) & 
+                                & grid(grid(gP)%motherP)%xAxis(enPacket%xP(1)+1)/2.) ) &
                                 & enPacket%xP(1) = enPacket%xP(1)+1
                         end if
-                        
+
                         call locate( grid(grid(gP)%motherP)%yAxis, rvec%y, enPacket%yP(1))
                         if (enPacket%yP(1)<1) enPacket%yP(1)=1
                         if ( enPacket%yP(1)< grid(grid(gP)%motherP)%ny) then
                            if ( rvec%y >= ( grid(grid(gP)%motherP)%yAxis(enPacket%yP(1)) + &
-                                & grid(grid(gP)%motherP)%yAxis(enPacket%yP(1)+1)/2.) ) & 
+                                & grid(grid(gP)%motherP)%yAxis(enPacket%yP(1)+1)/2.) ) &
                               & enPacket%yP(1) = enPacket%yP(1)+1
                         end if
-                         
+
                         call locate(grid(grid(gP)%motherP)%zAxis, rvec%z, enPacket%zP(1))
                         if (enPacket%zP(1)<1) enPacket%zP(1)=1
                         if ( enPacket%zP(1)< grid(grid(gP)%motherP)%nz) then
                            if ( rvec%z >= ( grid(grid(gP)%motherP)%zAxis(enPacket%zP(1)) + &
-                                & grid(grid(gP)%motherP)%zAxis(enPacket%zP(1)+1)/2.) ) & 
+                                & grid(grid(gP)%motherP)%zAxis(enPacket%zP(1)+1)/2.) ) &
                                 & enPacket%zP(1) = enPacket%zP(1)+1
                         end if
-                        
+
                         xP = enPacket%xP(1)
                         yP = enPacket%yP(1)
                         zP = enPacket%zP(1)
@@ -6240,11 +6240,11 @@ module photon_mod
 
                      end if
 
-                  
-                     if (lgReturn) then            
-                        
+
+                     if (lgReturn) then
+
                         ! the packet escapes without further interaction
-                        
+
                         idirT = int(acos(enPacket%direction%z)/dTheta)+1
                         if (idirT>totangleBinsTheta) then
                            idirT=totangleBinsTheta
@@ -6254,16 +6254,16 @@ module photon_mod
                                 &  idirT, enPacket, dTheta, totAngleBinsTheta
                            stop
                         end if
-                        
-                        
+
+
                         if (enPacket%direction%x<1.e-35) then
                            idirP = 0
                         else
-                           idirP = int(atan(enPacket%direction%y/enPacket%direction%x)/dPhi)             
+                           idirP = int(atan(enPacket%direction%y/enPacket%direction%x)/dPhi)
                         end if
                         if (idirP<0) idirP=totAngleBinsPhi+idirP
                         idirP=idirP+1
-                        
+
                         if (idirP>totangleBinsPhi) then
                            idirP=totangleBinsPhi
                         end if
@@ -6272,11 +6272,11 @@ module photon_mod
                                 &  idirP, enPacket, dPhi, totAngleBinsPhi
                            stop
                         end if
-                        
-                        
+
+
 
                         if (nAngleBins>0) then
-                           if ( (totangleBinsPhi>1 .and. viewPointPtheta(idirT) == viewPointPphi(idirP)) .or. &            
+                           if ( (totangleBinsPhi>1 .and. viewPointPtheta(idirT) == viewPointPphi(idirP)) .or. &
                                 & (totangleBinsPhi==1 .and. viewPointPtheta(idirT)>0) ) then
                               grid(enPacket%origin(1))%escapedPackets(enPacket%origin(2), enPacket%nuP,&
                                    & viewPointPtheta(idirT)) = &
@@ -6284,7 +6284,7 @@ module photon_mod
                                    & enPacket%nuP,viewPointPtheta(idirT)) +  deltaEUsed
                               grid(enPacket%origin(1))%escapedPackets(enPacket%origin(2), enPacket%nuP,0) = &
                                    &grid(enPacket%origin(1))%escapedPackets(enPacket%origin(2), &
-                                   & enPacket%nuP,0) +  deltaEUsed                                    
+                                   & enPacket%nuP,0) +  deltaEUsed
 
                               if (lgSeparateSED) then
                                  grid(enPacket%origin(1))%escapedPacketsComponents(enPacket%origin(2), enPacket%nuP,&
@@ -6300,7 +6300,7 @@ module photon_mod
                            else
                               grid(enPacket%origin(1))%escapedPackets(enPacket%origin(2),enPacket%nuP,0) = &
                                    & grid(enPacket%origin(1))%escapedPackets(enPacket%origin(2), &
-                                   & enPacket%nuP,0) +  deltaEUsed                                                         
+                                   & enPacket%nuP,0) +  deltaEUsed
                               if (lgSeparateSED) then
                                  grid(enPacket%origin(1))%escapedPacketsComponents(enPacket%origin(2),&
                                       &enPacket%nuP,0,enPacket%SEDtype) = &
@@ -6309,8 +6309,8 @@ module photon_mod
                               endif
                            end if
 
-                        else                              
-                           grid(enPacket%origin(1))%escapedPackets(enPacket%origin(2), & 
+                        else
+                           grid(enPacket%origin(1))%escapedPackets(enPacket%origin(2), &
                                 & enPacket%nuP,0) = &
                                 & grid(enPacket%origin(1))%escapedPackets(enPacket%origin(2), &
                                 & enPacket%nuP,0) +  deltaEUsed
@@ -6320,42 +6320,42 @@ module photon_mod
                                    & grid(enPacket%origin(1))%escapedPacketsComponents(enPacket%origin(2), &
                                    & enPacket%nuP,0,enPacket%SEDtype) +  deltaEUsed
                            endif
-                           
+
                         end if
 
-                        
+
                         return
                      end if
-                     
+
                   end if
 
-                  ! check if the path is still within the simulation region 
+                  ! check if the path is still within the simulation region
                   radius = 1.e10*sqrt((rVec%x/1.e10)*(rVec%x/1.e10) + &
                        &                     (rVec%y/1.e10)*(rVec%y/1.e10) + &
                        &                     (rVec%z/1.e10)*(rVec%z/1.e10))
-                  
+
                   if (.not.lgPlaneIonization) then
 
-                     if ( (.not.lgSymmetricXYZ .and. (rVec%x<=grid(1)%xAxis(1).or.& 
-                          & rVec%y<=grid(1)%yAxis(1) .or. rVec%z<=grid(1)%zAxis(1)& 
+                     if ( (.not.lgSymmetricXYZ .and. (rVec%x<=grid(1)%xAxis(1).or.&
+                          & rVec%y<=grid(1)%yAxis(1) .or. rVec%z<=grid(1)%zAxis(1)&
                           & )) .or.&
                           & (rVec%x >= grid(gP)%xAxis(grid(gP)%nx)) .or.&
                           &(rVec%y >= grid(gP)%yAxis(grid(gP)%ny)) .or.&
                           &(rVec%z >= grid(gP)%zAxis(grid(gP)%nz)) .or. &
                           & xP>grid(gP)%nx .or. yP>grid(gP)%ny .or. zP>grid(gP)%nz ) then
-                        
+
                         if (gP==1) then
-                           
+
                            if (enPacket%xP(1) > grid(1)%nx) xP = grid(1)%nx
                            if (enPacket%yP(1) > grid(1)%ny) yP = grid(1)%ny
                            if (enPacket%zP(1) > grid(1)%nz) zP = grid(1)%nz
                            if (enPacket%xP(1) < 1) xP = 1
                            if (enPacket%yP(1) < 1) yP = 1
                            if (enPacket%zP(1) < 1) zP = 1
-                           
-                           
+
+
                            ! the energy packet escapes
-                           
+
                            ! the packet escapes without further interaction
 !print*, 'ps17'
                            idirT = int(acos(enPacket%direction%z)/dTheta)+1
@@ -6367,11 +6367,11 @@ module photon_mod
                                    &  idirT, enPacket, dTheta, totAngleBinsTheta
                               stop
                            end if
-                           
+
                            if (enPacket%direction%x<1.e-35) then
                               idirP = 0
                            else
-                              idirP = int(atan(enPacket%direction%y/enPacket%direction%x)/dPhi)             
+                              idirP = int(atan(enPacket%direction%y/enPacket%direction%x)/dPhi)
                            end if
 
 !print*, idirp, enPacket%direction%x
@@ -6388,18 +6388,18 @@ module photon_mod
                                    &  idirP, enPacket, dPhi, totAngleBinsPhi
                               stop
                            end if
-!print*,  viewPointPphi(idirp),       viewPointPtheta(idirt)                     
+!print*,  viewPointPphi(idirp),       viewPointPtheta(idirt)
 
                            if (nAngleBins>0) then
-                              if ( (totangleBinsPhi>1 .and. viewPointPtheta(idirT) == viewPointPphi(idirP)) .or. & 
+                              if ( (totangleBinsPhi>1 .and. viewPointPtheta(idirT) == viewPointPphi(idirP)) .or. &
                                    & (totangleBinsPhi==1 .and. viewPointPtheta(idirT)>0) ) then
-                                 grid(enPacket%origin(1))%escapedPackets(enPacket%origin(2), enPacket%nuP,& 
-                                      & viewPointPtheta(idirT)) = & 
-                                      &grid(enPacket%origin(1))%escapedPackets(enPacket%origin(2), & 
+                                 grid(enPacket%origin(1))%escapedPackets(enPacket%origin(2), enPacket%nuP,&
+                                      & viewPointPtheta(idirT)) = &
+                                      &grid(enPacket%origin(1))%escapedPackets(enPacket%origin(2), &
                                       & enPacket%nuP,viewPointPtheta(idirT)) +  deltaEUsed
                                  grid(enPacket%origin(1))%escapedPackets(enPacket%origin(2), enPacket%nuP,0) = &
-                                      &grid(enPacket%origin(1))%escapedPackets(enPacket%origin(2), & 
-                                      & enPacket%nuP,0) +  deltaEUsed                                    
+                                      &grid(enPacket%origin(1))%escapedPackets(enPacket%origin(2), &
+                                      & enPacket%nuP,0) +  deltaEUsed
                                  if (lgSeparateSED) then
                                     grid(enPacket%origin(1))%escapedPacketsComponents(enPacket%origin(2), enPacket%nuP,&
                                          & viewPointPtheta(idirT), enPacket%SEDtype) = &
@@ -6421,8 +6421,8 @@ module photon_mod
                                          & enPacket%nuP,0,enPacket%SEDtype) +  deltaEUsed
                                  endif
                               end if
-                           else                              
-                              grid(enPacket%origin(1))%escapedPackets(enPacket%origin(2), & 
+                           else
+                              grid(enPacket%origin(1))%escapedPackets(enPacket%origin(2), &
                                    & enPacket%nuP,0) = &
                                    & grid(enPacket%origin(1))%escapedPackets(enPacket%origin(2), &
                                    & enPacket%nuP,0) +  deltaEUsed
@@ -6432,37 +6432,37 @@ module photon_mod
                                       & grid(enPacket%origin(1))%escapedPacketsComponents(enPacket%origin(2), &
                                       & enPacket%nuP,0,enPacket%SEDtype) +  deltaEUsed
                               endif
-                              
+
                            end if
 
 !print*, 'ps17 out'
                            !b2.005
                            return
-                           
+
                         else if (gP>1) then
-                         
+
                            ! locate where we are at on the mother grid
                            call locate(grid(grid(gP)%motherP)%xAxis, rvec%x, enPacket%xP(1))
-                           if (enPacket%xP(1)<1) enPacket%xP(1)=1                            
+                           if (enPacket%xP(1)<1) enPacket%xP(1)=1
                            if ( enPacket%xP(1)< grid(grid(gP)%motherP)%nx) then
                               if ( rvec%x >= ( grid(grid(gP)%motherP)%xAxis(enPacket%xP(1)) + &
-                                   & grid(grid(gP)%motherP)%xAxis(enPacket%xP(1)+1)/2.) ) & 
+                                   & grid(grid(gP)%motherP)%xAxis(enPacket%xP(1)+1)/2.) ) &
                                    & enPacket%xP(1) = enPacket%xP(1)+1
                            end if
-                           
+
                            call locate( grid(grid(gP)%motherP)%yAxis, rvec%y, enPacket%yP(1))
                            if (enPacket%yP(1)<1) enPacket%yP(1)=1
                            if ( enPacket%yP(1)< grid(grid(gP)%motherP)%ny) then
                               if ( rvec%y >= ( grid(grid(gP)%motherP)%yAxis(enPacket%yP(1)) + &
-                                   & grid(grid(gP)%motherP)%yAxis(enPacket%yP(1)+1)/2.) ) & 
+                                   & grid(grid(gP)%motherP)%yAxis(enPacket%yP(1)+1)/2.) ) &
                                    & enPacket%yP(1) = enPacket%yP(1)+1
                            end if
-                           
+
                            call locate(grid(grid(gP)%motherP)%zAxis, rvec%z, enPacket%zP(1))
                            if (enPacket%zP(1)<1) enPacket%zP(1)=1
                            if ( enPacket%zP(1)< grid(grid(gP)%motherP)%nz) then
                               if ( rvec%z >= ( grid(grid(gP)%motherP)%zAxis(enPacket%zP(1)) + &
-                                   & grid(grid(gP)%motherP)%zAxis(enPacket%zP(1)+1)/2.) ) & 
+                                   & grid(grid(gP)%motherP)%zAxis(enPacket%zP(1)+1)/2.) ) &
                                    & enPacket%zP(1) = enPacket%zP(1)+1
                            end if
 
@@ -6471,34 +6471,34 @@ module photon_mod
                            zP = enPacket%zP(1)
                            gP = 1
                            igpp = 1
-                           
-                           
+
+
                            if (gP/=1) then
                               print*, '! fluoPathSegment: nested multigrids still not implemented'
                               stop
                            end if
 
-                           if ( (radius >= R_out .and. R_out >= 0.) .or.&                   
-                                & (rVec%x >= grid(1)%xAxis(grid(1)%nx)) .or.&      
-                                &(rVec%y >= grid(1)%yAxis(grid(1)%ny) ) .or.&       
+                           if ( (radius >= R_out .and. R_out >= 0.) .or.&
+                                & (rVec%x >= grid(1)%xAxis(grid(1)%nx)) .or.&
+                                &(rVec%y >= grid(1)%yAxis(grid(1)%ny) ) .or.&
                                 &(rVec%z >= grid(1)%zAxis(grid(1)%nz) ) .or. &
-                                & (.not.lgSymmetricXYZ .and.  (rVec%x<=grid(1)%xAxis(1) .or.& 
-                                & rVec%y<=grid(1)%yAxis(1) .or. rVec%z<=grid(1)%zAxis(1)& 
-                                & ))) then        
-                              
-!print*, 'ps18'                               
+                                & (.not.lgSymmetricXYZ .and.  (rVec%x<=grid(1)%xAxis(1) .or.&
+                                & rVec%y<=grid(1)%yAxis(1) .or. rVec%z<=grid(1)%zAxis(1)&
+                                & ))) then
+
+!print*, 'ps18'
                               if (xP > grid(gP)%nx) xP = grid(gP)%nx
                               if (yP > grid(gP)%ny) yP = grid(gP)%ny
                               if (zP > grid(gP)%nz) zP = grid(gP)%nz
-                              
+
                               if (xP < 1) xP = 1
                               if (yP < 1) yP = 1
                               if (zP < 1) zP = 1
-                              
+
                               ! the energy packet escapes
-                              
+
                               ! the packet escapes without further interaction
-                              
+
                               idirT = int(acos(enPacket%direction%z)/dTheta)+1
                               if (idirT>totangleBinsTheta) then
                                  idirT=totangleBinsTheta
@@ -6508,35 +6508,35 @@ module photon_mod
                                       &  idirT, enPacket, dTheta, totAngleBinsTheta
                                  stop
                               end if
-                              
+
                               if (enPacket%direction%x<1.e-35) then
                                  idirP = 0
                               else
-                                 idirP = int(atan(enPacket%direction%y/enPacket%direction%x)/dPhi)             
+                                 idirP = int(atan(enPacket%direction%y/enPacket%direction%x)/dPhi)
                               end if
                               if (idirP<0) idirP=totAngleBinsPhi+idirP
                               idirP=idirP+1
-                              
+
                               if (idirP>totangleBinsPhi) then
                                  idirP=totangleBinsPhi
                               end if
-                              
+
                               if (idirP<1 .or. idirP>totAngleBinsPhi) then
                                  print*, '! energyPacketRun: error in phi direction cosine assignment',&
                                       &  idirP, enPacket, dPhi, totAngleBinsPhi
                                  stop
                               end if
-                              
+
                               if (nAngleBins>0) then
-                                 if ( (totangleBinsPhi>1 .and. viewPointPtheta(idirT) == viewPointPphi(idirP)) .or. & 
+                                 if ( (totangleBinsPhi>1 .and. viewPointPtheta(idirT) == viewPointPphi(idirP)) .or. &
                                       & (totangleBinsPhi==1 .and. viewPointPtheta(idirT)>0) ) then
-                                    grid(enPacket%origin(1))%escapedPackets(enPacket%origin(2), enPacket%nuP,& 
-                                         & viewPointPtheta(idirT)) = & 
-                                         &grid(enPacket%origin(1))%escapedPackets(enPacket%origin(2), & 
+                                    grid(enPacket%origin(1))%escapedPackets(enPacket%origin(2), enPacket%nuP,&
+                                         & viewPointPtheta(idirT)) = &
+                                         &grid(enPacket%origin(1))%escapedPackets(enPacket%origin(2), &
                                          & enPacket%nuP,viewPointPtheta(idirT)) +  deltaEUsed
                                     grid(enPacket%origin(1))%escapedPackets(enPacket%origin(2), enPacket%nuP,0) = &
-                                         &grid(enPacket%origin(1))%escapedPackets(enPacket%origin(2), & 
-                                         & enPacket%nuP,0) +  deltaEUsed                                    
+                                         &grid(enPacket%origin(1))%escapedPackets(enPacket%origin(2), &
+                                         & enPacket%nuP,0) +  deltaEUsed
                                     if (lgSeparateSED) then
                                        grid(enPacket%origin(1))%escapedPacketsComponents&
                                             &(enPacket%origin(2), enPacket%nuP,&
@@ -6550,7 +6550,7 @@ module photon_mod
                                     endif
                                  else
                                     grid(enPacket%origin(1))%escapedPackets(enPacket%origin(2),enPacket%nuP,0) = &
-                                         & grid(enPacket%origin(1))%escapedPackets(enPacket%origin(2), & 
+                                         & grid(enPacket%origin(1))%escapedPackets(enPacket%origin(2), &
                                          & enPacket%nuP,0) +  deltaEUsed
                                     if (lgSeparateSED) then
                                        grid(enPacket%origin(1))%escapedPacketsComponents&
@@ -6559,8 +6559,8 @@ module photon_mod
                                             & enPacket%nuP,0, enPacket%SEDtype) +  deltaEUsed
                                     endif
                                  end if
-                              else                              
-                                 grid(enPacket%origin(1))%escapedPackets(enPacket%origin(2), & 
+                              else
+                                 grid(enPacket%origin(1))%escapedPackets(enPacket%origin(2), &
                                       enPacket%nuP,0) = &
                                       & grid(enPacket%origin(1))%escapedPackets(enPacket%origin(2), &
                                       & enPacket%nuP,0) +  deltaEUsed
@@ -6570,12 +6570,12 @@ module photon_mod
                                          & grid(enPacket%origin(1))%escapedPacketsComponents(enPacket%origin(2), &
                                          & enPacket%nuP,0,enPacket%SEDtype) +  deltaEUsed
                                  endif
-                                                         
+
 
                               end if
 
 
-!print*, 'ps 18 out'                        
+!print*, 'ps 18 out'
                               !b2.005
                               return
 
@@ -6584,7 +6584,7 @@ module photon_mod
                            print*, '! fluoPathSegment: insanity occured - invalid gP - ', gP
                            stop
                         end if
-                        
+
                      end if
 
 !            if (lgSymmetricXYZ .and. gP == 1) then
@@ -6593,69 +6593,69 @@ module photon_mod
                             print*, '! fluoPathSegment: lgSymmetric and lgPlaneionization flags both raised'
                             stop
                          end if
-                         
+
                          if ( rVec%x <= grid(1)%xAxis(1) .or. (gP==1 .and. xP<1)) then
-                            if (vHat%x<0.) vHat%x = -vHat%x 
+                            if (vHat%x<0.) vHat%x = -vHat%x
                             enPacket%xP(1) = 1
                             xP = 1
                             rVec%x = grid(gP)%xAxis(1)
                          end if
                          if ( rVec%y <= grid(1)%yAxis(1) .or. (gP==1 .and. yP<1)) then
-                            if (vHat%y<0.) vHat%y = -vHat%y 
+                            if (vHat%y<0.) vHat%y = -vHat%y
                             enPacket%yP(1)=1
                             yP = 1
                             rVec%y = grid(gP)%yAxis(1)
                          end if
                          if ( rVec%z <= grid(1)%zAxis(1) .or. (gP==1 .and. zP<1)) then
-                            if (vHat%z<0.) vHat%z = -vHat%z 
+                            if (vHat%z<0.) vHat%z = -vHat%z
                             enPacket%zP(1) = 1
                             zP=1
                             rVec%z = grid(1)%zAxis(1)
                          end if
-                         
+
                       end if
-                      
+
                    end if
-                   
+
                    if (gP>1) then
                       if ( ( (rVec%x <= grid(gP)%xAxis(1) &
-                           &.or. xP<1) .and. vHat%x <=0.) .or. & 
+                           &.or. xP<1) .and. vHat%x <=0.) .or. &
                            & ( (rVec%y <= grid(gP)%yAxis(1) &
-                           & .or. yP<1) .and. vHat%y <=0.) .or. & 
+                           & .or. yP<1) .and. vHat%y <=0.) .or. &
                            & ( (rVec%z <= grid(gP)%zAxis(1) &
-                           &  .or. zP<1) .and. vHat%z <=0.) .or. & 
+                           &  .or. zP<1) .and. vHat%z <=0.) .or. &
                            & ( (rVec%x >= grid(gP)%xAxis(grid(gP)%nx) &
-                           &.or. xP>grid(gP)%nx) .and. vHat%x >=0.) .or. & 
+                           &.or. xP>grid(gP)%nx) .and. vHat%x >=0.) .or. &
                            & ( (rVec%y >= grid(gP)%yAxis(grid(gP)%ny) &
-                           & .or. yP>grid(gP)%ny) .and. vHat%y >=0.) .or. & 
+                           & .or. yP>grid(gP)%ny) .and. vHat%y >=0.) .or. &
                            & ( (rVec%z >= grid(gP)%zAxis(grid(gP)%nz) &
                            &  .or. zP>grid(gP)%nz) .and. vHat%z >=0.) ) then
-                        
+
                          ! locate where we are at on the mother grid
                          call locate(grid(grid(gP)%motherP)%xAxis, rvec%x, enPacket%xP(1))
                          if (enPacket%xP(1)<1) enPacket%xP(1)=1
                          if ( enPacket%xP(1)< grid(grid(gP)%motherP)%nx) then
                             if ( rvec%x >= ( grid(grid(gP)%motherP)%xAxis(enPacket%xP(1)) + &
-                                 & grid(grid(gP)%motherP)%xAxis(enPacket%xP(1)+1)/2.) ) & 
+                                 & grid(grid(gP)%motherP)%xAxis(enPacket%xP(1)+1)/2.) ) &
                                  & enPacket%xP(1) = enPacket%xP(1)+1
                          end if
-                         
+
                          call locate( grid(grid(gP)%motherP)%yAxis, rvec%y, enPacket%yP(1))
                          if (enPacket%yP(1)<1) enPacket%yP(1)=1
                          if ( enPacket%yP(1)< grid(grid(gP)%motherP)%ny) then
                             if ( rvec%y >= ( grid(grid(gP)%motherP)%yAxis(enPacket%yP(1)) + &
-                                 & grid(grid(gP)%motherP)%yAxis(enPacket%yP(1)+1)/2.) ) & 
+                                 & grid(grid(gP)%motherP)%yAxis(enPacket%yP(1)+1)/2.) ) &
                               & enPacket%yP(1) = enPacket%yP(1)+1
                          end if
-                         
+
                          call locate(grid(grid(gP)%motherP)%zAxis, rvec%z, enPacket%zP(1))
                          if (enPacket%zP(1)<1) enPacket%zP(1)=1
                          if ( enPacket%zP(1)< grid(grid(gP)%motherP)%nz) then
                             if ( rvec%z >= ( grid(grid(gP)%motherP)%zAxis(enPacket%zP(1)) + &
-                                 & grid(grid(gP)%motherP)%zAxis(enPacket%zP(1)+1)/2.) ) & 
+                                 & grid(grid(gP)%motherP)%zAxis(enPacket%zP(1)+1)/2.) ) &
                                  & enPacket%zP(1) = enPacket%zP(1)+1
                          end if
-                         
+
                          gP = 1
                          igpp = 1
 
@@ -6663,20 +6663,20 @@ module photon_mod
                          xP = enPacket%xP(1)
                          yP = enPacket%yP(1)
                          zP = enPacket%zP(1)
-                         
+
                       end if
-                      
+
                    end if
-!print*, 'ps19'                   
+!print*, 'ps19'
                end if
-               
+
                if (.not. lgPlaneIonization .and. gP==1 .and. (xP > grid(gP)%nx  &
                     & .or. yP > grid(gP)%ny .or. zP > grid(gP)%nz) ) then
 !print*, 'ps20'
            ! the energy packet escapes
-        
+
            ! the packet escapes without further interaction
-           
+
            idirT = int(acos(enPacket%direction%z)/dTheta)+1
            if (idirT>totangleBinsTheta) then
               idirT=totangleBinsTheta
@@ -6686,36 +6686,36 @@ module photon_mod
                    &  idirT, enPacket, dTheta, totAngleBinsTheta
               stop
            end if
-           
+
            if (enPacket%direction%x<1.e-35) then
               idirP = 0
            else
-              idirP = int(atan(enPacket%direction%y/enPacket%direction%x)/dPhi)             
+              idirP = int(atan(enPacket%direction%y/enPacket%direction%x)/dPhi)
            end if
            if (idirP<0) idirP=totAngleBinsPhi+idirP
            idirP=idirP+1
-           
+
            if (idirP>totangleBinsPhi) then
               idirP=totangleBinsPhi
            end if
-           
+
            if (idirP<1 .or. idirP>totAngleBinsPhi) then
               print*, '! energyPacketRun: error in phi direction cosine assignment',&
                    &  idirP, enPacket, dPhi, totAngleBinsPhi
               stop
            end if
-           
-           
+
+
            if (nAngleBins>0) then
-              if ( (totangleBinsPhi>1 .and. viewPointPtheta(idirT) == viewPointPphi(idirP)) .or. &            
+              if ( (totangleBinsPhi>1 .and. viewPointPtheta(idirT) == viewPointPphi(idirP)) .or. &
                    & (totangleBinsPhi==1 .and. viewPointPtheta(idirT)>0) ) then
-                 grid(enPacket%origin(1))%escapedPackets(enPacket%origin(2), enPacket%nuP,&                   
-                      & viewPointPtheta(idirT)) = &                                                           
-                      &grid(enPacket%origin(1))%escapedPackets(enPacket%origin(2), &                          
-                      & enPacket%nuP,viewPointPtheta(idirT)) +  deltaEUsed                                    
+                 grid(enPacket%origin(1))%escapedPackets(enPacket%origin(2), enPacket%nuP,&
+                      & viewPointPtheta(idirT)) = &
+                      &grid(enPacket%origin(1))%escapedPackets(enPacket%origin(2), &
+                      & enPacket%nuP,viewPointPtheta(idirT)) +  deltaEUsed
                  grid(enPacket%origin(1))%escapedPackets(enPacket%origin(2), enPacket%nuP,0) = &
-                      &grid(enPacket%origin(1))%escapedPackets(enPacket%origin(2), &                          
-                      & enPacket%nuP,0) +  deltaEUsed                                    
+                      &grid(enPacket%origin(1))%escapedPackets(enPacket%origin(2), &
+                      & enPacket%nuP,0) +  deltaEUsed
                  if (lgSeparateSED) then
                     grid(enPacket%origin(1))%escapedPacketsComponents(enPacket%origin(2), enPacket%nuP,&
                          & viewPointPtheta(idirT),enPacket%SEDtype) = &
@@ -6728,8 +6728,8 @@ module photon_mod
                  endif
               else
                  grid(enPacket%origin(1))%escapedPackets(enPacket%origin(2),enPacket%nuP,0) = &
-                      & grid(enPacket%origin(1))%escapedPackets(enPacket%origin(2), &                         
-                      & enPacket%nuP,0) +  deltaEUsed                                                         
+                      & grid(enPacket%origin(1))%escapedPackets(enPacket%origin(2), &
+                      & enPacket%nuP,0) +  deltaEUsed
                  if (lgSeparateSED) then
                     grid(enPacket%origin(1))%escapedPacketsComponents&
                          &(enPacket%origin(2),enPacket%nuP,0,enPacket%SEDtype) = &
@@ -6737,8 +6737,8 @@ module photon_mod
                          & enPacket%nuP,0,enPacket%SEDtype) +  deltaEUsed
                  endif
               end if
-           else                              
-              grid(enPacket%origin(1))%escapedPackets(enPacket%origin(2), & 
+           else
+              grid(enPacket%origin(1))%escapedPackets(enPacket%origin(2), &
                    enPacket%nuP,0) = &
                    & grid(enPacket%origin(1))%escapedPackets(enPacket%origin(2), &
                    & enPacket%nuP,0) +  deltaEUsed
@@ -6750,42 +6750,42 @@ module photon_mod
               endif
            end if
 
-!print*, 'ps20 out'            
+!print*, 'ps20 out'
            !b2.005
             return
-            
-            
+
+
          end if
-         
+
       end do ! safelimit loop
-      
+
       if (i>= safeLimit) then
          if (.not.lgPlaneIonization) then
             print*, '! fluoPathSegment: [warning] packet trajectory has exceeded&
-                 &  maximum number of events', safeLimit, gP, xP,yP,zP, grid(gP)%active(xP,yP,zP), & 
+                 &  maximum number of events', safeLimit, gP, xP,yP,zP, grid(gP)%active(xP,yP,zP), &
               & rvec, vhat, enPacket
          end if
          return
-         
+
       end if
-     
+
       if (gP==1) then
          igpp = 1
       else if (gP>1) then
-         igpp = 2 
+         igpp = 2
       else
          print*, "! fluoPathSegment: insane grid index "
          stop
       end if
-      
+
       enPacket%xP(igpp) = xP
       enPacket%yP(igpp) = yP
-      enPacket%zP(igpp) = zP   
-      
+      enPacket%zP(igpp) = zP
+
 
       if (deltaEUsed/(Lstar(istar)*1.e36/nPhotons(istar))<1.e-10) return
       packetType = 'diffuse'
-      
+
       chTypeIn = packetType
       positionIn = rVec
       inX =  enPacket%xP(1:2)
@@ -6798,7 +6798,7 @@ module photon_mod
 !      call energyPacketRun(packetType, rVec, enPacket%xP(1:2), enPacket%yP(1:2), &
 !                & enPacket%zP(1:2), gP)
       return
-   
+
  end subroutine fluoPathSegment
 
  ! determine energy and direction for compton redistribution of fluorescent lines
@@ -6806,7 +6806,7 @@ module photon_mod
    implicit none
 
    type(photon_packet),intent(inout) :: fPacket            ! the fluorescent packet
-   
+
    real                              :: newNu,newTheta     ! new energy and theta
    real                              :: random             ! random number
    real                              :: u,v,w,t            ! direction units
@@ -6816,7 +6816,7 @@ module photon_mod
 
 !print*, 'compton :'
    ! calculate new direction
-   call getNu2(KNsigmaArray(fPacket%nuP,1:180),newThetaP)     
+   call getNu2(KNsigmaArray(fPacket%nuP,1:180),newThetaP)
    newTheta = real(newThetaP)*Pi/180.
 
 !print*, newTheta
@@ -6829,23 +6829,20 @@ module photon_mod
 
    fPacket%direction%x = u
    fPacket%direction%y = v
-   fPacket%direction%z = w      
+   fPacket%direction%z = w
 
    ! calculate new energy
-   newNu = fPacket%nu*PcompArray(fPacket%nuP,newThetaP) 
+   newNu = fPacket%nu*PcompArray(fPacket%nuP,newThetaP)
 
-   ! find this in the nuArray 
+   ! find this in the nuArray
    call locate(nuArray,newNu,newNuP)
 
 !print*, fPacket%Nu, fPacket%NuP
-   fPacket%Nu  = newNu     
+   fPacket%Nu  = newNu
    fPacket%NuP = newNuP
 !print*, fPacket%Nu, fPacket%NuP
- end subroutine comptonScatter 
+ end subroutine comptonScatter
 
       end subroutine energyPacketDriver
 
-         
-    end module photon_mod
-
-
+end module photon_mod

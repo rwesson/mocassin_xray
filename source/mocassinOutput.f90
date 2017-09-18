@@ -1,9 +1,9 @@
-! Copyright (C) 2007 Barbara Ercolano 
-!  
-! MoCaSSiNoutput = MOnte CArlo SImulationS of Nebulae 
-! this is the output-only driver of the simulation 
+! Copyright (C) 2007 Barbara Ercolano
+!
+! MoCaSSiNoutput = MOnte CArlo SImulationS of Nebulae
+! this is the output-only driver of the simulation
 ! (requires grid1.out,grid2.out,grid3.out files)
-!  
+!
 ! Version 3.00
 program MoCaSSiNoutput
     use common_mod
@@ -37,7 +37,7 @@ program MoCaSSiNoutput
         print*, "Creating output files from current grid*.out files "
         print*, " stored in the output/ directory"
         print*, " "
-    end if 
+    end if
 
     if (taskid == 0) then
         print*, " "
@@ -46,7 +46,7 @@ program MoCaSSiNoutput
     ! reset the 3D cartesian grid
     call resetGrid(grid3D)
 
-    call setStarPosition(grid3D(1)%xAxis,grid3D(1)%yAxis,grid3D(1)%zAxis,grid3D)      
+    call setStarPosition(grid3D(1)%xAxis,grid3D(1)%yAxis,grid3D(1)%zAxis,grid3D)
 
 
     ! initialize opacities x sections array
@@ -57,7 +57,7 @@ program MoCaSSiNoutput
 
     ! prepare atomica data stuff
     call makeElements()
-    
+
     if (taskid ==  0) then
         ! determine final statistics
         if (lgGas) call outputGas(grid3D)
@@ -74,12 +74,12 @@ program MoCaSSiNoutput
 
     if (taskid == 0) then
 !        print*, "time: ", endtime-starttime
-    end if 
+    end if
 
     call mpi_finalize(ierr)
     stop 'mpi done'
 
 
 end program MoCaSSiNoutput
-   
-    
+
+

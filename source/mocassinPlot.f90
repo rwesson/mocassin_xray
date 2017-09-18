@@ -1,8 +1,8 @@
-! Copyright (C) 2007 Barbara Ercolano 
-!  
-! MoCaSSiN = MOnte CArlo SImulationS of Nebulae 
+! Copyright (C) 2007 Barbara Ercolano
+!
+! MoCaSSiN = MOnte CArlo SImulationS of Nebulae
 ! this is the plotting driver
-!  
+!
 ! Version 3.00
 program MoCaSSiNplot
     use common_mod
@@ -23,10 +23,10 @@ program MoCaSSiNplot
     type(plot_type) :: plot           ! the plot
 
     real(kind=8),pointer    :: flinePlot(:,:,:,:)
-    real, pointer   :: image(:,:,:,:)    
+    real, pointer   :: image(:,:,:,:)
 
     real, pointer   :: linePDFTemp(:,:)
-    real, pointer   :: opacityTemp(:,:)  
+    real, pointer   :: opacityTemp(:,:)
     real, pointer   :: recPDFTemp(:,:)
     real, pointer   :: totalLinesTemp(:)
     real, dimension(nElements) ::  elemAbundanceUsed  ! local abundances
@@ -38,7 +38,7 @@ program MoCaSSiNplot
 
     real            :: dV                     ! volume of local cell [e45 cm^3]
     real            :: freq1,freq2
-    
+
 
     character(len=30) :: filename       ! input file
     character(len=30) :: bandFile       ! band transmission coeff file
@@ -52,15 +52,15 @@ program MoCaSSiNplot
     integer         :: iLine          ! line counter
     integer         :: iup, ilow, l   ! energy levels pointerst
     integer         :: ios            ! I/O error status
-    integer         :: nxMax,nyMax,nzMax ! 
+    integer         :: nxMax,nyMax,nzMax !
     integer         :: maxCells       ! maxCells
     integer         :: plotNum        ! counter
     integer         :: size,load,rest ! mpi stuff
     integer         :: tranP          ! transmnission coeff index
-    integer         :: tranMaxP       ! maximum tran coeff index 
-    integer         :: contP          ! continuum index counter 
+    integer         :: tranMaxP       ! maximum tran coeff index
+    integer         :: contP          ! continuum index counter
 
-    logical         :: lgContinuum    ! 
+    logical         :: lgContinuum    !
 
     call mpi_init(ierr)
     call mpi_comm_rank(MPI_COMM_WORLD, taskid, ierr)
@@ -70,7 +70,7 @@ program MoCaSSiNplot
     if (taskid == 0) then
         print*, "MOCASSIN 2007 plot Version 3"
         print*, " "
-    end if 
+    end if
 
     filename = 'input/plot.in'
 
@@ -78,7 +78,7 @@ program MoCaSSiNplot
     ! reset the 3D cartesian grid
     call resetGrid(grid3D)
 
-    call setStarPosition(grid3D(1)%xAxis,grid3D(1)%yAxis,grid3D(1)%zAxis,grid3D)      
+    call setStarPosition(grid3D(1)%xAxis,grid3D(1)%yAxis,grid3D(1)%zAxis,grid3D)
 
     ! prepare atomica data stuff
     call makeElements()
@@ -89,7 +89,7 @@ program MoCaSSiNplot
     maxCells = grid3D(1)%nCells
     do iG = 1, ngrids
        if (grid3D(iG)%nCElls>maxCElls) maxCElls = grid3D(iG)%nCElls
-    end do       
+    end do
 
     print*, nstages
     allocate(flinePlot(nElements,nstages, nForLevels,nForLevels), stat=err)
@@ -118,7 +118,7 @@ program MoCaSSiNplot
           print*, "! readPlot: can't open band file for reading: ", bandFile
           stop
        end if
-  
+
        frequency = 0.
        tranCoeff = 0.
 

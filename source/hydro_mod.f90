@@ -1,4 +1,4 @@
-! Copyright (C) 2007 Barbara Ercolano 
+! Copyright (C) 2007 Barbara Ercolano
 !
 ! Version 3.00
 module elements_mod
@@ -12,12 +12,12 @@ module elements_mod
 
     subroutine makeCollIonData()
       implicit none
-      
+
       integer :: elem,ion, i
 
       close(12)
       open(unit = 12, file = PREFIX//'/share/mocassin/data/cion.dat', status='old', position='rewind')
-      
+
       do elem = 1, nElements
          do ion = elem, 1, -1
             read(12,*) (CF(i,elem,ion),i=1,5)
@@ -34,7 +34,7 @@ module elements_mod
 
     subroutine makeAugerData()
       implicit none
-      
+
       integer :: elem,ion,shell,nelec,imax,i,j,ios
 
       close(12)
@@ -57,7 +57,7 @@ module elements_mod
 
         ! local variables
         integer :: iup, ilow           ! counters
-        
+
         ! define excitation and ionization temperatures for hydrogen
         do iup = 1, nHlevel
             HlevEn(iup) = HIonPot / float(iup*iup)
@@ -76,39 +76,39 @@ module elements_mod
         HeIlevEn(2) = 0.2478
         HeIlevEn(nHeIlevel+1) = HeIlevEn(2)
 
-        ! define excitation and ionization temperatures for HeII   
+        ! define excitation and ionization temperatures for HeII
         do iup = 1, nHeIIlevel
             HeIIlevEn(iup) = 4. / float(iup*iup)
         end do
         HeIIlevEn(nHeIIlevel+1) = HeIIlevEn(2)
 
      end subroutine makeHydro
-     
+
     ! this subroutine determines the outer shell and statistical weights
      ! LS coupling
     subroutine getOuterShell(z, nElec, outShell, g0, g1)
         implicit none
-        
+
         integer, intent(in)  :: z        ! atomic number from 1 to 30
         integer, intent(in)  :: nElec    ! number of electrons from 1 to z
         integer, intent(out) :: outShell ! number of the outer shell
         integer, intent(out) :: g0       ! statistical weight of (z, nelec) ground state
         integer, intent(out) :: g1       ! statistical weight of (z, nelec-1) ground state
-            
+
         ! local variables
         integer, dimension(30) :: ss, gl ! data for outer shells and statistical weights
         integer, dimension(19:30) :: glhigh
-        
- 
+
+
         ! assign the data to the local arrays
         ss = (/1,1,2,2,3,3,3,3,3,3,4,4, &
               &  5,5,5,5,5,5,6,6,6,6,6,6,6,6,6,6,7,7/)
 
         gl = (/2, 1, 2, 1, 6, 9, 4, 9, 6, 1, 2, 1, 6, 9, 4, 9, 6, 1, 2, 1, &
-             & 10, 21, 28, 7, 6, 25, 28, 21, 2, 1/) 
+             & 10, 21, 28, 7, 6, 25, 28, 21, 2, 1/)
 
         glhigh = (/10,21,28,25,6,25,28,21,10,1,2,1/)
-        
+
 
         if ( .not.lgElementOn(z) ) then
             print*, "! getOuterShell: element is switched off [elem]", z
@@ -123,7 +123,7 @@ module elements_mod
             print*, "! getOuterShell: number of electrons out of range"
             stop
         end if
-        
+
         ! number of the outer shell and statistical weight
         outShell = ss(nElec)
         if (z==nElec .and.z>18) outShell = 7
@@ -135,18 +135,18 @@ module elements_mod
             g1 = 1
         else
             g1 = gl(nElec-1)
-        end if        
-        
+        end if
+
         if ( (z>20) .and. nElec >= 19 .and. (z-nElec)>=1) then
-           g0 = glhigh(nElec) 
+           g0 = glhigh(nElec)
            if (nElec == 19) then
               g1 = gl(nElec-1)
            else
               g1 = glHigh(nElec-1)
            end if
         end if
-         
-        if ( z == nElec ) then 
+
+        if ( z == nElec ) then
            if (z>20 .and. nElec >= 21) then
               g1 = glHigh(nElec-1)
            end if
@@ -156,7 +156,7 @@ module elements_mod
               g1 = 15
            case (22)
               g1 = 28
-           case (25) 
+           case (25)
               g1 = 7
            case (26)
               g1 = 30
@@ -171,19 +171,19 @@ module elements_mod
               g0 = 15
            case (22)
               g0 = 28
-           case (25) 
+           case (25)
               g0 = 7
            case (26)
               g0 = 30
            end select
-        end if     
+        end if
 
 
      end subroutine getOuterShell
 
       subroutine readHeIRecLines()
        implicit none
-       
+
        ! iden = 1 is 100cm^-2
        ! iden = 2 is 10000cm^-2
        ! iden = 3 is 1000000cm^-2
@@ -191,27 +191,27 @@ module elements_mod
 
        close(13)
        open(file=PREFIX//'/share/mocassin/data/HeIrecLines.dat', unit = 13, status='old')
-       
+
        do iden = 1, 3
           do iline = 1, 34
              read(13,*) (HeIrecLineCoeff(iline,iden,j), j = 1, 4)
-             HeIrecLineCoeff(iline,iden,1) = HeIrecLineCoeff(iline,iden,1)*1.e25 
+             HeIrecLineCoeff(iline,iden,1) = HeIrecLineCoeff(iline,iden,1)*1.e25
           end do
        end do
 
 
        close(13)
      end subroutine readHeIRecLines
-     
-     ! this subroutine assignes continuum energy pointers 
-     ! to shells for all atoms     
+
+     ! this subroutine assignes continuum energy pointers
+     ! to shells for all atoms
      subroutine setShells(nElem)
          implicit none
 
          real               :: thres ! threshold [Ryd]
- 
+
          integer, intent(in) :: nElem
- 
+
          ! local variables
          integer            :: g0             ! statistical weight of (z, n) ground state
          integer            :: g1             ! statistical weight of (z, n-1) ground state
@@ -231,7 +231,7 @@ module elements_mod
 
          ! check nElem is within the array bounds
          if ( (nElem > totElem) .or. (nElem < 1) ) then
-             print*, "! setShells: nElement out of range [1, 30]"         
+             print*, "! setShells: nElement out of range [1, 30]"
              stop
          end if
 
@@ -246,9 +246,9 @@ module elements_mod
              do shell = 1, outShell
                  thres = ph1(1, nElem, nElec, shell) / RydToeV
 
-                 ! negative IP shell doesn't exist, so set 
-                 ! the upper limit lower then the 
-                 ! lower limit so this never loop upon. 
+                 ! negative IP shell doesn't exist, so set
+                 ! the upper limit lower then the
+                 ! lower limit so this never loop upon.
                  ! used as flags by limitShell to check
                  ! whether this is a real shell
                  if ( thres <= 0.1 )  then
@@ -279,7 +279,7 @@ module elements_mod
 
     end subroutine setShells
 
-    ! this function returns the high energy limit to the energy range     
+    ! this function returns the high energy limit to the energy range
     function limitShell(ion, shell, nElem)
         implicit none
 
@@ -288,13 +288,13 @@ module elements_mod
         integer, intent(in) :: shell    ! shell number
 
         integer             :: limitShell
-        
+
         ! local variables
 
         if (.not.lgElementOn(nElem)) then
             print*, "! limitShell: element is not switched on [elem]", nElem
             stop
-        end if 
+        end if
 
 
         select case (shell)
@@ -304,7 +304,7 @@ module elements_mod
         ! 2s shell, upper limit set to high energy limit
         case (2)
             limitShell = kShellLimitP
-        ! 2p shell,  upper limit set to high energy limit 
+        ! 2p shell,  upper limit set to high energy limit
         case (3)
             limitShell = kShellLimitP
         ! 3s shell, upper limit set to k-shell edge
@@ -312,10 +312,10 @@ module elements_mod
             limitShell = elementP(nElem, ion, 1, 1) -1
         ! 3p shell,  upper limit set to k-shell edge
         case (5)
-            limitShell = elementP(nElem, ion, 1, 1) -1 
+            limitShell = elementP(nElem, ion, 1, 1) -1
         ! 3d sgell, upper limit set to k-shell edge
         case (6)
-            limitShell = elementP(nElem, ion, 1, 1) -1 
+            limitShell = elementP(nElem, ion, 1, 1) -1
         ! 4s shell, upper limit set to 3d
         case (7)
             ! if the shell 6 is empty (3d) then set it to 5 (3p)
@@ -328,14 +328,14 @@ module elements_mod
             print*, "! limitShell: shell number out of range [1, 7]"
             stop
         end select
-        
+
       end function limitShell
 
       subroutine initRRDR()
         implicit none
 
         real ::  RRbAread, RRbBread, RRbT0read, &
-             &RRbT1read, RRbCread, RRbT2read 
+             &RRbT1read, RRbCread, RRbT2read
         real ::  DRbCread(9), DRbEread(9)
 
         integer            :: ios, i, z, n,m, w, jlim, j
@@ -345,15 +345,15 @@ module elements_mod
 
         ! RR data
 
-        RRbA  = 0. 
-        RRbB  = 0. 
-        RRbT0 = 0. 
-        RRbT1 = 0. 
-        RRbC  = 0. 
+        RRbA  = 0.
+        RRbB  = 0.
+        RRbT0 = 0.
+        RRbT1 = 0.
+        RRbC  = 0.
         RRbT2 = 0.
 
         open(file=PREFIX//'/share/mocassin/data/rrBadnell.dat', action="read", unit=19, status='old', &
-            & position='rewind', iostat=ios) 
+            & position='rewind', iostat=ios)
         if (ios<0) then
            print*, '! initRRDR: error opening file rrBadnell.dat'
            stop
@@ -365,15 +365,15 @@ module elements_mod
         do i = 1, limitRRDR
            read(unit=19,fmt=*,iostat=ios) z, n, m, w, &
                 &RRbAread, RRbBread, RRbT0read, &
-                &RRbT1read, RRbCread, RRbT2read 
+                &RRbT1read, RRbCread, RRbT2read
            if (ios< 0) exit ! end of file
            if ( z<=30 .and. m==1 ) then
-              RRbA(z,n)  = RRbAread  
-              RRbB(z,n)  = RRbBread  
+              RRbA(z,n)  = RRbAread
+              RRbB(z,n)  = RRbBread
               RRbT0(z,n) = RRbT0read
-              RRbT1(z,n) = RRbT1read 
-              RRbC(z,n)  = RRbCread 
-              RRbT2(z,n) = RRbT2read   
+              RRbT1(z,n) = RRbT1read
+              RRbC(z,n)  = RRbCread
+              RRbT2(z,n) = RRbT2read
            end if
 
         end do
@@ -386,7 +386,7 @@ module elements_mod
         DRbEread = 0.
 
         open(file=PREFIX//'/share/mocassin/data/drBadnell.dat', action="read", unit=20, status='old', &
-            & position='rewind', iostat=ios) 
+            & position='rewind', iostat=ios)
         if (ios<0) then
            print*, '! initRRDR: error opening file drBadnell.dat'
            stop
@@ -397,7 +397,7 @@ module elements_mod
         do i = 1, 919
            read(unit=20,fmt=*,iostat=ios) z, n, m, w,(DRbCread(j), j = 1, 9)
            if (ios < 0) exit
-           if ( z<=30 .and. m==1 ) then                               
+           if ( z<=30 .and. m==1 ) then
               DRbC(:,z,n) = DRbCread
            end if
 
@@ -408,7 +408,7 @@ module elements_mod
         do i = 1, 919
            read(unit=20,fmt=*,iostat=ios) z, n, m, w,(DRbEread(j), j = 1, 9)
            if (ios < 0) exit
-           if ( z<=30 .and. m==1 ) then                               
+           if ( z<=30 .and. m==1 ) then
               DRbE(:,z,n) = DRbEread
            end if
 
@@ -417,39 +417,39 @@ module elements_mod
       end subroutine initRRDR
 
 
-     ! this subroutine sets up the pointers for the lines and 
+     ! this subroutine sets up the pointers for the lines and
      ! the cotinua
      subroutine setPointers()
-     
+
          ! local variables
          integer :: i, j          ! counters
 
          if (lgFluorescence) then
-            
-            ! set FeKaP nu=6.4KeV=470.388ryd -cold iron                    
+
+            ! set FeKaP nu=6.4KeV=470.388ryd -cold iron
             call locate(nuArray,FeKaCold,FeKaColdP)
             if (FeKaColdP>=nbins.or.FeKaColdP<0) then
                print*, "! setPointers: insanity occured in FeKaColdP assignement",&
                     & FeKaColdP, FeKaCold, nuArray(1), nuArray(nbins)
                stop
             end if
-            
-            ! set FeL1P 
+
+            ! set FeL1P
             call locate(nuArray,FeL1,FeL1P)
             if (FeL1P>=nbins.or.FeL1P<0) then
                print*, "! setPointers: insanity occured in FeL1P assignement",&
                     & FeL1P, FeL1, nuArray(1), nuArray(nbins)
                stop
             end if
-            
-            ! set FeL2P                    
+
+            ! set FeL2P
             call locate(nuArray,FeL2,FeL2P)
             if (FeL2P>=nbins.or.FeL2P<0) then
                print*, "! setPointers: insanity occured in FeL2P assignement",&
                     & FeL2P, FeL2, nuArray(1), nuArray(nbins)
                stop
             end if
-            
+
             ! set CKa
             call locate(nuArray,CKa,CKaP)
             if (CKaP>=nbins.or.CKaP<0) then
@@ -457,7 +457,7 @@ module elements_mod
                     & CKaP, CKa, nuArray(1), nuArray(nbins)
                stop
             end if
-            
+
             ! set NKa
             call locate(nuArray,NKa,NKaP)
             if (NKaP>=nbins.or.NKaP<0) then
@@ -473,7 +473,7 @@ module elements_mod
                     & OKaP, OKa, nuArray(1), nuArray(nbins)
                stop
             end if
-            
+
             ! set NeKa
             call locate(nuArray,NeKa,NeKaP)
             if (NeKaP>=nbins.or.NeKaP<0) then
@@ -481,7 +481,7 @@ module elements_mod
                     & NeKaP, NeKa, nuArray(1), nuArray(nbins)
                stop
             end if
-            
+
             ! set MgKa
             call locate(nuArray,MgKa,MgKaP)
             if (MgKaP>=nbins.or.MgKaP<0) then
@@ -489,7 +489,7 @@ module elements_mod
                     & MgKaP, MgKa, nuArray(1), nuArray(nbins)
                stop
             end if
-            
+
             ! set AlKa
             call locate(nuArray,AlKa,AlKaP)
             if (AlKaP>=nbins.or.AlKaP<0) then
@@ -497,7 +497,7 @@ module elements_mod
                     & AlKaP, AlKa, nuArray(1), nuArray(nbins)
                stop
             end if
-            
+
             ! set SiKa
             call locate(nuArray,SiKa,SiKaP)
             if (SiKaP>=nbins.or.SiKaP<0) then
@@ -505,7 +505,7 @@ module elements_mod
                     & SiKaP, SiKa, nuArray(1), nuArray(nbins)
                stop
             end if
-            
+
             ! set SKa
             call locate(nuArray,SKa,SKaP)
             if (SKaP>=nbins.or.SKaP<0) then
@@ -513,7 +513,7 @@ module elements_mod
                     & SKaP, SKa, nuArray(1), nuArray(nbins)
                stop
             end if
-            
+
             ! set ArKa
             call locate(nuArray,ArKa,ArKaP)
             if (ArKaP>=nbins.or.ArKaP<0) then
@@ -521,7 +521,7 @@ module elements_mod
                     & ArKaP, ArKa, nuArray(1), nuArray(nbins)
                stop
             end if
-            
+
             ! set CaKa
             call locate(nuArray,CaKa,CaKaP)
             if (CaKaP>=nbins.or.CaKaP<0) then
@@ -529,7 +529,7 @@ module elements_mod
                     & CaKaP, CaKa, nuArray(1), nuArray(nbins)
                stop
             end if
-            
+
             ! set TiKa
             call locate(nuArray,TiKa,TiKaP)
             if (TiKaP>=nbins.or.TiKaP<0) then
@@ -537,10 +537,10 @@ module elements_mod
                     & TiKaP, TiKa, nuArray(1), nuArray(nbins)
                stop
             end if
-            
+
          end if
 
-         ! set pointer for K-shell limit 
+         ! set pointer for K-shell limit
          call locate(nuArray, KshellLimit, KshellLimitP)
 
          ! set pointer for secondary ionisation
@@ -549,7 +549,7 @@ module elements_mod
          ! set pointer for Compton recoil
          call locate(nuArray,194., cRecoilHP)
          call locate(nuArray,260., cRecoilHeP)
-         
+
          ! set xRay pointer
          call locate(nuArray,20.6, xrayP)
 
@@ -557,14 +557,14 @@ module elements_mod
          call locate(nuArray, 0.25, BjumpP)
 
          ! set data for hydrogen and helium atoms
-         call makeHydro()  
-         
+         call makeHydro()
+
          ! read in data from benj skil smit 99
          call readHeIRecLines()
 
-         ! set HlevNuP (pointer to the nth H level in nuArray)           
+         ! set HlevNuP (pointer to the nth H level in nuArray)
          do i = 1, nHlevel
-            call locate(nuArray, HlevEn(i), HlevNuP(i))     
+            call locate(nuArray, HlevEn(i), HlevNuP(i))
          end do
          HlevNuP(nHlevel+1) = HlevNuP(2)
 
@@ -577,10 +577,10 @@ module elements_mod
          ! set HeIIlevNuP (pointer to the nth HeII level in nuArray)
          do i = 1, nHeIIlevel
             call locate(nuArray, HeIIlevEn(i), HeIIlevNuP(i))
-            HeIIlevNuP(i) = HeIIlevNuP(i)         
+            HeIIlevNuP(i) = HeIIlevNuP(i)
          end do
          HeIIlevNuP(nHeIIlevel+1) = HeIIlevNuP(2)
- 
+
          ! set up shell pointers
          ! the folloowing order of elements is more or less in decreasing
          ! abundance
@@ -595,7 +595,7 @@ module elements_mod
 
          ! oxygen
          if (lgElementOn(8)) call setShells(8)
-   
+
          ! nitrogen -after O so that O gets more accurate pointer
          if (lgElementOn(7)) call setShells(7)
 
@@ -603,13 +603,13 @@ module elements_mod
          if (lgElementOn(10)) call setShells(10)
 
          ! sodium
-         if (lgElementOn(11)) call setShells(11) 
+         if (lgElementOn(11)) call setShells(11)
 
          ! magnesium
-         if (lgElementOn(12)) call setShells(12) 
+         if (lgElementOn(12)) call setShells(12)
 
          ! alluminium
-         if (lgElementOn(13)) call setShells(13) 
+         if (lgElementOn(13)) call setShells(13)
 
          ! silicon
          if (lgElementOn(14)) call setShells(14)
@@ -633,14 +633,14 @@ module elements_mod
          if (lgElementOn(19)) call setShells(19)
 
          ! calcium
-         if (lgElementOn(20)) call setShells(20) 
+         if (lgElementOn(20)) call setShells(20)
 
          ! scandium
          if (lgElementOn(21)) call setShells(21)
 
          ! titanium
-         if (lgElementOn(22)) call setShells(22) 
- 
+         if (lgElementOn(22)) call setShells(22)
+
          ! vanadium
          if (lgElementOn(23)) call setShells(23)
 
@@ -672,7 +672,7 @@ module elements_mod
          if (lgElementOn(29)) call setShells(29)
 
          ! zinc
-         if (lgElementOn(30)) call setShells(30)  
+         if (lgElementOn(30)) call setShells(30)
 
      end subroutine setPointers
 
@@ -682,16 +682,16 @@ module elements_mod
        integer           :: elem, ion  ! counters
        integer           :: i, iup, ilow ! counters
        integer           :: ios        ! I/O error status
-       
+
        close(17)
        open(file=PREFIX//'/share/mocassin/data/fileNames.dat', action="read", unit=17, status='old', &
             & position='rewind', iostat=ios)
-       
+
        if (ios/=0) then
-          
+
           print*, "! makeElements: can't open data/fileNames.dat"
           stop
-          
+
        end if
 
 
@@ -705,7 +705,7 @@ module elements_mod
 
           end do
        end do
-        
+
        close(17)
 
 
@@ -750,9 +750,9 @@ module elements_mod
                   & position='rewind', iostat=ios)
 
              if (ios == 0) then
-                
+
                 close(18)
-                
+
                 nLines = nLines + nForLevels*nForLevels ! nForlLevels
                 lgDataAvailable(elem, ion) = .true.
 
@@ -768,7 +768,3 @@ module elements_mod
      end subroutine makeElements
 
 end module elements_mod
-
-
-
-

@@ -1,4 +1,4 @@
-! Copyright (C) 2007 Barbara Ercolano 
+! Copyright (C) 2007 Barbara Ercolano
 !
 ! Version 3.00
 module xSec_mod
@@ -9,7 +9,7 @@ module xSec_mod
     use interpolation_mod
     implicit none
 
-        
+
     real, private, allocatable, dimension(:) :: xSecArrayTemp ! temporary xSec array
 
 
@@ -76,38 +76,38 @@ module xSec_mod
       if (err /= 0) then
          print*, "! initGammaCont: Cannot allocate grid array -0"
          stop
-      end if 
+      end if
 
       allocate(nuGammaHI(nlimGammaHI), stat=err)
       if (err /= 0) then
          print*, "! initGammaCont: Cannot allocate grid array -01"
          stop
-      end if 
+      end if
       allocate(nuGammaHeI(nlimGammaHeI), stat=err)
       if (err /= 0) then
          print*, "! initGammaCont: Cannot allocate grid array -02"
          stop
-      end if 
+      end if
       allocate(nuGammaHeII(nlimGammaHeII), stat=err)
       if (err /= 0) then
          print*, "! initGammaCont: Cannot allocate grid array -03"
          stop
-      end if 
+      end if
       allocate(HINuEdgeP(nlimGammaHI), stat=err)
       if (err /= 0) then
          print*, "! initGammaCont: Cannot allocate grid array -03"
          stop
-      end if 
+      end if
       allocate(HeINuEdgeP(nlimGammaHeI), stat=err)
       if (err /= 0) then
          print*, "! initGammaCont: Cannot allocate grid array -03"
          stop
-      end if 
+      end if
       allocate(HeIINuEdgeP(nlimGammaHeII), stat=err)
       if (err /= 0) then
          print*, "! initGammaCont: Cannot allocate grid array -03"
          stop
-      end if 
+      end if
 
 
 
@@ -133,7 +133,7 @@ module xSec_mod
       end if
 
       do i = 1, nlimGammaHI
-         read(21,*) nuGammaHI(i), (logGammaHI(itk, i), itk=1, nTkGamma)         
+         read(21,*) nuGammaHI(i), (logGammaHI(itk, i), itk=1, nTkGamma)
          call locate(nuArray(1:nbins), nuGammaHI(i), HINuEdgeP(i))
          if (HINuEdgeP(i)<nbins) then
             if (nuGammaHI(i) > (nuArray(HINuEdgeP(i))+nuArray(HINuEdgeP(i)+1))/2.) &
@@ -143,7 +143,7 @@ module xSec_mod
 
       do itk = 1, ntkgamma
          do i = 1, nlimGammaHI
-            if (logGammaHI(itk,i)>0.) then         
+            if (logGammaHI(itk,i)>0.) then
                logGammaHI(itk,i) = log10(logGammaHI(itk,i))
             else
                logGammaHI(itk,i) = 0.
@@ -152,7 +152,7 @@ module xSec_mod
       end do
 
       do i = 1, nlimGammaHeI
-         read(22,*) nuGammaHeI(i), (logGammaHeI(itk,i), itk=1, nTkGamma)         
+         read(22,*) nuGammaHeI(i), (logGammaHeI(itk,i), itk=1, nTkGamma)
          call locate(nuArray(1:nbins), nuGammaHeI(i), HeINuEdgeP(i))
          if (HeINuEdgeP(i)<nbins) then
             if (nuGammaHeI(i) > (nuArray(HeINuEdgeP(i))+nuArray(HeINuEdgeP(i)+1))/2.) &
@@ -162,7 +162,7 @@ module xSec_mod
 
       do itk = 1, ntkgamma
          do i = 1, nlimGammaHeI
-            if (logGammaHeI(itk,i)>0.) then         
+            if (logGammaHeI(itk,i)>0.) then
                logGammaHeI(itk,i) = log10(logGammaHeI(itk,i))
             else
                logGammaHeI(itk,i) = 0.
@@ -171,7 +171,7 @@ module xSec_mod
       end do
 
       do i = 1, nlimGammaHeII
-         read(23,*) nuGammaHeII(i), (logGammaHeII(itk,i), itk=1, nTkGamma)         
+         read(23,*) nuGammaHeII(i), (logGammaHeII(itk,i), itk=1, nTkGamma)
          call locate(nuArray(1:nbins), nuGammaHeII(i), HeIINuEdgeP(i))
          if (HeIINuEdgeP(i)<nbins) then
             if (nuGammaHeII(i) > (nuArray(HeIINuEdgeP(i))+nuArray(HeIINuEdgeP(i)+1))/2.) &
@@ -181,7 +181,7 @@ module xSec_mod
 
       do itk = 1, ntkgamma
          do i = 1, nlimGammaHeII
-            if (logGammaHeII(itk,i)>0.) then         
+            if (logGammaHeII(itk,i)>0.) then
                logGammaHeII(itk,i) = log10(logGammaHeII(itk,i))
             else
                logGammaHeII(itk,i) = 0.
@@ -193,7 +193,7 @@ module xSec_mod
       close(22)
       close(23)
 
-      HINuEdgeP(1) = 1      
+      HINuEdgeP(1) = 1
       HeINuEdgeP(1) = 1
       HeIINuEdgeP(1) = 1
 
@@ -215,11 +215,11 @@ module xSec_mod
         integer :: err                        ! allocation error status
         integer :: i                          ! counter
         integer :: n                          ! principle QN
-       
 
 
-        print*, 'in initXSecArray'  
-        
+
+        print*, 'in initXSecArray'
+
 
 
         ! allocate memory for xSecArrayTemp
@@ -240,11 +240,11 @@ module xSec_mod
 
            ! Hydrogen Lyman continuum
 
-           HlevXSecP(1) = xSecTop + 1 ! set pointer to the Lyman continuum        
+           HlevXSecP(1) = xSecTop + 1 ! set pointer to the Lyman continuum
 
            ! set pointers on the energy array nuArray
            call setPointers()
-           
+
            if (lgFluorescence) then
 
               nu1PFeka = 1e6
@@ -254,7 +254,7 @@ module xSec_mod
                  highNuPFeKa = max(highNuPFeKa, elementP(26, i, 1, 2))
                  fluoThreshArray(1) = nuArray(nu1PFeKa)
               end do
-              
+
               nu1PFeL1 = 1e6
               highNuPFeL1 = 0
               do i = 1, min(nstages, 27)
@@ -262,8 +262,8 @@ module xSec_mod
                  highNuPFeL1 = max(highNuPFeL1, elementP(26, i, 2, 2))
                  fluoThreshArray(2) = nuArray(nu1PFeL1)
               end do
-              
-              nu1PFeL2    = nu1PFeL1   
+
+              nu1PFeL2    = nu1PFeL1
               highNuPFeL2 = highNuPFeL1
               fluoThreshArray(3) = nuArray(nu1PFeL1)
 
@@ -274,7 +274,7 @@ module xSec_mod
                  highNuPCKa = max(highNuPCKa, elementP(6, i, 1, 2))
                  fluoThreshArray(4) = nuArray(nu1PCKa)
               end do
-              
+
               nu1PNKa = 1e6
               highNuPNKa = 0
               do i = 1, min(nstages, 7)
@@ -282,7 +282,7 @@ module xSec_mod
                  highNuPNKa = max(highNuPNKa, elementP(7, i, 1, 2))
                  fluoThreshArray(5) = nuArray(nu1PNKa)
               end do
-              
+
               nu1POKa = 1e6
               highNuPOKa = 0
               do i = 1, min(nstages, 8)
@@ -290,15 +290,15 @@ module xSec_mod
                  highNuPOKa = max(highNuPOKa, elementP(8, i, 1, 2))
                  fluoThreshArray(6) = nuArray(nu1POKa)
               end do
-              
+
               nu1PNeKa = 1e6
               highNuPNeKa = 0
               do i = 1, min(nstages, 10)
                  nu1PNeKa = min(nu1PNeKa, elementP(10,i,1,1))
                  highNuPNeKa = max(highNuPNeKa, elementP(10, i, 1, 2))
                  fluoThreshArray(7) = nuArray(nu1PNeKa)
-              end do              
-              
+              end do
+
               nu1PMgKa = 1e6
               highNuPMgKa = 0
               do i = 1, min(nstages, 12)
@@ -306,7 +306,7 @@ module xSec_mod
                  highNuPMgKa = max(highNuPMgKa, elementP(12, i, 1, 2))
                  fluoThreshArray(8) = nuArray(nu1PMgKa)
               end do
-              
+
               nu1PAlKa = 1e6
               highNuPAlKa = 0
               do i = 1, min(nstages, 13)
@@ -314,7 +314,7 @@ module xSec_mod
                  highNuPAlKa = max(highNuPAlKa, elementP(6, i, 1, 2))
                  fluoThreshArray(9) = nuArray(nu1PAlKa)
               end do
-              
+
               nu1PSiKa = 1e6
               highNuPSiKa = 0
               do i = 1, min(nstages, 14)
@@ -322,7 +322,7 @@ module xSec_mod
                  highNuPSiKa = max(highNuPSiKa, elementP(14, i, 1, 2))
                  fluoThreshArray(10) = nuArray(nu1PSiKa)
               end do
-              
+
               nu1PSKa = 1e6
               highNuPSKa = 0
               do i = 1, min(nstages, 16)
@@ -330,7 +330,7 @@ module xSec_mod
                  highNuPSKa = max(highNuPSKa, elementP(16, i, 1, 2))
                  fluoThreshArray(11) = nuArray(nu1PSKa)
               end do
-              
+
               nu1PArKa = 1e6
               highNuPArKa = 0
               do i = 1, min(nstages, 18)
@@ -338,7 +338,7 @@ module xSec_mod
                  highNuPArKa = max(highNuPArKa, elementP(18, i, 1, 2))
                  fluoThreshArray(12) = nuArray(nu1PArKa)
               end do
-              
+
               nu1PCaKa = 1e6
               highNuPCaKa = 0
               do i = 1, min(nstages, 20)
@@ -346,7 +346,7 @@ module xSec_mod
                  highNuPCaKa = max(highNuPCaKa, elementP(20, i, 1, 2))
                  fluoThreshArray(13) = nuArray(nu1PCaKa)
               end do
-              
+
               nu1PTiKa = 1e6
               highNuPTiKa = 0
               do i = 1, min(nstages, 22)
@@ -395,10 +395,10 @@ module xSec_mod
                  ! Compton exchange factors from Tarter
                  alpha = 1./ ( 1. + nuArray(i)* ( 1.1792e-4 + 7.084e-10*nuArray(i) ) )
                  beta = (1. - alpha * nuArray(i)*(1.1792e-4+2.*7.084e-10*nuArray(i))/4.)
-                 
+
                  comXSecH(i) = alpha * nuArray(i)*nuArray(i) * 3.858e-25
                  comXSecC(i) = alpha * beta * nuArray(i) * 3.858e-25
-                 
+
                  if (i<=xrayP) then
                     xSecRecoil(i) = thom
                  else
@@ -413,21 +413,21 @@ module xSec_mod
            end if
 
            do i = HlevNuP(1), nbins
-              thres = max(nuArray(i)*RydToeV, ph1(1, 1, 1, 1)) 
+              thres = max(nuArray(i)*RydToeV, ph1(1, 1, 1, 1))
               call phFitEl(1, 1, 1, thres, xSec)
-              xSecArrayTemp(i-HlevNuP(1)+HlevXSecP(1)) = xSec*1e-18   
+              xSecArrayTemp(i-HlevNuP(1)+HlevXSecP(1)) = xSec*1e-18
            end do
            xSecTop = xSecTop + nbins - HlevNuP(1) + 1
 
            ! Balmer, Paschen etc. continua (up to n= 10)
-           do n = 2, nHlevel        
+           do n = 2, nHlevel
               HlevXSecP(n) = xSecTop + 1 ! set the pointers to the various continua
               do i = HlevNuP(n), HlevNuP(1)
-                 x = log10(nuArray(i)) - log10(nuArray(HlevNuP(n)))           
+                 x = log10(nuArray(i)) - log10(nuArray(HlevNuP(n)))
                  xSecArrayTemp(i-HlevNuP(n) + HlevXSecP(n)) = phFitHIon(x, n, 1.)
               end do
               xSecTop = xSecTop + HlevNuP(1) - HlevNuP(n) +1
-              
+
            end do
 
            ! free-free opacity (bremstrahlung)
@@ -445,7 +445,7 @@ module xSec_mod
               call phFitEl(2, 2, 1, nuArray(i)*RydToeV, xSec)
               xSecArrayTemp(i-HeIlevNuP(1)+HeISingXSecP(1)) = xSec*1e-18
            end do
-           xSecTop = xSecTop + nbins - HeIlevNuP(1) + 1      
+           xSecTop = xSecTop + nbins - HeIlevNuP(1) + 1
 
            ! HeI neutral He 21S from StewartJPhysB 11, L431
            call powLawXSec(HeIlevNuP(2), HeIlevNuP(1), 0.4*8.7e-18, 1.5, HeISingXSecP(2))
@@ -496,12 +496,12 @@ module xSec_mod
            stop
 
         end if
-           
+
         ! allocate just enough space to XSecArray
         allocate (xSecArray(1:XSecTop), stat = err)
         if (err /= 0) then
            print*, "! initXSecArray: Cannot allocate grid array"
-           stop 
+           stop
         end if
 
         ! assign the values to XSecArray
@@ -512,17 +512,17 @@ module xSec_mod
         ! free the space occupated by XSecArrayTemp
         if (allocated(XSecArrayTemp)) deallocate(XSecArrayTemp)
 
-        print*, 'out initXSecArray' 
+        print*, 'out initXSecArray'
 
       end subroutine initXSecArray
-        
+
 
        ! this subroutines reads the ph1 and ph2 parameters needed by the subroutine phFitEl
-       ! from the data/ph1.dat and the data/ph2.dat files. also it the level, nInn and 
-       ! nTot arrays are initialised here 
+       ! from the data/ph1.dat and the data/ph2.dat files. also it the level, nInn and
+       ! nTot arrays are initialised here
        subroutine phInit()
-       
-         ! local variables 
+
+         ! local variables
          integer :: ios,nt          ! I/O error status
          integer :: i, j, k , l     ! counters
 
@@ -534,7 +534,7 @@ module xSec_mod
               &  5,5,5,5,5,5,6,6,6,6,6,6,6,6,6,6,7,7/)
 
 
-         ! open data/ph1.dat file and check for errors in opening 
+         ! open data/ph1.dat file and check for errors in opening
          close(10)
          open(unit = 10, file = PREFIX//"/share/mocassin/data/ph1.dat", status = "old",&
               &  position = "rewind", iostat = ios, action="read")
@@ -543,7 +543,7 @@ module xSec_mod
             stop
          end if
 
-         ! open data/ph2.dat file and check for errors in opening  
+         ! open data/ph2.dat file and check for errors in opening
          close(20)
          open(unit = 20, file = PREFIX//"/share/mocassin/data/ph2.dat", status = "old",&
               &  position = "rewind", iostat = ios, action="read")
@@ -565,7 +565,7 @@ module xSec_mod
             end do
          end do
 
-         ! read data/ph2.dat file and check for errors in reading    
+         ! read data/ph2.dat file and check for errors in reading
          do k = 1, 30
             do j = 1, min(k,30)
                if (k /= 15 .and. k /= 17 .and. k /= 19 .and. &
@@ -588,36 +588,36 @@ module xSec_mod
        ! inner shells of all elements, and outer shells of the non OP elements:
        !    Verner and Yakovlev, 1995, A&AS, 109, 125
        ! shell numbers:
-       ! 1 - 1s; 2 - 2s; 3 - 2p; 4 - 3s; 5 - 3p; 6 - 3d; 7 - 4s  
+       ! 1 - 1s; 2 - 2s; 3 - 2p; 4 - 3s; 5 - 3p; 6 - 3d; 7 - 4s
        subroutine phFitEl(nz, ne, shell, photEn, xSec)
          implicit none
-     
+
          real, intent(in) :: photEn               ! photon energy [eV]
          real, intent(out) :: xSec                ! cross section [Mb]
 
          real :: eInn, p1, y, q, a, b, x, z
-    
+
          integer, intent(in) :: nz                ! atomic number from 1 to 30
          integer, intent(in) :: ne                ! # of electrons from 1 to nz
          integer, intent(in) :: shell             ! shell number
-     
+
          ! local variables
          integer :: nOut, nInt                    ! # of outer or internal shell
- 
+
 
          ! initialize the cross section to 0.0
          xSec = 0.0
-    
+
          ! xSec = 0.0 if atomic number < 1 or > 30
          if( (nz < 1) .or. (nz > 30) ) return
 
          ! xSec = 0.0 if # of electrons  < 1 or > than atomic number
-         if( (ne < 1) .or. (ne > nz) ) return         
+         if( (ne < 1) .or. (ne > nz) ) return
 
          ! set outer shell number
          nOut = nTot(ne)
 
-         if ( (nz == ne) .and. (nz > 18) ) nOut = 7 
+         if ( (nz == ne) .and. (nz > 18) ) nOut = 7
 
          if ( (nz == (ne+1)) .and. ( (nz == 20) .or. (nz == 21) .or. &
 &             (nz == 22) .or. (nz == 25) .or. (nz == 26) ) ) nOut = 7
@@ -633,10 +633,10 @@ module xSec_mod
 
          ! set eInn
          if ( (nz == 15) .or. (nz == 17) .or. (nz == 19) .or. &
-&             ( (nz > 20) .and. (nz /= 26) ) ) then 
+&             ( (nz > 20) .and. (nz /= 26) ) ) then
             eInn = 0.0
          else
-            if (ne < 3) then 
+            if (ne < 3) then
                eInn = 1.e30
             else
                eInn = ph1(1, nz, ne, nInt)
@@ -660,7 +660,7 @@ module xSec_mod
             x = photEn / ph2(1, nz, ne) - ph2(6, nz, ne)
             z = sqrt(x*x + ph2(7, nz, ne)*ph2(7, nz, ne))
             a = ph2(2, nz, ne) * ((x-1.)*(x-1.) + &
-                 &ph2(5, nz, ne)*ph2(5, nz, ne)) 
+                 &ph2(5, nz, ne)*ph2(5, nz, ne))
             b = sqrt(z/ph2(3, nz, ne)) + 1.
             xSec = a * z**q * b**p1
 
@@ -668,21 +668,21 @@ module xSec_mod
        end subroutine phFitEl
 
 
-       ! this function calculates photoionisation 
+       ! this function calculates photoionisation
        ! cross sections for hydrogenic ions
-       ! routine was adapted from cloudy and originally 
+       ! routine was adapted from cloudy and originally
        ! obtained from Anil Pradhan, Nov90
        ! W = photon energy ; W0 = threshold photon energy
        function phFitHIon(x, n, z)
          implicit none
-         
+
          real :: phFitHIon              ! cross section [1/cm^2]
-         
+
          real :: x                      ! log10(W/W0)
          real :: z                      ! nuclear charge
 
          real, dimension(10) ::  a, &   ! fit parameters
-              &b, c, d, e, f                               
+              &b, c, d, e, f
 
          integer :: n                   ! principal QN
 
@@ -706,7 +706,7 @@ module xSec_mod
             print*, "! phFitHIon: quantum number n out of range [1,10]"
             stop
          end if
-  
+
          ! calculate cross sections
          if (x <= 1) then
             phFitHIon = a(n) + x*(b(n) + x*(c(n) + x*d(n)))
@@ -724,16 +724,16 @@ module xSec_mod
        ! excited  hydrogenic states
        subroutine HFit(h0, pow, n)
          implicit none
-         
+
          real, intent(out) :: h0        ! crossection
          real, intent(out) :: pow       ! power
 
          integer, intent(in) :: n
-         
+
 
          ! better than 1% fit for n>=30
          h0 = (1.3962688e-10 + 2.7479352e-9 * sqrt(float(n)) ) * &
-              &(1.3962688e-10 + 2.7479352e-9 * sqrt(float(n)) ) 
+              &(1.3962688e-10 + 2.7479352e-9 * sqrt(float(n)) )
 
          ! better than 1% fit for n>=30
          if(n<1000) then
@@ -749,17 +749,17 @@ module xSec_mod
 
          real ::  slope                            ! slope for linear interpolation
          real, dimension(10) :: H2plusAr
-         real, dimension(10/2) :: enerData,  &  ! energy and cross 
+         real, dimension(10/2) :: enerData,  &  ! energy and cross
               &xSecData                            ! section arrays
 
          integer, intent(in) :: low, high
          integer, intent(out) :: opP                       ! opacity pointer
-         
+
          ! local variables
          integer, parameter :: nData = 10
          integer :: i, ixSec, j                            ! counters
          integer :: nPairs                                 ! # of data pair
-         
+
 
          opP = xSecTop + 1
          nPairs = nData/2
@@ -769,7 +769,7 @@ module xSec_mod
          ! section in Mb
          H2plusAr = (/6.75,0.24 , 8.68,2.5, 10.54,7.1, 12.46,6.0, &
               &14.28,2.7/)
- 
+
          do i = 1, nPairs
             enerData(i) = H2plusAr( (i-1)*2 + 1) / 13.6
             xSecData(i) = H2plusAr(i*2) * 1e-18
@@ -780,9 +780,9 @@ module xSec_mod
                  &is not largee enough [low]"
             stop
         end if
-        
+
         slope = ( xSecData(2) - xSecData(1) ) / ( enerData(2) - enerData(1) )
-    
+
         ixSec = 1
 
         ! fill in the opacities. use linear interpolation
@@ -814,7 +814,7 @@ module xSec_mod
 
         ! set the pointer to the top of the xSec array
         xSecTop = xSecTop + high - low + 1
-         
+
         ! check that xSecTop doesn't exceed xSecMax
         if ( xSecTop > xSecMax) then
             print*, "! H2plusOp: xSecMax exceeded"
@@ -822,22 +822,22 @@ module xSec_mod
         end if
 
       end subroutine H2plusXSec
- 
-      ! this subroutine generates an array of cross 
+
+      ! this subroutine generates an array of cross
       ! sections using a simple power law fit
       subroutine powLawXSec(low, high, cross, s, xSecP)
         implicit none
-    
+
         real, intent(in)     :: cross, s
 
         real :: thres                     ! threshold
 
         integer, intent(in)  :: low, high ! pointers to boundaries of freq region
-        integer, intent(out) :: xSecP     ! pointer to xSec array in xSecArray 
+        integer, intent(out) :: xSecP     ! pointer to xSec array in xSecArray
 
 
         ! local variables
-        integer :: i                      ! counter        
+        integer :: i                      ! counter
 
         xSecP = xSecTop + 1               ! set x Sec pointer
         thres =  nuArray(low)             ! set threshold
@@ -849,7 +849,7 @@ module xSec_mod
         end do
 
         xSecTop = xSecTop + high - low + 1
-        
+
         if ( xSecTop > xSecMax )  then
             print*, "! powLawXSec: xSecMax exceeded"
             stop
@@ -872,15 +872,15 @@ module xSec_mod
         integer :: nElec                 ! number of bound electrons
         integer :: nIon                  ! ionic number
         integer :: shell                 ! shell(suit) number
-    
-        
+
+
 
         do nIon = 1, min(nElem, nstages)
            ! find number of bound electrons
            nElec = nElem - nIon +1
 
            do shell = 1, nShells(nElem, nIon)
-              
+
               elementP(nElem,nIon , shell, 3) = xSecTop+1
               ! find how many cont bins are needed to store opacity
               binsNeed = elementP(nElem,nIon , shell, 2) - &
@@ -890,7 +890,7 @@ module xSec_mod
                  print*, "! makeOpacity: xSecMax exceeded"
                  stop
               end if
-                 
+
               if ( elementP(nElem,nIon , shell, 1)>elementP(nElem,nIon , shell, 2) .and. &
 &                    ( .not.(elementP(nElem,nIon , shell, 1)==2) .or. &
 &                     .not.(elementP(nElem,nIon , shell, 2)==1) ) ) then
@@ -910,7 +910,7 @@ module xSec_mod
                       &elementP(nElem,nIon , shell, 3)) = xSec*1e-18
               end do
 
-              if (binsneed>=1) then       
+              if (binsneed>=1) then
                  xSecTop = xSecTop + elementP(nElem,nIon , shell, 2) - &
                       &elementP(nElem,nIon , shell, 1) +1
               end if
@@ -938,7 +938,7 @@ module xSec_mod
         real, pointer :: Csca(:,:,:) ! sca cross-section [um^2] for each grain species and size
         real, pointer :: CTabs(:) ! total abs cross-section [um^2] for grain mixture
         real, pointer :: CTsca(:) ! total sca cross-section [um^2] for grain mixture
-        real, pointer :: Ere(:), Eim(:) 
+        real, pointer :: Ere(:), Eim(:)
         real, pointer :: temp(:)
 
         integer :: err ! allocation error status
@@ -963,7 +963,7 @@ module xSec_mod
         end if
 
         ! check how many species are used
-        read (10, *) nSpecies        
+        read (10, *) nSpecies
 
         ! allocate abundances array for dust
         allocate (absOpacSpecies(1:nSpecies, 1:nbins), stat=err)
@@ -1011,7 +1011,7 @@ module xSec_mod
            print*, "! makeDustXsec: error allocation memory for TdustSublime array"
            stop
         end if
-        TdustSublime=0.        
+        TdustSublime=0.
 
         open (unit=11, file=dustFile(2), iostat = ios, status = 'old', &
              &position = 'rewind', action="read")
@@ -1056,19 +1056,19 @@ module xSec_mod
         dustAbsXSecP = -1
 
         do ai = 1, nSizes
-           read(11,*) iskip, grainRadius(ai), grainWeight(ai)       
+           read(11,*) iskip, grainRadius(ai), grainWeight(ai)
         end do
 
         if (nSizes>1) then
-           da(1) = grainRadius(2)-grainRadius(1)                    
+           da(1) = grainRadius(2)-grainRadius(1)
            do ai = 2, nSizes-1
-              da(ai) = (grainRadius(ai+1)-grainRadius(ai-1))/2.              
+              da(ai) = (grainRadius(ai+1)-grainRadius(ai-1))/2.
            end do
            da(nSizes) = grainRadius(nSizes)-grainRadius(nSizes-1)
         end if
         normWeight=  0.
         do ai = 1, nSizes
-           normWeight = normWeight+grainWeight(ai)*da(ai) 
+           normWeight = normWeight+grainWeight(ai)*da(ai)
         end do
         if (nSizes>1) then
            do ai = 1, nSizes
@@ -1086,7 +1086,7 @@ module xSec_mod
         end if
 
         if (taskid == 0)  then
-           print*, '! makeDustXSec : Size Distribution ' 
+           print*, '! makeDustXSec : Size Distribution '
            print*, ' index, a [um], da [um], weight '
            do ai = 1, nSizes
               print*, ai, grainRadius(ai), da(ai), grainWeight(ai)
@@ -1094,9 +1094,9 @@ module xSec_mod
         end if
 
         do nSpec = 1, nSpecies
-           
+
            read(10, *) extinctionFile, grainAbun(nSpec)
-           
+
            open (unit=20, file=extinctionFile, iostat = ios, &
                 &status = 'old', position = 'rewind', action="read")
            if(ios/=0) then
@@ -1125,7 +1125,7 @@ module xSec_mod
                  Nwav = Nwav+1
               end do
               rewind 20
-              
+
               if (nSpec>1 .and. nWav/=nWavOld) then
                  print*, '! makeDustXSec: [warning] extinction files &
                       & do not have the same number of frequency points'
@@ -1155,13 +1155,13 @@ module xSec_mod
                       &tmp3 array"
                  stop
               end if
-           
+
               ! initialise arrays
               tmp1 = 0.
               tmp2 = 0.
               tmp3 = 0.
               wav = 0.
-              
+
               if (nSpec == 1) then
                  ! allocate the pointers' memory
                  allocate (Csca(1:nSpecies,0:nSizes,1:nbins), stat=err)
@@ -1202,20 +1202,20 @@ module xSec_mod
               end if
               Ere = 0.
               Eim = 0.
-              
-              
+
+
               read(20, *) dustFileType
               read(20, *) grainLabel(nSpec), TdustSublime(nSpec),&
                 & rho(nSpec), grainVn(nSpec), MsurfAtom(nSpec)
-           
+
               do i = 1, Nwav
-                 read (20,*) wav(i), Ere(i), Eim(i) 
+                 read (20,*) wav(i), Ere(i), Eim(i)
               end do
-              
+
               close(20)
-           
+
               nWavOld = nWav
-              
+
               ! reverse order of wav, Ere and Eim and map onto mocassin's grid
               do i = nWav, 1, -1
                  ! convert wav into energy [Ryd]
@@ -1225,10 +1225,10 @@ module xSec_mod
                  tmp3(nWav-i+1) = wav(i)
               end do
               wav=tmp3
-                            
+
               if (associated(Ere)) deallocate(Ere)
               if (associated(Eim)) deallocate(Eim)
-              
+
               allocate (Ere(1:nbins), stat=err)
               if (err/=0) then
                  print*, "! makeDustXsec: error allocation memory for Ere array - 2"
@@ -1241,14 +1241,14 @@ module xSec_mod
               end if
               Ere = 0.
               Eim = 0.
-              
+
               ! map onto mocassin grid
               call linearMap(tmp1, wav, nwav, Ere, nuArray, nbins)
               call linearMap(tmp2, wav, nwav, Eim, nuArray, nbins)
 
               ! calculate efficiencies
               call getQs(Ere,Eim,Cabs(nSpec,1:nSizes,1:nbins),Csca(nSpec,1:nSizes,1:nbins))
-              
+
               if (associated(wav)) deallocate(wav)
               if (associated(Ere)) deallocate(Ere)
               if (associated(Eim)) deallocate(Eim)
@@ -1256,7 +1256,7 @@ module xSec_mod
               if (associated(tmp2)) deallocate(tmp2)
               if (associated(tmp3)) deallocate(tmp3)
 
-              
+
            case ('Q')
 
               ! read (unit=20, fmt=*, iostat=ios) textString
@@ -1265,14 +1265,14 @@ module xSec_mod
               read(20, *) dustFileType
               read(20, *) grainLabel(nSpec), TdustSublime(nSpec), &
                    &rho(nSpec), grainVn(nSpec), MsurfAtom(nSpec)
-              
-              do i = 1, 2 
+
+              do i = 1, 2
                  read(20,*) textString
               end do
               read(20,*) nRadii
               read(20,*) nwav
               read(20,*) textString
-              
+
               allocate (wav(1:nWav), stat=err)
               if (err/=0) then
                  print*, "! makeDustXsec: error allocation memory for wav array"
@@ -1333,7 +1333,7 @@ module xSec_mod
                  print*, "! makeDustXsec: error allocation memory for tmpWav array"
                  stop
               end if
-                            
+
               ! initialise arrays
               QaTemp = 0.
               QsTemp = 0.
@@ -1347,7 +1347,7 @@ module xSec_mod
               tmpWav = 0.
               wav = 0.
               agrain = 0.
-              
+
               if (nSpec == 1) then
                  ! allocate the pointers' memory
                  allocate (gCos(1:nSpecies,0:nSizes,1:nbins), stat=err)
@@ -1397,7 +1397,7 @@ module xSec_mod
                  CTabs = 0.
                  CTsca = 0.
               end if
-           
+
               do i = 1, nRadii
                  do j = 1, nWav
                     read(20,*) agrain(i), wav(j), tmp11(i,j), tmp22(i,j), tmp33(i,j)
@@ -1413,24 +1413,24 @@ module xSec_mod
                  end do
                  wav=tmpWav
 
-                 ! map  data onto mocassin's nu grid 
+                 ! map  data onto mocassin's nu grid
 
                  call linearMap(QaTemp, wav, nwav, temp1nbins(i,:), nuArray, nbins)
                  call linearMap(QsTemp, wav, nwav, temp2nbins(i,:), nuArray, nbins)
-                 call linearMap(gTemp, wav, nwav, temp3nbins(i,:), nuArray, nbins) 
+                 call linearMap(gTemp, wav, nwav, temp3nbins(i,:), nuArray, nbins)
 
               end do
 
               close(20)
 
-              if (associated(QaTemp)) deallocate(QaTemp) 
-              if (associated(QsTemp)) deallocate(QsTemp) 
-              if (associated(gTemp)) deallocate(gTemp) 
+              if (associated(QaTemp)) deallocate(QaTemp)
+              if (associated(QsTemp)) deallocate(QsTemp)
+              if (associated(gTemp)) deallocate(gTemp)
               if (associated(tmp11)) deallocate(tmp11)
               if (associated(tmp22)) deallocate(tmp22)
-              if (associated(tmp33)) deallocate(tmp33)           
+              if (associated(tmp33)) deallocate(tmp33)
               if (associated(wav)) deallocate(wav)
-              if (associated(tmpWav)) deallocate(tmpWav)           
+              if (associated(tmpWav)) deallocate(tmpWav)
 
               ! interpolate over the grain size distribution
               do i = 1, nSizes
@@ -1439,15 +1439,15 @@ module xSec_mod
 
                  if (grainRadius(i)<agrain(1)) then
                     print*, '! makeDustXsec: [warning] Size distribution &
-                         & extends to radii smaller than & 
+                         & extends to radii smaller than &
                          & the smallest radius listed in the external Qfile provided'
                     print*, 'Value of the smallest radius was assigned'
                     Cabs(nSpec,i,:) =  temp1nbins(1,:)
                     Csca(nSpec,i,:) =  temp2nbins(1,:)
-                    gCos(nSpec,i,:) =  temp3nbins(1,:)                 
+                    gCos(nSpec,i,:) =  temp3nbins(1,:)
                  else if (grainRadius(i)>agrain(nRadii)) then
-                    print*, '! makeDustXsec: [warning] Size distribution & 
-                         & extends to radii larger than & 
+                    print*, '! makeDustXsec: [warning] Size distribution &
+                         & extends to radii larger than &
                          & the largest radius listed in the external Qfile provided'
                     print*, 'Value of the largest radius was assigned'
 
@@ -1462,12 +1462,12 @@ module xSec_mod
                             & (grainRadius(i)-agrain(iSize))*&
                             & (temp1nbins(iSize+1,j)-temp1nbins(iSize,j))/&
                             & (agrain(iSize+1)-agrain(iSize))
-                       
+
                        Csca(nSpec,i,j) = temp2nbins(iSize,j)+&
                             & (grainRadius(i)-agrain(iSize))*&
                             & (temp2nbins(iSize+1,j)-temp2nbins(iSize,j))/&
                             & (agrain(iSize+1)-agrain(iSize))
-                       
+
                        gCos(nSpec,i,j) = temp3nbins(iSize,j)+&
                             & (grainRadius(i)-agrain(iSize))*&
                             & (temp3nbins(iSize+1,j)-temp3nbins(iSize,j))/&
@@ -1475,12 +1475,12 @@ module xSec_mod
                     end do
                  end if
 
-              end do              
+              end do
 
               if (associated(agrain)) deallocate(agrain)
               if (associated(temp1nbins)) deallocate(temp1nbins)
               if (associated(temp2nbins)) deallocate(temp2nbins)
-              if (associated(temp3nbins)) deallocate(temp3nbins)           
+              if (associated(temp3nbins)) deallocate(temp3nbins)
 
 
            case default
@@ -1490,20 +1490,20 @@ module xSec_mod
 
         end do
 
-        close(10)                
+        close(10)
 
         if (lgRadPress) then
            Cpr = Cabs+(1-gCos)*Csca
         end if
 
-        print*, "! makeDustXsec: Grain Abundances: " 
-        print*, "(index, label, abundance, sublimation T)"        
+        print*, "! makeDustXsec: Grain Abundances: "
+        print*, "(index, label, abundance, sublimation T)"
         do nSpec = 1, nSpecies
            print*, nSpec, grainLabel(nSpec),grainAbun(nSpec),TdustSublime(nSpec)
         end do
         print*, ""
-        
-        ! calculate cross sections [um^2]        
+
+        ! calculate cross sections [um^2]
         ! combine individual species/sizes cross-sections into total cross-section for
         ! the grain mixture
         do i = 1, nbins
@@ -1534,8 +1534,8 @@ module xSec_mod
 !        if (lgRadPress) CTpr = CTpr/(100.*4.e-17)
         ! 3.32170 is Nd/Nh according to WC86 using A_c and A_si from DL
         if (lgRadPress) then
-           CTpr = 3.32170e-10*CTpr*0.7/1.67e-24 
-           Cpr = 3.32170e-10*Cpr*0.7/1.67e-24 
+           CTpr = 3.32170e-10*CTpr*0.7/1.67e-24
+           Cpr = 3.32170e-10*Cpr*0.7/1.67e-24
         end if
 
 
@@ -1598,21 +1598,21 @@ module xSec_mod
 
       end subroutine makeDustXsec
 
-      ! Uses MIE scattering, Releigh-Gans theory and 
-      ! geometric optics approximations for various regimes 
+      ! Uses MIE scattering, Releigh-Gans theory and
+      ! geometric optics approximations for various regimes
       ! as prescribed by Laor and Draine (1993) ApJ 402, 441
       subroutine getQs(Ere_in,Eim_in,Qabs,Qsca)
         implicit none
 
         real, intent(in) :: Ere_in(*), Eim_in(*)
-        real, intent(out) :: Qabs(nsizes,nbins), Qsca(nSizes, nbins)      
-      
+        real, intent(out) :: Qabs(nsizes,nbins), Qsca(nSizes, nbins)
+
         complex :: refIndex
         real    :: sizeParam, Qback(nSizes, nbins), absRefIndex, &
              &absRefIndexm1, lam
-        
-        integer :: i, ai 
-        
+
+        integer :: i, ai
+
         do i = 1, nbins
 
            ! complex refraction index
@@ -1620,48 +1620,48 @@ module xSec_mod
            absRefIndex=sqrt(Ere_in(i)**2.+Eim_in(i)**2.)
            absRefIndexm1=sqrt((Ere_in(i)-1.)**2.+Eim_in(i)**2.)
            lam = ( 2.9979250e14/(nuArray(i)*fr1Ryd))
-           
+
            do ai = 1, nSizes
 
               ! size parameter
               sizeParam=2.0*3.14159265*grainRadius(ai)/lam
               ! check if we are in the MIE regime
               if (absRefIndex*sizeParam<1000.) then
-              
+
                  ! if size parameter > 100 use 100 (geometrical optics)
                  if (sizeParam > 100.) sizeParam=100.
 
                  ! now calculate the efficiencies
                  call BHmie(sizeParam,refIndex,Qabs(ai,i),Qsca(ai,i),Qback(ai,i))
                  Qabs(ai,i) = Qabs(ai,i) - Qsca(ai,i)
-            
-                 
+
+
               elseif (absRefIndex*sizeParam>=1000. .and. &
                    &absRefIndexm1*sizeParam<0.001) then ! or in the Raleigh-Gans regime
-                 
+
                  Qabs(ai,i) = (8./3.)*Eim_in(i)*sizeParam
                  Qsca(ai,i) = 32.*(absRefIndexm1**2.)*sizeParam**4./&
-                      & (27.+16.*sizeParam**2.)                                 
+                      & (27.+16.*sizeParam**2.)
 
               else if (absRefIndex*sizeParam>=1000. .and. &
                    &absRefIndexm1*sizeParam>=0.001) then ! geometric optics regime
-                 
+
                  call geometricOptics(sizeParam,grainRadius(ai), Ere_in(i),Eim_in(i), &
                       & Qabs(ai,i),Qsca(ai,i), lam )
-                 
+
 
               else
                  print*, '! getQs: insane refractive index or size parameter ', &
                       absRefIndex, absRefIndexm1, sizeParam
                  stop
               end if
-                 
+
               if (.not.lgDustScattering) Qsca(ai,i)=0.
 
            end do
-        
 
-   
+
+
         end do
 
       end subroutine getQs
@@ -1691,9 +1691,9 @@ module xSec_mod
 
         qa = 0.
         qs = 0.
-        
+
         do i = 1, nang
-           
+
            theta0 = i*Pi/180.
 
            p20 = 0.5*(sin(theta0)**2 - epsre + ( (2*epsim)**2 + (epsre-sin(theta0)**2) )**0.5)
@@ -1708,11 +1708,11 @@ module xSec_mod
 
            Rpara0 = Rperp0 * ((sqrt(q20)-sin(theta0)*tan(theta0))**2+p20)/&
                 &((sqrt(q20)+sin(theta0)*tan(theta0))**2+p20)
-           
+
            psi = sin(theta0)/(q20+sin(theta0)**2)**2
-           
+
            psi = asin(psi)
-                      
+
            Rperp1 = ((sqrt(q21) - cos(psi))**2 + p21 ) / ((sqrt(q21) + cos(psi))**2 + p21 )
 
            Rpara1 = Rperp1 * ((sqrt(q21)-sin(psi)*tan(psi))**2+p21)/&
@@ -1724,7 +1724,7 @@ module xSec_mod
                 & ( (1.-Rperp0)/(1.-Atheta0*Rperp1) + (1.-Rpara0)/(1.-Atheta0*Rpara1) )
 
         end do
-        
+
         Qrg = (32.*absmm1sq*x**4)/(27.+16*x**2)+(8./3.)*mim*x
 
         Qs = Qrg/sqrt(1.+0.25*Qrg**2)
@@ -1733,7 +1733,7 @@ module xSec_mod
 
 
       end subroutine geometricOptics
-        
+
 
       ! ***********************************************************************
       ! This subroutine was originally obtained from prof. P. Menguc, Dept. of
@@ -1747,21 +1747,21 @@ module xSec_mod
       !     & EFFICIENCIES FOR EXTINCTION, TOTAL SCATTERING AND BACSCATTERING,
       !     FOR A GIrVEN SIZE PARAMETER AND RELATIVE REFRACTIVE INDEX
       !     __________________________________________________________________
-      
+
       subroutine BHmie (x,refrel,qext,qsca,qback)
         implicit none
-        
+
         complex, intent(in) :: refrel
         real, intent(in)    :: x
-        
+
         real, intent(out)   :: qext, qsca, qback
-        
+
         real, dimension(100) ::  amu, theta,pii,tau,pi0,pi1
-        
+
         complex              :: d(3000),y,xi,xi0,xi1,an,bn,s1(200),s2(200)
         real                 ::  psi0,psi1,psi,dn,dx,xstop,ymod,dang,chi0,&
              &chi1,apsi0,apsi1,apsi,fn,chi,p,t
-        
+
         integer              :: nang,j,nstop,nmx,i,n,nn,rn,jj
 
         nang = 2
@@ -1798,7 +1798,7 @@ module xSec_mod
            pi1(j)=1.0
         end do
       nn=2*nang-1
-      
+
       do j=1,nn
          s1(j)=cmplx(0.0,0.0)
          s2(j)=cmplx(0.0,0.0)
@@ -1818,7 +1818,7 @@ module xSec_mod
       xi1=cmplx(apsi1,-chi1)
       qsca=0.0
       n=1
-      do 
+      do
          dn=n
          rn=n
 
@@ -1883,10 +1883,10 @@ module xSec_mod
     subroutine setCompton()
       implicit none
 
-      real    :: P           ! ratio of incoming to outgoing photon energy      
+      real    :: P           ! ratio of incoming to outgoing photon energy
 
       integer :: i,j         ! counters
-      integer :: nangles=180 ! # of theta bins 
+      integer :: nangles=180 ! # of theta bins
 
       allocate(KNsigmaT(nbins))
       allocate(KNsigmaArray(nbins,nangles))
@@ -1898,16 +1898,16 @@ module xSec_mod
 
       do i = 1, nbins
          do j = 1, nangles
-        
+
             P = Pcomp(nuArray(i),real(j))
             PcompArray(i,j) = P
-            KNsigmaArray(i,j) = KNsigma(P,real(j))        
+            KNsigmaArray(i,j) = KNsigma(P,real(j))
             KNsigmaT(i) = KNsigmaT(i) + KNsigmaArray(i,j)*&
                  &2.*Pi*Sin(j*Pi/180.)*Pi/180.
          end do
       end do
-      
-      ! now calculate PDFs 
+
+      ! now calculate PDFs
       do i = 1, nbins
          KNsigmaArray(i,1) = KNsigmaArray(i,1)*2.*Pi*Sin(Pi/180.)*Pi/180.
          do j = 2, nangles
@@ -1918,25 +1918,25 @@ module xSec_mod
          KNsigmaArray(i,nangles) = 1.
       end do
 
-      
+
     end subroutine setCompton
 
-    ! calculates the ratio of incoming photon energy to 
+    ! calculates the ratio of incoming photon energy to
     ! outgoing photon energy
     real function Pcomp(E,theta)
       implicit none
-      
+
       real, intent(in) :: E, theta ! E is in [ryd] theta in deg
-      
+
       real             :: const, thetarad
-      
+
       ! const = m_e*c^2 * erg2ryd = 37557.99001
       const = 37557.66267
-      
+
       thetarad = theta*Pi/180.
-      
-      Pcomp = 1./(1. + (E/const)*(1.-cos(thetarad)))    
-      
+
+      Pcomp = 1./(1. + (E/const)*(1.-cos(thetarad)))
+
     end function Pcomp
 
     ! calculates the probability that a photon will scatter
@@ -1944,7 +1944,7 @@ module xSec_mod
     ! according to the Klein-Nishina formula
     ! dsigma/dOmega = 0.5 r_e^2 (P(E,theta)-
     ! P(E,theta)^2 Sin(theta)^2 + P(E,theta)^3)
-    ! r_e = classical electron radius 
+    ! r_e = classical electron radius
     ! m_e = mass of electron
     real function KNsigma(P,theta)
       implicit none
@@ -1963,7 +1963,3 @@ module xSec_mod
 
 
 end module xSec_mod
-       
-
-
-

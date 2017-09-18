@@ -1,4 +1,4 @@
-! Copyright (C) 2007 Barbara Ercolano 
+! Copyright (C) 2007 Barbara Ercolano
 !
 ! Version 3.00
 module continuum_mod
@@ -7,7 +7,7 @@ module continuum_mod
     use interpolation_mod
 
     ! common variables
-    real(kind=8), pointer, save :: inSpectrumErg(:) ! input specrum energy distribution [erg/(cm^2*s*Hz*sr)] 
+    real(kind=8), pointer, save :: inSpectrumErg(:) ! input specrum energy distribution [erg/(cm^2*s*Hz*sr)]
     real(kind=8), pointer, save :: inSpectrumPhot(:) ! input specrum energy distribution [phot/(cm^2*s*Hz*sr)]
 
 
@@ -17,10 +17,10 @@ module continuum_mod
     real, pointer, save :: inSpectrumProbDen(:,:)  ! probability density for input spectrum (nstars,nbins)
 
     real, save          :: normConstantErg = 0.    ! normalization constant (area beyond input spectrum)
-    real, save          :: normConstantPhot= 0.    ! normalization constant (area beyond input spectrum)    
+    real, save          :: normConstantPhot= 0.    ! normalization constant (area beyond input spectrum)
     real                :: correctionPhot
     real,save           :: RStar
-               
+
     integer, parameter  :: maxLim = 1000000        ! max number of rows in the input spectrum file
     integer             :: nuP                     ! frequency pointer
     integer             :: I1ryd
@@ -52,24 +52,24 @@ module continuum_mod
 
         character(len=50) :: filein          ! input file name
 
-  
+
         print*, 'in setContinuum', contShape
 
         ios = 0
 
         lamCount=0
-        
-        ! initialize arrays 
+
+        ! initialize arrays
         if (lgF) then
            allocate(inSpectrumErg(nbins), stat = err)
            if (err /= 0) then
               print*, "! setContinuum: can't allocate grid memory"
               stop
            end if
-           allocate(inSpectrumPhot(nbins), stat = err)                
-           if (err /= 0) then    
-              print*, "setContinuum: can't allocate grid memory"    
-              stop    
+           allocate(inSpectrumPhot(nbins), stat = err)
+           if (err /= 0) then
+              print*, "setContinuum: can't allocate grid memory"
+              stop
            end if
            lgF = .false.
         end if
@@ -97,23 +97,23 @@ module continuum_mod
            Hflux             = 0.
            inSpectrumErg     = 0.
            inSpectrumPhot    = 0.
-           inSpectrumProbDen(iStar,:) = 0.          
-           
-           filein = contShape(iStar)           
+           inSpectrumProbDen(iStar,:) = 0.
+
+           filein = contShape(iStar)
 
            call locate(nuArray, 1., I1ryd)
- 
+
            ! open file for reading
            close(12)
            open(unit = 12, file=filein,  action="read", status = 'old', position = 'rewind', iostat=err)
 
-           if (err /= 0) then     
+           if (err /= 0) then
 
               ! then maybe a set continuum has been chosen
               print*, 'contShape ', contShape(iStar)
               do i = 1, nbins
                  inSpectrumErg(i) = getFlux(nuArray(i), Tstellar(iStar), contShape(iStar))
-                 inSpectrumPhot(i) = inSpectrumErg(i)/ (nuArray(i)*hcRyd) 
+                 inSpectrumPhot(i) = inSpectrumErg(i)/ (nuArray(i)*hcRyd)
 
                  if (lgRadPress .and. i >= I1ryd) then
                     inSpectrumErg(i) = 0.
@@ -125,56 +125,56 @@ module continuum_mod
 
            else
 
-              select case(spID(iStar)) 
+              select case(spID(iStar))
               case ('sb99')
 
                  ! Starburst99 input
                  ! NOTE: the file must be in the format of 5 columns
                  !       the first containing the time step
-                 !       the second the lambda points (A) 
-                 !       and the fourth containing the stellar spectrum points 
+                 !       the second the lambda points (A)
+                 !       and the fourth containing the stellar spectrum points
                  !       (erg/s/A/sr). The file must be in ascending
-                 !       wavenegth order. 
+                 !       wavenegth order.
                  !       First 7 lines are comments
-                 ! check if the end of the file has been reached 
+                 ! check if the end of the file has been reached
                  if (taskid==0) print*, '! setContinuum: reading STARBURST99 File at t= ',tStep(iStar)
-                 do j = 1, 7                   
-                    read(unit=12, fmt=*) 
+                 do j = 1, 7
+                    read(unit=12, fmt=*)
                  end do
 
-                 do j = 1, maxLim                 
+                 do j = 1, maxLim
 
                     read(unit=12, fmt=*, iostat=ios) time
                     if (ios < 0) exit ! end of file reached
 
                     if (time == tStep(iStar)) then
                        backspace(12)
-                       do k = 1, sb99nuLim                          
+                       do k = 1, sb99nuLim
                           read(12, *) time, enArray(k), skip, Hflux(k)
 
-                          ! change Log L(lambda) [erg/s/A] into L(nu) [erg/s/Hz]                         
+                          ! change Log L(lambda) [erg/s/A] into L(nu) [erg/s/Hz]
                           tmp1(k) = (10.**(Hflux(k))*(1.e-8*enArray(k)**2.))/c
-                    
-                          ! change to Ryd 
+
+                          ! change to Ryd
                           tmp2(k) = (c/(enArray(k)*1.e-8))/cRyd
 
                        end do
                        exit
                     end if
-                    
+
                  end do
 
                  close(12)
 
                  do i = 1,sb99nuLim
-                    
+
                     Hflux(i) = tmp1(sb99nuLim-i+1)
                     enArray(i) = tmp2(sb99nuLim-i+1)
-                    
+
                  end do
-             
+
                  do j = 1, sb99nuLim
-                    
+
                     if (enArray(j) >= nuArray(1)-widflx(1)/2. .and.&
                          & enArray(j) < nuArray(1)+widflx(1)/2.) then
                        inSpectrumErg(1) = inSpectrumErg(1)+Hflux(j)
@@ -193,9 +193,9 @@ module continuum_mod
                        inSpectrumErg(nbins) = inSpectrumErg(nbins)+Hflux(j)
                        lamCount(nbins) = lamCount(nbins)+1
                     end if
-                    
+
                  end do
-                 
+
 
                  do i = 1, nbins
                     if (lamCount(i)>0) then
@@ -205,7 +205,7 @@ module continuum_mod
 
                     inSpectrumPhot(i) = inSpectrumErg(i)/ (nuArray(i)*hcRyd)
                  end do
-                 
+
                  do i = 2, nbins-1
                     if (inSpectrumErg(i) <= 0. .and. inSpectrumErg(i-1)>0.) then
                        do j = i+1, nbins
@@ -226,39 +226,39 @@ module continuum_mod
 
                     ! check if the end of file has been reached
                     ! NOTE: the file must be in the format of two columns
-                    !       the first containing the lambda points (A) 
-                    !       and the second containing the input spectrum points 
+                    !       the first containing the lambda points (A)
+                    !       and the second containing the input spectrum points
                     !       (erg/cm^2/s/A/sr). The file must be in ascending
-                    !       wavenegth order. See e.g. Thomas Rauch's tables 
+                    !       wavenegth order. See e.g. Thomas Rauch's tables
                     !       http://astro.uni-tuebingen.de/~rauch/
-                    
-                    ! check if the end of the file has been reached 
-                    read(unit=12, fmt=*, iostat=ios) 
+
+                    ! check if the end of the file has been reached
+                    read(unit=12, fmt=*, iostat=ios)
                     if (ios < 0) exit ! end of file reached
 
                     backspace(12)
                     read(12, *) enArray(j), Hflux(j)
 
-                    
-                    
+
+
                     ! change Hflux(lambda) [erg/cm^"/s/A/sr] into Hflux(nu) [erg/cm^2/s/Hz]
-                    
+
                     tmp1(j) = (Hflux(j)*(1.e-8*enArray(j)**2.))/c/4.
-                    
-                    ! change to Ryd 
+
+                    ! change to Ryd
                     tmp2(j) = (c/(enArray(j)*1.e-8))/cRyd
-                    
+
                  end do
-             
+
                  close(12)
 
                  do i = 1,j-1
-                    
+
                     Hflux(i) = tmp1(j-1-i+1)
                     enArray(i) = tmp2(j-1-i+1)
-                    
+
                  end do
-             
+
                  numLam = j-1
 
                  do i = 1, nbins
@@ -281,11 +281,11 @@ module continuum_mod
                        end if
 
                     end if
-                       
+
                     inSpectrumPhot(i) = inSpectrumErg(i)/ (nuArray(i)*hcRyd)
-                    
+
                  end do
-                 
+
                  ! get physical flux
                  inSpectrumErg = fourPi*inSpectrumErg
                  inSpectrumPhot = fourPi*inSpectrumPhot
@@ -296,7 +296,7 @@ module continuum_mod
                  stop
 
               end select
-                 
+
            end if
 
           ! set the input spectrum probability density distribution
@@ -304,44 +304,44 @@ module continuum_mod
 
 
        end do
-        
+
        if (nStars==1) then
           if (LPhot > 0. ) then  ! calculate Lstar [e36 erg/s]
-             
+
              if (contShape(1) == 'powerlaw') then
                 print*, '! setContinuum: powerlaw do not allow Lphot. Please resubmit with Lstar.'
                 stop
              end if
 
              RStar = sqrt(Lphot / (fourPi*normConstantPhot*cRyd))
-              
+
               LStar(1) = fourPi*RStar*RStar*sigma*TStellar(1)**4.
 
 !              deltaE(1)=Lstar(1)/nPhotons(1)
-           
+
               print*, "Q(H) = ", LPhot, " [e36 phot/s]"
               print*, "LStar= ", LStar(1), " [e36 erg/s]"
               print*, "RStar = ", RStar, " [e18 cm]"
 !              print*, "deltaE = ", deltaE, " [e36 erg/s]"
 
            else if (Lstar(1) > 0. ) then ! calculate LPhot [e36 phot/s]
-              
+
 !              deltaE(1)=Lstar(1)/nPhotons(1)
 
               if (contShape(1) /= 'powerlaw') then
                  RStar = sqrt(Lstar(1) / (fourPi*sigma*TStellar(1)**4.))
-              
+
                  LPhot = fourPi*RStar*RStar*normConstantPhot*cRyd
-              
+
                  print*, "RStar = ", RStar, " [e18 cm]"
                  print*, "Q(H) = ", LPhot, " [e36 phot/s]"
                  print*, "LStar = ", LStar(1), " [e36erg/s]"
               end if
 
-!              print*, "deltaE = ", deltaE(1), " [e36 erg/s]"              
+!              print*, "deltaE = ", deltaE(1), " [e36 erg/s]"
 
            end if
-           
+
         end if
 
 !        if (Ldiffuse>0. .and. nPhotonsDiffuse>0 ) then
@@ -353,8 +353,8 @@ module continuum_mod
       end subroutine setContinuum
 
 
-    ! this function returns energy distribution [erg/(cm^2*s*Hz*sr)] for the 
-    ! continuum specified by contShape at the specified cell  
+    ! this function returns energy distribution [erg/(cm^2*s*Hz*sr)] for the
+    ! continuum specified by contShape at the specified cell
     function getFlux(energy, temperature, cShape)
 
         real, intent(in) :: energy     ! energy [Ryd]
@@ -376,14 +376,14 @@ module continuum_mod
             ! Planck's law: B(T) = (2 h nu^3/c^2) / (exp(h nu / (k T)) - 1)
             ! transformaion of frequency into Ryd: nu = Ryd c nu [Ryd]
 
-            if (hcRyd_k*energy/temperature > 86.) then 
+            if (hcRyd_k*energy/temperature > 86.) then
 
                ! Wien distribution
                getFlux = constant*energy*energy*energy*&
                     & exp(-hcRyd_k*energy/temperature)
-               return               
+               return
             end if
-            
+
             denominator = (exp(hcRyd_k*energy/temperature)-1.)
 
             if (denominator <= 0.) then
@@ -408,7 +408,7 @@ module continuum_mod
         case default
             print*, "! getFlux: invalid continuum shape", cShape
             stop
-        end select 
+        end select
 
     end function getFlux
 
@@ -429,7 +429,7 @@ module continuum_mod
         integer, intent(in) :: iS         ! central star index
 
         integer :: err                    ! allocation error status
-        integer :: enP                    ! nuArray index 
+        integer :: enP                    ! nuArray index
         integer :: i                      ! counter
         integer :: nuP                    ! frequency pointer
         integer :: nu0AddP
@@ -450,17 +450,17 @@ module continuum_mod
         inSpSumErg = 0.
 
         if (taskid==0) print*,'Ionising/illuminating spectrum:'
-        
+
         do i = 1, nbins
            if (taskid==0) print*, i, nuArray(i),  inSpectrumErg(i)
            inSpSumErg(i)  =  inSpectrumErg(i)
            inSpSumPhot(i) =  inSpectrumPhot(i)
         end do
 
-        ! calculate normalization constants 
+        ! calculate normalization constants
         normConstantErg=0.
         do i = 1, nbins
-            normConstantErg   = normConstantErg  + inSpSumErg(i)*widFlx(i)   
+            normConstantErg   = normConstantErg  + inSpSumErg(i)*widFlx(i)
         end do
 
         normConstantPhot=0.
@@ -470,7 +470,7 @@ module continuum_mod
 
         ! normalise spectrum and calculate PDF
         if (lgPlaneIonization .and. nu0Add > 0.) then
-           call locate(nuArray, nu0Add, nu0AddP) 
+           call locate(nuArray, nu0Add, nu0AddP)
         else
            nu0AddP=1
         end if
@@ -481,7 +481,7 @@ module continuum_mod
         do i = nu0AddP+1, nbins
            inSpectrumProbDen(iS,i) = inSpectrumProbDen(iS,i-1) + &
                 &inSpSumErg(i)*widFlx(i)
-        end do        
+        end do
         inSpectrumProbDen(iS,:) = inSpectrumProbDen(iS,:)/inSpectrumProbDen(iS,nbins)
 
         maxp = 0.
@@ -505,7 +505,7 @@ module continuum_mod
 
       subroutine setLdiffuse(grid)
         implicit none
-        
+
         real    :: norm, dV
         integer :: iloc, igrid, ix, iy, iz, ngridsloc
         type(grid_type), intent(inout) :: grid(1:nGrids)
@@ -516,7 +516,7 @@ module continuum_mod
         else
            nGridsloc=nGrids
         end if
-        
+
         if (lgGas) then
            norm = 0.
            do igrid = 1, nGridsloc
@@ -525,7 +525,7 @@ module continuum_mod
                     do iz = 1, grid(igrid)%nz
                        if (grid(igrid)%active(ix,iy,iz)>0) then
                           dV = getVolumeCon(grid(igrid),ix,iy,iz)
-                          iloc = grid(igrid)%active(ix,iy,iz)                             
+                          iloc = grid(igrid)%active(ix,iy,iz)
                           norm = norm+grid(igrid)%Hden(iloc)*dV
                        end if
                     end do
@@ -541,7 +541,7 @@ module continuum_mod
                     do iz = 1, grid(igrid)%nz
                        if (grid(igrid)%active(ix,iy,iz)>0) then
                           dV = getVolumeCon(grid(igrid),ix,iy,iz)
-                          iloc = grid(igrid)%active(ix,iy,iz)                             
+                          iloc = grid(igrid)%active(ix,iy,iz)
                           grid(igrid)%LdiffuseLoc(iloc) = norm*grid(igrid)%Hden(iloc)*dV
                        end if
                     end do
@@ -558,7 +558,7 @@ module continuum_mod
                     do iz = 1, grid(igrid)%nz
                        if (grid(igrid)%active(ix,iy,iz)>0) then
                           dV = getVolumeCon(grid(igrid),ix,iy,iz)
-                          iloc = grid(igrid)%active(ix,iy,iz)                             
+                          iloc = grid(igrid)%active(ix,iy,iz)
                           norm = norm+grid(igrid)%nDust(iloc)*dV
                        end if
                     end do
@@ -573,7 +573,7 @@ module continuum_mod
                     do iz = 1, grid(igrid)%nz
                        if (grid(igrid)%active(ix,iy,iz)>0) then
                           dV = getVolumeCon(grid(igrid),ix,iy,iz)
-                          iloc = grid(igrid)%active(ix,iy,iz)                             
+                          iloc = grid(igrid)%active(ix,iy,iz)
                           grid(igrid)%LdiffuseLoc(iloc) = norm*grid(igrid)%nDust(iloc)*dV
                        end if
                     end do
@@ -591,16 +591,16 @@ module continuum_mod
       function getVolumeCon(grid,xP, yP, zP)
         implicit none
 
-        real                       :: getVolumeCon      ! volume of the cell [e45 cm^3]        
-        integer, intent(in)        :: xP, yP, zP        ! cell indeces  
+        real                       :: getVolumeCon      ! volume of the cell [e45 cm^3]
+        integer, intent(in)        :: xP, yP, zP        ! cell indeces
         type(grid_type),intent(in) :: grid              ! the grid
 
 
         ! local variables
-         
+
         real                       :: dx, &             ! cartesian axes increments
-             &dy, &                                     ! in [cm] 
-             &dz                                        ! 
+             &dy, &                                     ! in [cm]
+             &dz                                        !
 
         if (lg1D) then
            if (nGrids>1) then
@@ -608,17 +608,17 @@ module continuum_mod
               stop
            end if
 
-           if (xP == 1) then              
+           if (xP == 1) then
 
               getVolumeCon = 4.*Pi* ( (grid%xAxis(xP+1)/1.e15)**3.)/3.
 
 
            else if ( xP==grid%nx) then
- 
+
               getVolumeCon = Pi* ( (3.*(grid%xAxis(xP)/1.e15)-(grid%xAxis(xP-1)/1.e15))**3. - &
                    & ((grid%xAxis(xP)/1.e15)+(grid%xAxis(xP-1)/1.e15))**3. ) / 6.
 
-           else 
+           else
 
               getVolumeCon = Pi* ( ((grid%xAxis(xP+1)/1.e15)+(grid%xAxis(xP)/1.e15))**3. - &
                    & ((grid%xAxis(xP-1)/1.e15)+(grid%xAxis(xP)/1.e15))**3. ) / 6.
@@ -634,13 +634,13 @@ module continuum_mod
            else if ( xP==1 ) then
               if (lgSymmetricXYZ) then
                  dx = abs(grid%xAxis(xP+1)-grid%xAxis(xP))/2.
-              else 
+              else
                  dx = abs(grid%xAxis(xP+1)-grid%xAxis(xP))
               end if
            else if ( xP==grid%nx ) then
               dx = abs(grid%xAxis(xP)  -grid%xAxis(xP-1))
            end if
-        
+
            if ( (yP>1) .and. (yP<grid%ny) ) then
               dy = abs(grid%yAxis(yP+1)-grid%yAxis(yP-1))/2.
            else if ( yP==1 ) then
@@ -653,22 +653,22 @@ module continuum_mod
              dy = abs(grid%yAxis(yP)  -grid%yAxis(yP-1))
           end if
 
-          if ( (zP>1) .and. (zP<grid%nz) ) then    
-             dz = abs(grid%zAxis(zP+1)-grid%zAxis(zP-1))/2.    
-          else if ( zP==1 ) then    
+          if ( (zP>1) .and. (zP<grid%nz) ) then
+             dz = abs(grid%zAxis(zP+1)-grid%zAxis(zP-1))/2.
+          else if ( zP==1 ) then
              if (lgSymmetricXYZ) then
                 dz = abs(grid%zAxis(zP+1)-grid%zAxis(zP))/2.
              else
                 dz = abs(grid%zAxis(zP+1)-grid%zAxis(zP))
              end if
-          else if ( zP==grid%nz ) then    
+          else if ( zP==grid%nz ) then
              dz = abs(grid%zAxis(zP)-grid%zAxis(zP-1))
           end if
 
           dx = dx/1.e15
           dy = dy/1.e15
           dz = dz/1.e15
-      
+
 
           ! calculate the volume
           getVolumeCon = dx*dy*dz
@@ -680,4 +680,3 @@ module continuum_mod
 
 
 end module continuum_mod
-

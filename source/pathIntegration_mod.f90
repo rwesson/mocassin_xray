@@ -1,4 +1,4 @@
-! Copyright (C) 2007 Barbara Ercolano 
+! Copyright (C) 2007 Barbara Ercolano
 !
 ! Version 3.00
 module pathIntegration_mod
@@ -18,7 +18,7 @@ module pathIntegration_mod
         type(vector),  intent(in)   :: uHat           ! direction vector
         type(vector),  intent(in)   :: aVec           ! starting position vector
 
-        integer, intent(out)        :: nTau           ! actual size of opacity and length arrays 
+        integer, intent(out)        :: nTau           ! actual size of opacity and length arrays
 
         real, intent(in)            :: freq           ! the frequency [Hz]
         real, intent(out), &
@@ -37,7 +37,7 @@ module pathIntegration_mod
         integer                     :: freqP          ! frequency index
         integer                     :: i              ! counter
         integer                     :: xP, yP, zP     ! x, y, and z axis indeces
-        integer, parameter          :: nl = 4         ! defines the size of the distance increment 
+        integer, parameter          :: nl = 4         ! defines the size of the distance increment
 
 
         real                        :: dlSmall        ! distance increment
@@ -64,15 +64,15 @@ module pathIntegration_mod
         end if
         call locate(grid(1)%yAxis, aVec%y, yP)
         if ( yP < grid(1)%ny ) then
-            if ( aVec%y >= (grid(1)%yAxis(yP)+ &                           
-                 & grid(1)%yAxis(yP+1))/2. ) yP = yP+1 
+            if ( aVec%y >= (grid(1)%yAxis(yP)+ &
+                 & grid(1)%yAxis(yP+1))/2. ) yP = yP+1
         end if
         call locate(grid(1)%zAxis, aVec%z, zP)
         if ( zP < grid(1)%nz ) then
-            if ( aVec%z >= (grid(1)%zAxis(zP)+ &                           
-                 & grid(1)%zAxis(zP+1))/2. ) zP = zP+1 
+            if ( aVec%z >= (grid(1)%zAxis(zP)+ &
+                 & grid(1)%zAxis(zP+1))/2. ) zP = zP+1
         end if
- 
+
 
         ! check that the input position is not outside the grid
         if ( (xP <= 0).or.(xP > grid(1)%nx) ) then
@@ -81,7 +81,7 @@ module pathIntegration_mod
         else if ( (yP <= 0).or.(yP > grid(1)%ny) ) then
             print*, "! integratePathTau: starting position in y is outside the grid",xP,yP,zP
             stop
-        else if ( (zP <= 0).or.(zP > grid(1)%nz) ) then   
+        else if ( (zP <= 0).or.(zP > grid(1)%nz) ) then
             print*, "! integratePathTau: starting position in z is outside the grid",xP,yP,zP
             stop
         end if
@@ -97,27 +97,27 @@ module pathIntegration_mod
         nTau = 1
 
         ! initialize direction vactor
-        vHat = uHat        
+        vHat = uHat
 
         ! the first optical depth are all zero (as displacement is zero)
         ! these have already been set to zero in the initialization of the arrays
         ! so add the first displacements vector (dlSmall*vHat)
         rVec = aVec + dlSmall*vHat
-        
+
         ! execute this loop until the edge of the grid is reached
         do i = 1, maxTau
 
-           ! check if the path is still within the ionized region 
+           ! check if the path is still within the ionized region
            if (rVec%x > grid(1)%xAxis(grid(1)%nx)) exit
 
            if (rVec%y > grid(1)%yAxis(grid(1)%ny)) exit
-           
+
            if (rVec%z > grid(1)%zAxis(grid(1)%nz)) exit
-           
+
            if ( sqrt( (rvec%x/1.e10)**2. + (rvec%y/1.e10)**2. + (rvec%z/1.e10)**2.)*1.e10 >= R_out &
                 & .and. R_out > 0.) exit
-           
-           
+
+
            if (lgSymmetricXYZ) then
               if( rVec%x < grid(1)%xAxis(1) ) then
                  vHat%x = -vHat%x
@@ -135,7 +135,7 @@ module pathIntegration_mod
                  call locate(grid(1)%zAxis, rVec%z, zP)
               end if
            end if
-             
+
            ! x-axis
            if (xP < grid(1)%nx) then
               if ( rVec%x > (grid(1)%xAxis(xP)+grid(1)%xAxis(xP+1))/2. ) then
@@ -163,7 +163,7 @@ module pathIntegration_mod
                  yP = yP - 1
               end if
            end if
-           
+
            ! z-axis
             if (zP < grid(1)%nz) then
                if ( rVec%z > (grid(1)%zAxis(zP)+grid(1)%zAxis(zP+1))/2. ) then
@@ -177,7 +177,7 @@ module pathIntegration_mod
                     zP = zP - 1
                 end if
             end if
-                
+
             if (.not.lgSymmetricXYZ) then
                 if ((xP < 1) .or. (zP < 1) .or. (yP < 1)) exit
             end if
@@ -202,7 +202,7 @@ module pathIntegration_mod
                          if ( rVec%y > (grid(1)%yAxis(yP)+grid(1)%yAxis(yP+1))/2. ) yP = yP + 1
                      else if (yP == grid(1)%ny) then
                          if (rVec%y > grid(1)%yAxis(yP)) exit
-                     end if 
+                     end if
                  end if
                  if (zP<1) then
                      vHat%z=-vHat%z
@@ -212,31 +212,31 @@ module pathIntegration_mod
                          if ( rVec%z > (grid(1)%zAxis(zP)+grid(1)%zAxis(zP+1))/2. ) zP = zP + 1
                      else if (zP == grid(1)%nz) then
                          if (rVec%z > grid(1)%zAxis(zP)) exit
-                     end if 
+                     end if
                  end if
-             end if                                                                    
+             end if
 
             ! increment nTau
             nTau = nTau + 1
- 
+
             ! this should never happen (as the loop is stopped at maxTau anyway)
             ! just a sanity check
-            if (nTau > maxTau) then 
+            if (nTau > maxTau) then
                 print*, "! integratePathTau: tau arrays are full", xP,yP,zP
                 exit
             end if
 
-            ! add the delta optical depths 
-            absTau(nTau) = absTau(nTau-1) + grid(1)%opacity(grid(1)%active(xP,yP,zP),freqP)*dlSmall 
+            ! add the delta optical depths
+            absTau(nTau) = absTau(nTau-1) + grid(1)%opacity(grid(1)%active(xP,yP,zP),freqP)*dlSmall
             lambda(nTau) = lambda(nTau-1) + dlSmall
             ! increment position by adding the displacements vector (dlSmall*vHat)
             rVec = rVec + dlSmall*vHat
-            
+
         end do
 
     end subroutine integratePathTau
 
-end module pathIntegration_mod       
+end module pathIntegration_mod
 
 
 
