@@ -1,0 +1,105 @@
+ 23
+** Atomic data from version 5.2 of the CHIANTI database **
+%observed energy levels: Martin, W.C., Sugar, J., Musgrove, A., Dalton, G.R., 1995,
+   NIST Database for Atomic Spectroscopy, Version 1.0, NIST Standard Reference Database 61.
+%theoretical energy levels: Man Mohan, Hibbert, Berrington, Burke, J.Phis.B, 1990, 23, 989.
+% produced as part of the Arcetri/Cambridge/NRL 'CHIANTI' atomic data base collaboration
+%
+% E. Landi 1996
+%energy levels: Martin, W.C., Sugar, J., Musgrove, A., Dalton, G.R., 1995,
+   NIST Database for Atomic Spectroscopy, Version 1.0, NIST Standard Reference Database 61
+%oscillator strengths: Hibbert, Le Dourneuf, Mohan, 1993, ADNDT, 53, 23
+% comment: A values for transitions 1-2 and 3-4 have been interpolated from 
+           radiative data of the other ne-like ions
+% produced as part of the Arcetri/Cambridge/NRL 'CHIANTI' atomic data base collaboration
+%
+% E. Landi 1996
+
+%filename: s_7.splups
+%oscillator strengths: Hibbert, Le Dourneuf, Mohan, 1993, ADNDT, 53, 23
+%effective collision strengths: Man Mohan, Berrington, Hibbert, Burke, 1990, J.Phys.B, 23, 989
+%comment: effective collision strengths were produced in the temperature range 4.7 < Log T < 6.0
+%produced as part of the Arcetri/Cambridge/NRL 'CHIANTI' atomic data base collaboration
+%
+% E. Landi 1996
+ 3 23
+  1  2p6 1S0
+  2  2p5.3s 3P2
+  3  2p5.3s 3P1
+     100.0
+     158.5
+     251.2
+     398.1
+     631.0
+    1000.0
+    1584.9
+    2511.9
+    3981.1
+    6309.6
+   10000.0
+   15848.9
+   25118.9
+   39810.7
+   63095.8
+  100000.0
+  158489.2
+  251188.7
+  398107.1
+  630957.6
+ 1000000.0
+ 1584892.5
+ 2511887.0
+0
+  1  2   1.26e-01
+  0  0   1.26e-01
+  0  0   1.26e-01
+  0  0   1.26e-01
+  0  0   1.26e-01
+  0  0   1.26e-01
+  0  0   1.26e-01
+  0  0   1.25e-01
+  0  0   1.25e-01
+  0  0   1.23e-01
+  0  0   1.22e-01
+  0  0   1.19e-01
+  0  0   1.15e-01
+  0  0   1.09e-01
+  0  0   1.01e-01
+  0  0   8.92e-02
+  0  0   7.52e-02
+  0  0   6.00e-02
+  0  0   4.56e-02
+  0  0   3.37e-02
+  0  0   2.48e-02
+  0  0   1.84e-02
+  0  0   1.39e-02
+  1  3   7.58e-02
+  0  0   7.58e-02
+  0  0   7.57e-02
+  0  0   7.57e-02
+  0  0   7.56e-02
+  0  0   7.55e-02
+  0  0   7.53e-02
+  0  0   7.51e-02
+  0  0   7.47e-02
+  0  0   7.40e-02
+  0  0   7.30e-02
+  0  0   7.14e-02
+  0  0   6.91e-02
+  0  0   6.55e-02
+  0  0   6.04e-02
+  0  0   5.35e-02
+  0  0   4.51e-02
+  0  0   3.60e-02
+  0  0   2.74e-02
+  0  0   2.02e-02
+  0  0   1.49e-02
+  0  0   1.10e-02
+  0  0   8.35e-03
+ 0 0 0
+  1  2   7.967e+02
+  1  3   1.989e+10
+  2  3   0.000e+00
+  1  1        0.0
+  2  5  1371784.0
+  3  3  1376207.0

@@ -1,0 +1,33 @@
+traceHeating
+autoPackets 0.20 2. 1000000000
+TStellar 0.
+contShape 'input/XrayBenchSpectrum.in'
+output 
+planeIonization 2.9979e14 7.3529 0.56
+densityFile "input/cuboid.dat"
+TeStart 100000.
+nebComposition "input/Xray.dat"
+maxIterateMC  30 100.
+nPhotons 1000000 
+nx 3
+ny 30
+nz 3
+nbins 10000
+nuMax 1.e6
+nuMin 1.001e-5
+Rin 0.
+Rout 1.e20
+convLimit 0.05
+nstages 31
+resLinesTransfer 90.
+
+
+
+
+
+
+
+
+
+
+

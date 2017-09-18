@@ -1,0 +1,5 @@
+4.48e15 8.51e17 ! rin, rout
+0.005            ! mdmg
+'mrnsizes.dat'  ! sizefile
+'mrnspecies.dat'! speciesfile
+50 50 50        ! nx ny nz

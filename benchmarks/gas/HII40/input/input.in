@@ -1,0 +1,45 @@
+autoPackets 0.20 2. 100000000
+TStellar 40000.
+output 
+symmetricXYZ
+Hdensity 100.
+TeStart 8000.
+contShape  blackbody
+nebComposition "input/abunHII40.in"
+maxIterateMC  20 93.
+nPhotons 1000000
+nx 13
+ny 13
+nz 13
+nbins 600
+LPhot 4.26e13
+nuMax 15.
+nuMin 1.001e-5
+Rin 30.e17
+Rout 1.49E+19
+edges 1.49E+19 1.49E+19 1.49E+19
+convLimit 0.08
+nstages 6
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
