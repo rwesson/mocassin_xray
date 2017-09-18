@@ -57,7 +57,7 @@ module grid_mod
         print*, "in initCartesianGrid"
         
         close(19)
-        open(file="data/hydroLinesFiles.dat", unit=19)
+        open(file=PREFIX//"/share/mocassin/data/hydroLinesFiles.dat", unit=19)
         do i = 1, 9
            do j = 1, 12
               read(19,*) hydroLinesFile(i,j)
@@ -66,7 +66,7 @@ module grid_mod
         close(19)
 
         close(21)
-        open(file="data/gaussfitHb.dat", unit=21)
+        open(file=PREFIX//"/share/mocassin/data/gaussfitHb.dat", unit=21)
         do i = 1, 9
            read(21,*) (reader(j), j = 1, 8)           
            HbACoeff(i,1:4) = reader(1:4)
@@ -78,21 +78,21 @@ module grid_mod
              &1.25, 1.50, 2.0, 3.0, 5.0, 10.0/)
 
         close(22)
-        open(file="data/r1bEdge.dat", unit=22)       
+        open(file=PREFIX//"/share/mocassin/data/r1bEdge.dat", unit=22)
         do i = 1, 26
            read(22,*) rbEdge(1,1,i), rbEdge(1,2,i), rbEdge(1,3,i)
         end do
         close(22)
         
         close(23)
-        open(file="data/r2bEdge.dat", unit=23)
+        open(file=PREFIX//"/share/mocassin/data/r2bEdge.dat", unit=23)
         do i = 1, 26
            read(23,*) rbEdge(2,1,i), rbEdge(2,2,i), rbEdge(2,3,i)
         end do
         close(23)       
 
         close(23)
-        open(file="data/r2aEdge.dat", unit=23)
+        open(file=PREFIX//"/share/mocassin/data/r2aEdge.dat", unit=23)
         do i = 1, 18
            read(23,*) r2aEdge(1,i), r2aEdge(2,i), r2aEdge(3,i)
         end do
@@ -215,7 +215,7 @@ module grid_mod
 
                if ( (lgDust) .and. (.not.lgGas) ) then 
                   close(72)
-                  open (unit= 72,  action="read", file="dustData/nuDustRyd.dat", &
+                  open (unit= 72,  action="read", file=PREFIX//"/share/mocassin/data/nuDustRyd.dat", &
                        &status = "old", position = "rewind", &
                        & iostat = ios)
                   if (ios /= 0) then
@@ -338,7 +338,7 @@ module grid_mod
                   
                   ! dust data points
                   close(72)
-                  open (unit= 72,  action="read", file="dustData/nuDustRyd.dat", &
+                  open (unit= 72,  action="read", file=PREFIX//"/share/mocassin/data/nuDustRyd.dat", &
                        &status = "old", position = "rewind", &
                        & iostat = ios)
                   if (ios /= 0) then

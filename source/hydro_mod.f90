@@ -16,7 +16,7 @@ module elements_mod
       integer :: elem,ion, i
 
       close(12)
-      open(unit = 12, file = 'data/cion.dat', status='old', position='rewind')
+      open(unit = 12, file = PREFIX//'/share/mocassin/data/cion.dat', status='old', position='rewind')
       
       do elem = 1, nElements
          do ion = elem, 1, -1
@@ -38,7 +38,7 @@ module elements_mod
       integer :: elem,ion,shell,nelec,imax,i,j,ios
 
       close(12)
-      open(unit = 12, file = 'data/auger.dat', status='old', position='rewind')
+      open(unit = 12, file = PREFIX//'/share/mocassin/data/auger.dat', status='old', position='rewind')
 
       nAuger=0
       auger =0.
@@ -190,7 +190,7 @@ module elements_mod
        integer :: iline, iden, j
 
        close(13)
-       open(file='data/HeIrecLines.dat', unit = 13, status='old')
+       open(file=PREFIX//'/share/mocassin/data/HeIrecLines.dat', unit = 13, status='old')
        
        do iden = 1, 3
           do iline = 1, 34
@@ -352,7 +352,7 @@ module elements_mod
         RRbC  = 0. 
         RRbT2 = 0.
 
-        open(file='data/rrBadnell.dat', action="read", unit=19, status='old', &
+        open(file=PREFIX//'/share/mocassin/data/rrBadnell.dat', action="read", unit=19, status='old', &
             & position='rewind', iostat=ios) 
         if (ios<0) then
            print*, '! initRRDR: error opening file rrBadnell.dat'
@@ -385,7 +385,7 @@ module elements_mod
         DRbCread = 0.
         DRbEread = 0.
 
-        open(file='data/drBadnell.dat', action="read", unit=20, status='old', &
+        open(file=PREFIX//'/share/mocassin/data/drBadnell.dat', action="read", unit=20, status='old', &
             & position='rewind', iostat=ios) 
         if (ios<0) then
            print*, '! initRRDR: error opening file drBadnell.dat'
@@ -684,7 +684,7 @@ module elements_mod
        integer           :: ios        ! I/O error status
        
        close(17)
-       open(file='data/fileNames.dat', action="read", unit=17, status='old', &
+       open(file=PREFIX//'/share/mocassin/data/fileNames.dat', action="read", unit=17, status='old', &
             & position='rewind', iostat=ios)
        
        if (ios/=0) then

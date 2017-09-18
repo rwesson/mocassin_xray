@@ -668,10 +668,10 @@ print*, lineORcont, code, freq1, freq2
            if (lgElementOn(izp) .and. nstages > izp) then
 
               close(94)
-              open(unit = 94,  action="read", file = hydroLinesFile(izp,itemp), &
+              open(unit = 94,  action="read", file = PREFIX//"/share/mocassin/"//hydroLinesFile(izp,itemp), &
                    status = "old", position = "rewind", iostat=ios)
               if (ios /= 0) then
-                 print*, "! RecLinesEmission: can't open file: ", hydroLinesFile(izp,itemp)
+                 print*, "! RecLinesEmission: can't open file: ", PREFIX,"/share/mocassin/",hydroLinesFile(izp,itemp)
                  stop
               end if
               dens = 0.
@@ -803,10 +803,10 @@ print*, lineORcont, code, freq1, freq2
               end if
 
               close(94)
-              open(unit = 94,  action="read", file = hydroLinesFile(2,itemp), &
+              open(unit = 94,  action="read", file = PREFIX//"/share/mocassin/"//hydroLinesFile(2,itemp), &
                    status = "old", position = "rewind", iostat=ios)
               if (ios /= 0) then
-                 print*, "! RecLinesEmission: can't open file: ", hydroLinesFile(2,itemp)
+                 print*, "! RecLinesEmission: can't open file: ", PREFIX,"/share/mocassin/",hydroLinesFile(2,itemp)
                  stop
               end if
               dens = 0.

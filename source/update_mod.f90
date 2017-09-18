@@ -3123,7 +3123,7 @@ module update_mod
             ! and the dielectronic recombination data
             if (lgFirst) then
                 close(17)
-                open (unit=17, file='data/radrec.dat', status='old',position='rewind', &
+                open (unit=17, file=PREFIX//'/share/mocassin/data/radrec.dat', status='old',position='rewind', &
                      & iostat = ios, action="read")
    
                 do ion = 4, 30
@@ -3232,7 +3232,7 @@ module update_mod
             aldroPequi=0.
 
             close(18)
-            open (unit=18, file='data/dielectronic.dat', status='old',position='rewind', &
+            open (unit=18, file=PREFIX//'/share/mocassin/data/dielectronic.dat', status='old',position='rewind', &
                  &iostat = ios, action="read")
             do i = 1, 10000
                read(unit=18, fmt=*, iostat=ios) elem, n, a, b, c, d, f, g
@@ -3265,10 +3265,10 @@ module update_mod
             t = TeUsed
 
             close(17)
-            open (unit=17, file='data/aldrovandi.dat', status='old',&
+            open (unit=17, file=PREFIX//'/share/mocassin/data/aldrovandi.dat', status='old',&
                  &position='rewind', iostat = ios, action="read")
             if (ios /= 0) then
-               print*, "! dielectronic: can't open file data/alrovandi.dat"
+               print*, "! dielectronic: can't open file ",PREFIX,"/share/mocassin/data/alrovandi.dat"
                stop
             end if
 
@@ -4093,12 +4093,10 @@ module update_mod
                if (lgElementOn(izp) .and. nstages > izp) then
                   
                   close(94)
-                  open(unit = 94,  action="read", file = &
-                       &hydroLinesFile(izp,itemp), &
+                  open(unit = 94,  action="read", file = PREFIX//"/share/mocassin/"//hydroLinesFile(izp,itemp), &
                        status = "old", position = "rewind", iostat=ios)
                   if (ios /= 0) then
-                     print*, "! RecLinesEmission: can't open file: ", &
-                          & hydroLinesFile(izp,itemp)
+                     print*, "! RecLinesEmission: can't open file: ",PREFIX,"/share/mocassin/", hydroLinesFile(izp,itemp)
                      stop
                   end if
                   dens = 0.
@@ -4108,8 +4106,7 @@ module update_mod
                      if (ios<0) exit
                      
                      do iup = 15, 2, -1
-                        read(94, fmt=*) (hydrolinesloc(izp, iden,iup, ilow), &
-                             &ilow = 1, min0(8, iup-1)) 
+                        read(94, fmt=*) (hydrolinesloc(izp, iden,iup, ilow), ilow = 1, min0(8, iup-1)) 
                      end do
                   end do
                   close(94)
@@ -4204,11 +4201,10 @@ module update_mod
                   
                   close(94)
                   ! this is the HeII case A 
-                  open(unit = 94,  action="read", file = hydroLinesFile(9,itemp), &
+                  open(unit = 94,  action="read", file = PREFIX//"/share/mocassin/"//hydroLinesFile(9,itemp), &
                        status = "old", position = "rewind", iostat=ios)
                   if (ios /= 0) then
-                     print*, "! RecLinesEmission: can't open file: ", &
-                          &hydroLinesFile(9,itemp)
+                     print*, "! RecLinesEmission: can't open file: ",PREFIX,"/share/mocassin/", hydroLinesFile(9,itemp)
                      stop
                   end if
                   dens = 0.

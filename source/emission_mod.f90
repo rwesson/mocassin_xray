@@ -778,11 +778,9 @@ module emission_mod
         
         ! read in rates from data/HeI2phot.dat
         close(93)
-        open(unit = 93,  action="read", file = &
-             &"data/HeI2phot.dat", status = "old",&
-             & position = "rewind", iostat=ios)
+        open(unit = 93,  action="read", file = PREFIX//"/share/mocassin/data/HeI2phot.dat", status = "old", position = "rewind", iostat=ios)
         if (ios /= 0) then
-            print*, "! HeI2phot: can't open file: data/HeI2phot.dat"
+            print*, "! HeI2phot: can't open file: ",PREFIX,"/share/mocassin/data/HeI2phot.dat"
             stop
         end if
         do i = 1, 41
@@ -901,10 +899,10 @@ module emission_mod
            if (lgElementOn(izp) .and. nstages > izp) then
 
               close(94)
-              open(unit = 94,  action="read", file = hydroLinesFile(izp,itemp), &
+              open(unit = 94,  action="read", file = PREFIX//"/share/mocassin/"//hydroLinesFile(izp,itemp), &
                    status = "old", position = "rewind", iostat=ios)
               if (ios /= 0) then
-                 print*, "! RecLinesEmission: can't open file: ", hydroLinesFile(izp,itemp)
+                 print*, "! RecLinesEmission: can't open file: ",PREFIX,"/share/mocassin/",hydroLinesFile(izp,itemp)
                  stop
               end if
               dens = 0.
@@ -1037,10 +1035,9 @@ module emission_mod
               end if
 
               close(94)
-              open(unit = 94,  action="read", file = hydroLinesFile(2,itemp), &
-                   status = "old", position = "rewind", iostat=ios)
+              open(unit = 94,  action="read", file = PREFIX//"/share/mocassin/"//hydroLinesFile(2,itemp), status = "old", position = "rewind", iostat=ios)
               if (ios /= 0) then
-                 print*, "! RecLinesEmission: can't open file: ", hydroLinesFile(2,itemp)
+                 print*, "! RecLinesEmission: can't open file: ",PREFIX,"/share/mocassin/",hydroLinesFile(2,itemp)
                  stop
               end if
               dens = 0.
@@ -1201,12 +1198,9 @@ module emission_mod
            if (lgElementOn(izp) .and. nstages > izp) then
 
               close(94)
-              open(unit = 94,  action="read", file = &
-                   &hydroLinesFile(izp,itemp), &
-                   status = "old", position = "rewind", iostat=ios)
+              open(unit = 94,  action="read", file = PREFIX//"share/mocassin/"//hydroLinesFile(izp,itemp), status = "old", position = "rewind", iostat=ios)
               if (ios /= 0) then
-                 print*, "! RecLinesEmission: can't open file: ", &
-                      & hydroLinesFile(izp,itemp)
+                 print*, "! RecLinesEmission: can't open file: ",PREFIX,"/share/mocassin/",hydroLinesFile(izp,itemp)
                  stop
               end if
               dens = 0.
@@ -1216,8 +1210,7 @@ module emission_mod
                  if (ios<0) exit
 
                  do iup = 15, 2, -1
-                    read(94, fmt=*) (hydrolinesloc(izp, iden,iup, ilow), &
-                         &ilow = 1, min0(8, iup-1)) 
+                    read(94, fmt=*) (hydrolinesloc(izp, iden,iup, ilow), ilow = 1, min0(8, iup-1))
                  end do
               end do              
               close(94)
@@ -1334,11 +1327,9 @@ module emission_mod
 
               close(94)
               ! this is the HeII case A 
-              open(unit = 94,  action="read", file = hydroLinesFile(9,itemp), &
-                   status = "old", position = "rewind", iostat=ios)
+              open(unit = 94,  action="read", file = PREFIX//"/share/mocassin/"//hydroLinesFile(9,itemp), status = "old", position = "rewind", iostat=ios)
               if (ios /= 0) then
-                 print*, "! RecLinesEmission: can't open file: ", &
-                      &hydroLinesFile(9,itemp)
+                 print*, "! RecLinesEmission: can't open file: ",PREFIX,"/share/mocassin/",hydroLinesFile(9,itemp)
                  stop
               end if
               dens = 0.
@@ -1348,8 +1339,7 @@ module emission_mod
                  if (ios<0) exit
                  
                  do iup = 15, 2, -1
-                    read(94, fmt=*) (hydrolinesloc(izp, iden,iup, ilow), &
-                         &ilow = 1, min0(8, iup-1)) 
+                    read(94, fmt=*) (hydrolinesloc(izp, iden,iup, ilow), ilow = 1, min0(8, iup-1))
                  end do
               end do
               close(94)
@@ -1650,10 +1640,9 @@ module emission_mod
         ! read in HeII Lyman line ratios up to level n=5 [e-25 ergs*cm^3/s]
         ! (Storey and Hummer MNRAS 272(1995)41)
         close(98)
-        open(unit = 98,  action="read", file = "data/r2a0100old.dat", &
-             &status = "old", position = "rewind", iostat=ios)
+        open(unit = 98,  action="read", file = PREFIX//"/share/mocassin/data/r2a0100old.dat", status = "old", position = "rewind", iostat=ios)
         if (ios /= 0) then
-            print*, "! setDiffusePDF: can't open file: data/r2a0100.dat"
+            print*, "! setDiffusePDF: can't open file: ",PREFIX,"/share/mocassin/data/r2a0100.dat"
             stop
         end if
         do i = 1, NHeIILyman
@@ -2587,11 +2576,10 @@ module emission_mod
 
     ! open file containing atomic data
     close(11)
-    open(unit=11,  action="read", file = file_name, status="old", position="rewind", &
-         & iostat = ios)
+    open(unit=11,  action="read", file = PREFIX//"share/mocassin/"//file_name, status="old", position="rewind", iostat = ios)
 
     if (ios /= 0) then
-       print*, "! equilibrium: can't open file: ", file_name
+       print*, "! equilibrium: can't open file: ", PREFIX,"share/mocassin/",file_name
        stop
     end if
 
@@ -3125,9 +3113,9 @@ module emission_mod
     character(len=2)   :: label
     character(len=120) :: reader ! file reader
     
-    open(unit=19, action="read", file="data/resLines.dat", status="old", position="rewind", iostat=ios)
+    open(unit=19, action="read", file=PREFIX//"/share/mocassin/data/resLines.dat", status="old", position="rewind", iostat=ios)
     if (ios /= 0) then
-       print*, "! initResLines: can't open file: data/resLines"
+       print*, "! initResLines: can't open file: ",PREFIX,"/share/mocassin/data/resLines"
        stop
     end if
     
@@ -3140,7 +3128,7 @@ module emission_mod
        do j = 1, nmul
           read(unit=19,fmt=*, iostat=ios) 
           if (ios/=0) then
-             print*, "! initResLines: error reading data/resLines.dat file"
+             print*, "! initResLines: error reading ",PREFIX,"/share/mocassin/data/resLines.dat file"
              stop
           end if
        end do
