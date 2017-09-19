@@ -1614,8 +1614,8 @@ module xSec_mod
 
            ! complex refraction index
            refIndex = cmplx(Ere_in(i),Eim_in(i))
-           absRefIndex=sqrt(Ere_in(i)**2.+Eim_in(i)**2.)
-           absRefIndexm1=sqrt((Ere_in(i)-1.)**2.+Eim_in(i)**2.)
+           absRefIndex=sqrt(Ere_in(i)**2+Eim_in(i)**2)
+           absRefIndexm1=sqrt((Ere_in(i)-1.)**2+Eim_in(i)**2)
            lam = ( 2.9979250e14/(nuArray(i)*fr1Ryd))
 
            do ai = 1, nSizes
@@ -1637,8 +1637,8 @@ module xSec_mod
                    &absRefIndexm1*sizeParam<0.001) then ! or in the Raleigh-Gans regime
 
                  Qabs(ai,i) = (8./3.)*Eim_in(i)*sizeParam
-                 Qsca(ai,i) = 32.*(absRefIndexm1**2.)*sizeParam**4./&
-                      & (27.+16.*sizeParam**2.)
+                 Qsca(ai,i) = 32.*(absRefIndexm1**2)*sizeParam**4/&
+                      & (27.+16.*sizeParam**2)
 
               else if (absRefIndex*sizeParam>=1000. .and. &
                    &absRefIndexm1*sizeParam>=0.001) then ! geometric optics regime

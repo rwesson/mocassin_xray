@@ -1997,7 +1997,7 @@ module emission_mod
       do ifreq = 1, nbins
          radField(ifreq) = radField(ifreq)/(widflx(ifreq)*fr1ryd)
 
-        temp1(ifreq) = (radField(ifreq)* (nuArray(ifreq)*fr1Ryd)**2.)/(c)
+        temp1(ifreq) = (radField(ifreq)* (nuArray(ifreq)*fr1Ryd)**2)/(c)
          temp2(ifreq) = xSecArray(dustAbsXSecP(ns,na)+ifreq-1)
       end do
       do ifreq=1, nbins
@@ -2033,14 +2033,14 @@ module emission_mod
             print*, '! qHeat: invalid value for natom', sorc, na,natom, grainRadius(na)
          end if
 
-         mgrain = (4.*Pi/3.0)*(grainRadius(na)**3.)*rho(ns)*1.e-12
+         mgrain = (4.*Pi/3.0)*(grainRadius(na)**3)*rho(ns)*1.e-12
 
       case ('C')  ! carbonaceous
          natom = 0.454*3.*1.e12*grainRadius(na)**3.
          if (natom<=0) then
             print*, '! qHeat: invalid value for natom', sorc, na,natom, grainRadius(na)
          end if
-         mgrain = (4.*Pi/3.0)*(grainRadius(na)**3.)*rho(ns)*1.e-12
+         mgrain = (4.*Pi/3.0)*(grainRadius(na)**3)*rho(ns)*1.e-12
       case default
          qheatTemp = tg
          return
@@ -2118,7 +2118,7 @@ module emission_mod
                        &*wl**3+sQabs(wllP)*radField(wllP)&
                        &*wll**3)*(U(if)-U(if-1))/2.
 
-                  A(if,ii) = A(if,ii) /(hc**2.)
+                  A(if,ii) = A(if,ii) /(hc**2)
 
                end if
             else
@@ -2126,7 +2126,7 @@ module emission_mod
                   A(if,ii) = 0.
                else
                   A(if,ii) = sQabs(wlP)*&
-                       & radField(wlP)*dU(if)*wl**3/(hc**2.)
+                       & radField(wlP)*dU(if)*wl**3/(hc**2)
                end if
 
             end if
@@ -2316,7 +2316,7 @@ module emission_mod
       enth3_500 = (4.8375e5/1.68) * (500.**1.68 - 150.**1.68)
       enth4 = 3.3107e7*(tg-500.)
 
-      vg = (4.18878*1.e-12*grainRadius(na)**3.)
+      vg = (4.18878*1.e-12*grainRadius(na)**3)
 
       select case (sorc)
       case ('S')
@@ -2335,7 +2335,7 @@ module emission_mod
 
       case('C')
          enthalpy = real(natom)*(4.15e-22*tg**3.3)
-         enthalpy = enthalpy/(1.+6.51e-3*tg + 1.5e-6*tg**2. + 8.3e-7*tg**2.3)
+         enthalpy = enthalpy/(1.+6.51e-3*tg + 1.5e-6*tg**2 + 8.3e-7*tg**2.3)
          enthalpy = (1.-(2./real(natom))) * enthalpy
       case default
          print*, '! enthalpy: calculations only available for C & S &
@@ -2362,7 +2362,7 @@ module emission_mod
       if(exptest > 400.) then
          bbody=0.
       else
-         bbody = C1*(1./lam**5.)/(exp(exptest)-1.)
+         bbody = C1*(1./lam**5)/(exp(exptest)-1.)
       end if
     end function bbody
 
@@ -4013,7 +4013,7 @@ module emission_mod
 
       select case (profileID)
          case('doppler')
-            profile = (1./(sqrt(Pi)*widthIn) ) * Exp(- ((nuIn-lineIn%freq)*fr1Ryd/widthIn)**2.)
+            profile = (1./(sqrt(Pi)*widthIn) ) * Exp(- ((nuIn-lineIn%freq)*fr1Ryd/widthIn)**2)
          case default
             print*, '! profile: unknown profile requested ', profileID
             stop
