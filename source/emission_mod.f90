@@ -906,7 +906,7 @@ module emission_mod
                  if (ios<0) exit
 
                  do iup = 15, 2, -1
-                    read(94, fmt=*) (hydrolinesloc(izp, iden,iup, ilow), ilow = 1, min0(8, iup-1))
+                    read(94, fmt=*) (hydrolinesloc(izp, iden,iup, ilow), ilow = 1, min(8, iup-1))
                  end do
               end do
               close(94)
@@ -1041,7 +1041,7 @@ module emission_mod
                  if (ios<0) exit
 
                  do iup = 15, 2, -1
-                    read(94, fmt=*) (hydrolinesloc(izp, iden,iup, ilow), ilow = 1, min0(8, iup-1))
+                    read(94, fmt=*) (hydrolinesloc(izp, iden,iup, ilow), ilow = 1, min(8, iup-1))
                  end do
               end do
               close(94)
@@ -1200,7 +1200,7 @@ module emission_mod
                  if (ios<0) exit
 
                  do iup = 15, 2, -1
-                    read(94, fmt=*) (hydrolinesloc(izp, iden,iup, ilow), ilow = 1, min0(8, iup-1))
+                    read(94, fmt=*) (hydrolinesloc(izp, iden,iup, ilow), ilow = 1, min(8, iup-1))
                  end do
               end do
               close(94)
@@ -1329,7 +1329,7 @@ module emission_mod
                  if (ios<0) exit
 
                  do iup = 15, 2, -1
-                    read(94, fmt=*) (hydrolinesloc(izp, iden,iup, ilow), ilow = 1, min0(8, iup-1))
+                    read(94, fmt=*) (hydrolinesloc(izp, iden,iup, ilow), ilow = 1, min(8, iup-1))
                  end do
               end do
               close(94)
@@ -1738,7 +1738,7 @@ module emission_mod
         ! hydrogenic rec lines
         do izp = 1, 30
            do iup = 2, 15
-              do ilow =1, min0(8, iup-1)
+              do ilow =1, min(8, iup-1)
                  normRec = normRec+hydroLines(izp, iup, ilow)
               end do
            end do
@@ -3582,15 +3582,15 @@ module emission_mod
 
                    if (dSx<=0.) then
                       print*, '! setResLineEscapeProb: [warning] dSx <= 0.'
-                      dS = amin1(dSy, dSz)
+                      dS = min(dSy, dSz)
                    else if (dSy<=0.) then
                       print*, '! setResLineEscapeProb: [warning] dSy <= 0.'
-                      dS = amin1(dSx, dSz)
+                      dS = min(dSx, dSz)
                    else if (dSz<=0.) then
                       print*, '! setResLineEscapeProb: [warning] dSz <= 0.'
-                      dS = amin1(dSx, dSy)
+                      dS = min(dSx, dSy)
                    else
-                      dS = amin1(dSx,dSy,dSz)
+                      dS = min(dSx,dSy,dSz)
                    end if
 
                    ! this should now never ever happen

@@ -671,7 +671,7 @@ print*, lineORcont, code, freq1, freq2
                  if (ios<0) exit
 
                  do iup = 15, 2, -1
-                    read(94, fmt=*) (hydrolinesloc(izp, iden,iup, ilow), ilow = 1, min0(8, iup-1)) 
+                    read(94, fmt=*) (hydrolinesloc(izp, iden,iup, ilow), ilow = 1, min(8, iup-1)) 
                  end do
               end do              
               close(94)
@@ -806,7 +806,7 @@ print*, lineORcont, code, freq1, freq2
                  if (ios<0) exit
                  
                  do iup = 15, 2, -1
-                    read(94, fmt=*) (hydrolinesloc(izp, iden,iup, ilow), ilow = 1, min0(8, iup-1)) 
+                    read(94, fmt=*) (hydrolinesloc(izp, iden,iup, ilow), ilow = 1, min(8, iup-1)) 
                  end do
               end do
               close(94)

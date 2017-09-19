@@ -1074,7 +1074,7 @@ module update_mod
             ! hydrogenic rec lines
 !            do izp = 1, 30
 !               do iup = 3, 15
-!                  do ilow =2, min0(8, iup-1)
+!                  do ilow =2, min(8, iup-1)
 
 !                     coolColl = coolColl + hydroLines(izp, iup, ilow)
 !                     if (lgTraceHeating.and.taskid==0) fcool = fcool+hydroLines(izp, iup, ilow)
@@ -4062,7 +4062,7 @@ module update_mod
                      if (ios<0) exit
 
                      do iup = 15, 2, -1
-                        read(94, fmt=*) (hydrolinesloc(izp, iden,iup, ilow), ilow = 1, min0(8, iup-1))
+                        read(94, fmt=*) (hydrolinesloc(izp, iden,iup, ilow), ilow = 1, min(8, iup-1))
                      end do
                   end do
                   close(94)
@@ -4171,7 +4171,7 @@ module update_mod
 
                      do iup = 15, 2, -1
                         read(94, fmt=*) (hydrolinesloc(izp, iden,iup, ilow), &
-                             &ilow = 1, min0(8, iup-1))
+                             &ilow = 1, min(8, iup-1))
                      end do
                   end do
                   close(94)

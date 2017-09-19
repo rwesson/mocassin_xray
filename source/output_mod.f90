@@ -343,7 +343,7 @@ module output_mod
                           ! H recombination lines
                           do iz = 1, 30
                              do iup = 2,15, -1
-                                do ilow = 1, min0(8, iup-1)
+                                do ilow = 1, min(8, iup-1)
                                    hydroLines(iz,iup, ilow) = &
                                         & hydroLines(iz,iup, ilow)*&
                                         & 10.**(-(cMap(grid(1)%active(i,j,k))*flam(iCount)&
@@ -2034,7 +2034,7 @@ module output_mod
                  if (ios<0) exit
 
                  do iup = 15, 2, -1
-                    read(94, fmt=*) (hydrolinesloc(izp, iden,iup, ilow), ilow = 1, min0(8, iup-1))
+                    read(94, fmt=*) (hydrolinesloc(izp, iden,iup, ilow), ilow = 1, min(8, iup-1))
                  end do
               end do
               close(94)
@@ -2168,7 +2168,7 @@ module output_mod
                  if (ios<0) exit
 
                  do iup = 15, 2, -1
-                    read(94, fmt=*) (hydrolinesloc(izp, iden,iup, ilow), ilow = 1, min0(8, iup-1))
+                    read(94, fmt=*) (hydrolinesloc(izp, iden,iup, ilow), ilow = 1, min(8, iup-1))
                  end do
               end do
               close(94)
@@ -2320,7 +2320,7 @@ module output_mod
                  if (ios<0) exit
 
                  do iup = 15, 2, -1
-                    read(94, fmt=*) (hydrolinesloc(izp, iden,iup, ilow), ilow = 1, min0(8, iup-1))
+                    read(94, fmt=*) (hydrolinesloc(izp, iden,iup, ilow), ilow = 1, min(8, iup-1))
                  end do
               end do
               close(94)
@@ -2444,7 +2444,7 @@ module output_mod
                  if (ios<0) exit
 
                  do iup = 15, 2, -1
-                    read(94, fmt=*) (hydrolinesloc(izp, iden,iup, ilow), ilow = 1, min0(8, iup-1))
+                    read(94, fmt=*) (hydrolinesloc(izp, iden,iup, ilow), ilow = 1, min(8, iup-1))
                  end do
               end do
               close(94)
