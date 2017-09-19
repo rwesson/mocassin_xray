@@ -54,7 +54,7 @@ module emission_mod
 
         integer, intent(in) :: ix, iy, iz, ig  ! pointers to this cell
         integer :: err                       ! allocation error status
-        integer :: i, n                      ! counters
+        integer :: i                         ! counters
         integer :: izp
 
         grid = grids(iG)

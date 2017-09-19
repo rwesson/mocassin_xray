@@ -23,8 +23,6 @@ module iteration_mod
 
        integer :: i, j, k                     ! counters
 
-       logical, save :: lgFirst = .true.      ! first time the procedure is called?
-
        call iterateMC()
 
        contains

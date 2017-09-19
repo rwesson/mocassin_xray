@@ -4652,7 +4652,7 @@ module photon_mod
                                                           ! packet is created
           ! local variables
 
-          integer                  :: i, irepeat        ! counter
+          integer                  :: irepeat           ! counter
             !print*, 'inin'
 
 !print*, 'init ', gP, xp,yp,zp

@@ -656,7 +656,6 @@ module grid_mod
         ! pointer to the array of 2nd derivatives of the interpolating function
         ! calculated by spline for use into splint
 
-        integer :: outshell
         integer :: totCells
         integer :: totCellsLoc=0
 

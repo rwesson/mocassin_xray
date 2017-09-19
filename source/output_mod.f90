@@ -2627,7 +2627,6 @@ module output_mod
       real                       :: xd         ! density used
       real                       :: fh         ! H atomic data
 
-      integer                    :: iopt         ! switch
       integer                    :: nu         ! upper level
       integer                    :: nl         ! lower level
       integer                    :: ntempx     ! number of temperature
