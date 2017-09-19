@@ -263,6 +263,10 @@ module set_input_mod
                read(unit=10, fmt=*, iostat=ios) keyword, convIncPercent, nPhotIncrease, maxPhotons
                lgAutoPackets = .true.
                print*, keyword, convIncPercent, nPhotIncrease, maxPhotons
+               if (maxPhotons .eq. 0) then
+                 print*,'! readInput: autoPackets input invalid - maximum number of photons is zero'
+                 stop
+               endif
             case ("oneD")
                backspace 10
                 read(unit=10, fmt=*, iostat=ios) keyword
@@ -345,6 +349,10 @@ module set_input_mod
                 backspace 10
                 read(unit=10, fmt=*, iostat=ios) keyword, nPhotonsTot
                 print*, keyword, nPhotonsTot
+                if (nPhotonsTot .eq. 0) then
+                  print*,'! readInput: no photons in model.'
+                  stop
+                endif
             case ("nx")
                 backspace 10
                 read(unit=10, fmt=*, iostat=ios) keyword, nxin(1)
