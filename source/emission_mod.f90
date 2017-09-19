@@ -53,7 +53,6 @@ module emission_mod
         real    :: dV                        ! volume element
 
         integer, intent(in) :: ix, iy, iz, ig  ! pointers to this cell
-        integer :: ncutoff= 0                ! see clrate
         integer :: err                       ! allocation error status
         integer :: i, n                      ! counters
         integer :: izp
@@ -258,7 +257,7 @@ module emission_mod
 
         real                :: lineIntensity
 
-        integer             :: iRes, imul, n, ai
+        integer             :: iRes, imul
 
         ! calculate total energy deposited into the medium at location icell in grid igrid
         lineIntensity=0.
@@ -359,7 +358,6 @@ module emission_mod
              & highNuP,&                      ! pointer to the hi en of the current ion in nuArray
              & IPnuP                          ! pointer to the IP of the current ion in nuArray
         integer            :: i, j            ! counters
-        integer            :: ios             ! I/O error status
         integer            :: iup, ilow       ! counters
         integer            :: nElec           ! number of electrons in the ion
         integer            :: nTemp           ! =1 if 5000K<Te<10000K, =2 if 10000K<Te<20000K
@@ -854,12 +852,8 @@ module emission_mod
     subroutine RecLinesEmission()
         implicit none
 
-        real                       :: A4471, A4922! HeI reference lines
         real                       :: Afit,Bfit,zFit ! fit coeffs
-        real                       :: C5876, C6678! collition exc. corrections
         real                       :: Hbeta(30)    ! Hbeta emission
-        real                       :: HeII4686    ! HeII 4686 emission
-        real                       :: Lalpha      ! Lalpha emission
         real                       :: T4,T4z,Nez  ! TeUsed/10000., scaled, Ne scaled
         real                       :: log10NeZ    ! log10 NeUsed scaled
         real                       :: log10TeZ    ! log10(6^2*Te/Z^2)
@@ -1151,12 +1145,8 @@ module emission_mod
     subroutine RecLinesEmissionNew()
         implicit none
 
-        real                       :: A4471, A4922! HeI reference lines
         real                       :: Afit,Bfit,zFit ! fit coeffs
-        real                       :: C5876, C6678! collition exc. corrections
         real                       :: Hbeta(30)    ! Hbeta emission
-        real                       :: HeII4686    ! HeII 4686 emission
-        real                       :: Lalpha      ! Lalpha emission
         real                       :: T4,T4z,Nez  ! TeUsed/10000., scaled, Ne scaled
         real                       :: log10NeZ    ! log10 NeUsed scaled
         real                       :: log10TeZ    ! log10(6^2*Te/Z^2)
@@ -1523,12 +1513,8 @@ module emission_mod
         real (kind=8)     :: tg
         real (kind=8),dimension(nTbins) :: Tspike,Pspike
 
-        real              :: A4922             ! reference line intensity for HeI Lyman series
-        real              :: aFit              ! general calculations component
         real              :: alpha2tS          ! effective rec coeff to the 2s trip HeI
-        real              :: alpha2tP          ! effective rec coeff to the 2p trip HeI
         real              :: bb                ! blackbody
-        real              :: bFit              ! general calculations component
         real              :: const             ! general calculation constant
         real              :: correction        ! general correction term
         real              :: normalize         ! normHI+normHeI+normHeII
@@ -1561,8 +1547,6 @@ module emission_mod
         integer, parameter:: NHeIILyman = 4     ! Number of HeII Lym lines included
 
         character(len=50) :: cShapeLoc
-
-        logical, save     :: lgFirst =.true.   ! first time setDiffusePDF is called?
 
         cShapeLoc = 'blackbody'
 
@@ -1990,21 +1974,18 @@ module emission_mod
            & temp1(nbins),temp2(nbins)
       real(kind=8)                :: U(nTbins),dU(nTbins)
       real(kind=8)                :: mgrain,mdUdt,ch
-      real(kind=8)                :: nu,nuh,nul !freq [ryd]
       real(kind=8)                :: const1, radField(nbins),hc,wlim
       real(kind=8)                :: qHeatTemp,X(nTbins)
       real(kind=8)                :: UiTrun,sumX, sumBx
       real(kind=8)                :: wl,wll,wls
       real(kind=8)                :: qint,qint1,qint2,delwav
 
-      real                        :: realarr(nbins),realvar
       real ::  tbase
       integer, intent(in) :: ns, na
       integer             :: i,j,ii,if
       integer             :: wlp,wllp,wlsp,natom
       integer :: ifreq
       character(len=1)    :: sorc
-      character(len=50) :: chvarloc
 
       ! radiation field at this location in Flambdas
       if (lgDebug) then
@@ -2042,7 +2023,7 @@ module emission_mod
       temp = 0.
       pss  = 0.
 
-      sorc = grainLabel(ns)
+      sorc = grainLabel(ns)(1:1)
 
       select case(sorc)
       case ('S') ! silicates
@@ -2256,8 +2237,6 @@ module emission_mod
 
       real(kind=8), intent(out)      :: tmin  ! continuous heating/cooling equilibrium temp
       real                   :: dustAbsIntegral   ! dust absorption integral
-      real                   :: dabs
-      real                   :: resLineHeat       ! resonance line heating
       real                   :: cutoff            ! lambda=1000um (guhathakurta & draine 89)
       real, dimension(nbins) :: radField          ! radiation field
 
@@ -2397,7 +2376,7 @@ module emission_mod
       real(kind=8) :: cutoff, eout(nbins), engin, engout,eomid, &
            & delwav
 
-      integer :: k,ifreq,cutoffP
+      integer :: k,cutoffP
 
       cutoff = .1 ! cm
 
@@ -2432,12 +2411,10 @@ module emission_mod
 
       real(kind=8), intent(out)   :: ch
       real(kind=8), intent(in)    :: U(*),lam(nbins),fl(nbins),sQa(nbins)
-      real(kind=8) :: einmax,const1,shwav,cutoff, ein(nbins),engin,&
-           & eimid,hc,delwav
-      real                        :: realvar
+      real(kind=8) :: einmax,shwav,cutoff, ein(nbins),engin,eimid,hc,delwav
 
       integer, intent(in) :: it,nTbins
-      integer :: nshort,nlong,ifreq,k
+      integer :: nshort,nlong,k
 
       if (it>nTbins) then
          ch=0.
@@ -2510,7 +2487,6 @@ module emission_mod
     real (kind=8)       :: qx                        ! reader
     real (kind=8)   :: sumN                      ! normalization factor for populations
     real (kind=8)        :: sqrTe                     ! sqrt(Te)
-    real (kind=8)    :: value                     ! general calculations value
 
     real (kind=8)                   :: atp         ! 2-phot rate
     real (kind=8), pointer          :: a(:,:)      ! transition rates array
@@ -3304,8 +3280,6 @@ module emission_mod
     real    :: k_d, k_l  ! dust and line opacities
     real    :: dSx, dSy, dSz, dS ! distances from walls
     real    :: I1, I2    ! calculation integrals
-    real    :: M2_tau    ! direction-dependent escape probability
-    real    :: nuFrac    ! fractional nu for profile integration
     real    :: Pline     ! prob line
     real    :: radius    ! radial distance from the centre of the grid
     real    :: tau_mu    ! optical depth in direction mu at line centre
@@ -3318,9 +3292,9 @@ module emission_mod
     integer             :: xp,yp,zp ! cell pointers
     integer             :: gPmother,xPmother,yPmother,zPmother
     integer             :: icount  ! counter
-    integer             :: inu, idir, jdir, kdir ! freq counter
+    integer             :: idir, jdir, kdir ! freq counter
     integer, parameter  :: safeLimit=1e5 ! loop limit
-    integer             :: isub,jsub,ksub,subTot,gP ! subgrid counters
+    integer             :: gP ! subgrid counters
     integer             :: cellP   ! cell pointer on active grid array
     integer             :: compoP  ! pointer to gas component index
     integer             :: iLine   ! res line counter
@@ -4033,7 +4007,6 @@ module emission_mod
       real              :: profile ! phi(nu)
       real, intent(in)  :: nuIn ! frequency [Ryd]
       real, intent(in)  :: widthIn !
-      real              :: m_ion
       type(resLine_type), intent(in) :: lineIn
 
       character(len=7), intent(in) :: profileID ! what type of broadening?
@@ -4078,7 +4051,6 @@ module emission_mod
 
       real, intent(in)         :: width
       real, intent(out)        :: line_xSec
-      real                     :: m_ion          ! mass of the ion
 
       type(resLine_type), intent(inout) :: line
 
@@ -4104,7 +4076,6 @@ module emission_mod
 
       real, intent(in)         :: width
       real, intent(out)        :: line_xSec
-      real                     :: m_ion          ! mass of the ion
       type(resLine_type), intent(inout) :: line
 
       if (width<=0.) then

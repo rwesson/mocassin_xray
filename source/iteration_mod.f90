@@ -49,27 +49,18 @@ module iteration_mod
            real, pointer :: totalLinesTemp(:)    ! temporary fraction of non-ionizing line phots
            real, pointer :: totalEmissionTemp(:)    !
 
-           real, pointer :: absTauTemp(:), &     ! temp absorption opacity
-                & lambdaTemp(:)                  ! temp displacement
-           real, pointer :: absTau(:), &         ! absorption opacity
-                & lambda(:)                      ! displacement
-
-
            real, pointer          :: noHitPercent(:)    ! percentage of no Hit cells
            real, pointer          :: noIonBalPercent(:) ! percentage of cell where ion bal not conv
            real, pointer          :: noTeBalPercent(:)  ! percentage of cell where Te bal not conv
            real, pointer          :: aradtemp(:)     ! temporary radiative acceleration array
            real,save              :: totPercentOld   ! percentage of converged cells from prev iteration
-           real                   :: photRatio       ! photons/cells ratio
-           real                   :: radius          ! ditance in cm from star
-           real                   :: tau             ! optical depth
            real                   :: totCells        ! total # of active cells
            real                   :: totheatdust     ! total dust heating
 
            integer, pointer       :: planeIonDistributionTemp(:,:)
            integer, pointer       :: resLinePacketsTemp(:) ! temporary array for extra packets
            integer                :: err             ! allocation error status
-           integer                :: elem,freq,ion,nS! counters
+           integer                :: freq,nS         ! counters
            integer                :: ifreq, ian      ! counters
            integer                :: ios,iG          ! I/O error status
            integer                :: load,rest       !
@@ -744,9 +735,9 @@ module iteration_mod
               ! estimators of Jste and Jdif at every grid cell
               if (taskid < rest) then
                  load = load+1
-                 call energyPacketDriver(iStar,load, grid(1:nGrids), noplot, nogpLoc, noCellLoc)
+                 call energyPacketDriver(iStar,load, grid(1:nGrids), nogpLoc, noCellLoc)
               else
-                 call energyPacketDriver(iStar,load, grid(1:nGrids), noplot, nogpLoc, noCellLoc)
+                 call energyPacketDriver(iStar,load, grid(1:nGrids), nogpLoc, noCellLoc)
               end if
 
               call mpi_barrier(mpi_comm_world, ierr)
@@ -787,10 +778,10 @@ module iteration_mod
                              if (taskid < rest) then
                                 load = load+1
                                 call energyPacketDriver(iStar=0,n=load, grid=grid(1:nGrids), &
-                                     & plot = noPlot, gpLoc=gpLoc, cellLoc=cellLoc)
+                                     & gpLoc=gpLoc, cellLoc=cellLoc)
                              else
                                 call energyPacketDriver(iStar=0,n=load, grid=grid(1:nGrids), &
-                                     & plot = noPlot, gpLoc=gpLoc, cellLoc=cellLoc)
+                                     & gpLoc=gpLoc, cellLoc=cellLoc)
                              end if
 
                              call mpi_barrier(mpi_comm_world, ierr)

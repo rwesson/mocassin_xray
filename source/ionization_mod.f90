@@ -140,7 +140,6 @@ module ionization_mod
         real, save :: TeOld1=-1., TeOld2=-1.    ! te on last run of sub
 
         ! local variables
-        integer :: err                          ! allocation error status
         integer :: i                            ! counter
         integer :: iflag                        ! status flag returned by getGauntFF
         integer :: max                          ! upper nu limit given by 0 exp
@@ -357,7 +356,7 @@ module ionization_mod
 
        ! local variables
         real    :: fac1, fac2, fac3       ! factors to be used in calculations
-        integer :: i, n                                           ! counters
+        integer :: i                                              ! counters
 
 
         ! (re) initialize opacity arrays

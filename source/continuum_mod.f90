@@ -38,11 +38,11 @@ module continuum_mod
 
         real(kind=8),dimension(maxLim)    :: tmp1, tmp2
         real(kind=8), dimension(maxLim)  :: Hflux    ! flux array as read from input spectrum file [erg/cm^2/s/Hz/sr]
-        real    :: SStar, skip, time         ! stellar surface [e36 cm^2]
-        real, dimension(maxLim) :: enArray  ! freq array as read from input spectrum file [Hz]
+        real    :: skip, time                ! stellar surface [e36 cm^2]
+        real, dimension(maxLim) :: enArray   ! freq array as read from input spectrum file [Hz]
         integer :: enP                       ! pointer in enArray
         integer :: err                       ! allocation error status
-        integer :: i, j, k, iStar, iloop     ! counters
+        integer :: i, j, k, iStar            ! counters
         integer :: ios                       ! I/O error status
         integer :: numLam
         integer :: star1
@@ -415,11 +415,6 @@ module continuum_mod
     subroutine setProbDen(iS)
         implicit none
 
-        real :: aFit, bFit, cFit          ! fit parameters
-        real :: term                      ! general calculations term
-        real :: delNu                     ! frequency step in nuArray
-        real :: RStar                     ! stellar radius [e18 cm]
-        real :: SStar                     ! stellar surface [e36 cm^2]
         real :: maxp
 
         real, pointer :: inSpSumErg(:)    ! partial input spectrum sum [erg/s]
@@ -429,9 +424,7 @@ module continuum_mod
         integer, intent(in) :: iS         ! central star index
 
         integer :: err                    ! allocation error status
-        integer :: enP                    ! nuArray index
         integer :: i                      ! counter
-        integer :: nuP                    ! frequency pointer
         integer :: nu0AddP
 
 

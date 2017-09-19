@@ -28,17 +28,9 @@ module update_mod
         real, dimension(2,10,nelements, nstages)       :: photoIon     ! photoionisation
                                                        ! 1=contribution to ion balance
                                                        ! 2=contribution to thermal balance
-        real                           :: aFit, bFit   ! general fit terms
         real                           :: deltaXHI        ! delta ionDen of H0
-        real, dimension(3)             :: ions         ! # of ionizations (1 is from
-                                                       ! H0 2 is from He0 and 3 is
-                                                       ! is for He+)
         real                           :: ionJ         !
-        real                           :: phXSecM
-        real                           :: phXSecM1
         real                           :: phXSec      ! ph xSec of ion M at freqency bin j
-        real                           :: term1,term2,&! general calculation terms
-             & term3
         real                           :: thResidual   ! thermal balance residual
         real                           :: thResidualHigh! ther bal residual-high lim
         real                           :: thResidualLow! ther bal residual-low lim
@@ -77,24 +69,13 @@ module update_mod
 
         integer ,pointer               :: grainPotP(:,:)
         integer                        :: cellP        ! points to this cell
-        integer                        :: HIPnuP       ! pointer to H IP in NuArray
-        integer                        :: HeIPnuP      ! pointer to HeI IP in NuArray
-        integer                        :: HeIIPnuP     ! pointer to HeII IP in NuArray
-        integer                        :: highNuP      ! pointer to highest energy of shell
-        integer                        :: IPnuP        ! pointer to this ion's IP in NuArray
-        integer                        :: xSecP        ! pointer to an ion's xSec in xSecArray
         integer                        :: elem         ! element counter
         integer                        :: err          ! allocation error status
-        integer                        :: g0, g1       ! stat weights
         integer                        :: ion          ! ionization stage counter
-        integer                        :: ios          ! I/O error status
         integer                        :: i,j          ! counter
-        integer                        :: ncutoff= 0   ! see clrate
-        integer                        :: nElec        ! # of electrons in ion
         integer                        :: nIterateGC   ! # of GC iterations
         integer                        :: nIterateT    ! # of T iterations
         integer                        :: nIterateX    ! # of X iterations
-        integer                        :: outShell     ! outer shell number (1 for k shell)
         integer                        :: nShell       ! shell counter
 !        integer                        :: domCool      ! dominant collants : CEL = 1; RL = 2
 
@@ -191,6 +172,7 @@ module update_mod
            Thigh          = 0.
            Tlow           = 0.
 
+           err=0
 
            if (lgDust .and. lgGas .and. lgPhotoelectric) then
               allocate (grainPot(1:nSPecies, 1:nsizes))
@@ -277,20 +259,12 @@ module update_mod
         recursive subroutine iterateT()
             implicit none
 
-            real                          :: a, b, b2        ! calculation coefficients
             real                          :: coolInt         ! tot cooling integral [erg/s/Hden]
-            real                          :: disc            ! discriminant
-            real                          :: expFact         ! general exponential factor
-            real                          :: gamma           ! He+ density
             real                          :: heatInt         ! tot heating integral [erg/s/Hden]
-            real                          :: root            ! root for H and He calculations
 
             real, parameter               :: Xmax = 0.9999   ! max rel abundance
 
-            integer                       :: i               ! counter
             integer                       :: isp, ai         ! counters
-            integer                       :: ios             ! I/O error status
-            integer                       :: n               ! stopper
 
             logical                       :: lgGCBConv       ! grain charge converged?
             logical                       :: lgIBConv        ! converged?
@@ -484,14 +458,14 @@ module update_mod
         recursive subroutine setGrainPotential(iSp, ai, lgGCBConv)
           implicit none
 
-          real,save            :: delta0, delta,delta1
+          real,save            :: delta,delta1
           real,save            :: grainPotOld ! local copy of grai pot
           real                 :: grainEmi, grainRec ! grain emissions and recom
           real,save            :: grainEmiOld, grainRecOld ! grain emissions and recom
           real,parameter       :: errorLim = 0.005, dm = 0.05 ! loop convergence
           real,parameter       :: safeLim = 100 ! loop safety limit
           real                 :: threshold,fac
-          real,save :: dlow,dhigh,grainpotlow,grainpothigh,dVg,slope
+          real,save :: dVg,slope
 
           integer, intent(in)  :: iSp, ai
 
@@ -505,13 +479,13 @@ module update_mod
              grainPotOld = grainPot(isp,ai)
              lgGCBConv = .true.
              grainEmiOld = getGrainEmission(grainPot(isp,ai), isp, ai)
-             grainRecOld = getGrainRecombination(grainPot(isp,ai), isp)
+             grainRecOld = getGrainRecombination(grainPot(isp,ai))
              grainPot(isp,ai) = grainPotOld+0.05
           end if
 
           threshold = max(grainVn(isp)+grainPot(isp,ai),grainVn(isp))
           grainEmi = getGrainEmission(grainPot(isp,ai), isp, ai)
-          grainRec = getGrainRecombination(grainPot(isp,ai), isp)
+          grainRec = getGrainRecombination(grainPot(isp,ai))
           delta = grainEmi-grainRec
 
           delta1 = abs(delta/(0.5*max(1.e-35, grainEmi+grainRec)))
@@ -607,7 +581,7 @@ module update_mod
         ! calculate the grain recombination
         ! using eqn 23 etcof Baldwin et al. (1991)
         ! cellFactor is dependant on the physical conditions of the gas,
-        function getGrainRecombination(Vg, isp)
+        function getGrainRecombination(Vg)
           implicit none
 
           real :: getGrainRecombination
@@ -622,9 +596,7 @@ module update_mod
           real :: vmean ! colliding particle mean velocity
           real :: Z     ! colliding particle charge
 
-          integer, intent(in) :: isp ! species identifier
-
-          integer :: istage, ielem
+          integer :: istage
 
           getGrainRecombination = 0.
           eta = 0.
@@ -892,7 +864,6 @@ module update_mod
 !            integer, intent(out)   :: dc ! dominant coolant ; CEL=1;RL=2
             ! local variables
 
-            integer                :: izp, iup, ilow
             integer                :: i,j,k         ! counters
             integer                :: elem, ion     ! counters
 
@@ -906,14 +877,9 @@ module update_mod
             real                   :: coolCollH     ! cool due to coll excit   [erg/s/Hden]
             real                   :: coolRec       ! cool due to recombination[erg/s/Hden]
             real                   :: fcool
-            real                   :: heatIonSte    ! heat due to this ion stellar phot
-            real                   :: heatIonDif    ! heat due to this ion diffuse phot
             real                   :: heatSte       ! tot heat gain due to stellar phot
             real                   :: heatDif       ! tot heat gain due to diffuse phot
-            real                   :: hTerm1        ! heat calculation term
-            real                   :: hTerm2        ! heat calculation term
             real                   :: log10Te       ! log10(Te)
-            real                   :: log10TeScaled ! log10(Te/Z^2)
             real                   :: Np            ! proton density
             real                   :: Te4           ! Te/10000.
 
@@ -1269,7 +1235,6 @@ module update_mod
             real(kind=8)                   :: collIonH, expFact
             real(kind=8)                   :: sumMat
             real(kind=8)                   :: ratio
-            real(kind=8)                   :: revRate       ! reverse charge exchange rate
             real(kind=8)                   :: in(nElements) ! pop creation
             real(kind=8)                   :: out(nElements)! pop destruction
 
@@ -1281,7 +1246,6 @@ module update_mod
             integer                :: i             ! counter
             integer                :: maxim
             integer                :: nElec         ! of  e's in the ion
-            integer                :: outShell      ! byproduct of proc to get stat weights
 
             logical, intent(out)   :: lgConv        ! did ion bal converge?
             logical                :: lgConvEl(nelements)
@@ -1598,7 +1562,6 @@ module update_mod
             real, save             :: HeIIOld       ! X(He+) from last iteration
             real, parameter        :: limit = 0.01  ! convergence limit
 
-            real                   :: fac0,fac1     ! calculation factors
             real                   :: t4            ! TeUsed/10000.
 
             real                   :: correction    ! used in lgNeInput = .t.
@@ -2003,7 +1966,6 @@ module update_mod
             real                   :: deltaHeI      ! delta(X(He0))
             real                   :: deltaHeII     ! delta(X(HeII))
             real                   :: expFact       ! exponential factor
-            real                   :: fac0,fac1     ! calculation factors
             real                   :: t4            ! TeUsed/10000.
             real, save             :: HIOld         ! X(H0) from last iteration
             real, save             :: HeIOld        ! X(He0) from last iteration
@@ -3346,11 +3308,10 @@ module update_mod
          subroutine getDustT()
             implicit none
 
-            real                   :: Tspike(nTbins),Pspike(nTbins)
             real                   :: dustAbsIntegral   ! dust absorption integral
             real                   :: dabs
             real                   :: resLineHeat       ! resonance line heating
-            real, dimension(nbins) :: radField,yint     ! radiation field
+            real, dimension(nbins) :: radField          ! radiation field
 
             integer :: nS, i, ai ! counters
             integer :: iT        ! pointer to dust temp in dust temp array
@@ -3596,12 +3557,11 @@ module update_mod
 
 !           real, dimension(nelements, nstages) :: heleion
 
-            real :: revRate, phXSec, heatef, xe, heathi, gammahi
+            real :: revRate, phXSec, heatef, xe
 
             real :: t4
 
-            integer :: elem,ion,nshell,outshell,g0,g1,nElec, ipNuP, highNuP,&
-                 & xSecP
+            integer :: elem,ion,nshell,outshell,g0,g1,nElec, ipNuP, highNuP
 
             nPhotoSte =1.e-20
             nPhotoDif =1.e-20
@@ -3834,7 +3794,7 @@ module update_mod
           subroutine compton
             implicit none
 
-            real ::  s1, s2, ebar, radfield, comptonRecoilHeatH, comptonRecoilHeatHe, energy
+            real ::  s1, s2, radfield, comptonRecoilHeatH, comptonRecoilHeatHe, energy
 
             integer :: i
 
@@ -4051,12 +4011,8 @@ module update_mod
                  &iup                                 ! pointer to upper level
             integer                    :: elUp
             integer                    :: ix,iy,iz
-            real                       :: A4471, A4922! HeI reference lines
             real                       :: Afit,Bfit,zFit ! fit coeffs
-            real                       :: C5876, C6678! collition exc. corrections
             real                       :: Hbeta(30)    ! Hbeta emission
-            real                       :: HeII4686    ! HeII 4686 emission
-            real                       :: Lalpha      ! Lalpha emission
             real                       :: T4,T4z,Nez  ! TeUsed/10000., scaled, Ne scaled
             real                       :: log10NeZ    ! log10 NeUsed scaled
             real                       :: log10TeZ    ! log10(6^2*Te/Z^2)

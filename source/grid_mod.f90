@@ -22,26 +22,19 @@ module grid_mod
         implicit none
 
 
-        real, dimension(450) :: ordered
         real, dimension(17)  :: seriesEdge
 
         real                 :: reader(8)
         real, pointer        :: nuArrayTemp(:), widFlxTemp(:)
         real                 :: nuMinArray, nuMaxArray
-        real                 :: dradio
-        real                 :: nuStepSizeLoc
-        real                 :: resolve
 
         real, pointer        :: nuTemp(:)
 
         integer :: err, ios                         ! allocation error status
-        integer :: ii
         integer :: i, j, iCount, nuCount, elem, ion ! counters
-        integer :: nradio
         integer :: g0,g1
         integer :: nEdges
         integer :: nElec
-        integer :: nbinspartial,topbin
         integer :: outshell
         integer :: n0,ipnt
         integer, parameter :: maxLim = 10000
@@ -52,7 +45,6 @@ module grid_mod
         type(grid_type),intent(inout) :: grid       ! grid
 
         logical, save :: lgFirst=.true.
-        logical       :: lgAssigned
 
         print*, "in initCartesianGrid"
 
@@ -397,45 +389,45 @@ module grid_mod
                n0=1
                ipnt=0
                if (.not.lgFluorescence) then
-                  call fill(  nuMinArray ,   0.001, 0.04 , n0 , ipnt )
-                  call fill( 0.001,   0.109, 0.03, n0 , ipnt )
-                  call fill( 0.109,   0.26 , 0.01, n0 , ipnt )
-                  call fill( 0.26,    0.90 , 0.009, n0 , ipnt )
-                  call fill( 0.90 ,   0.985, 0.001, n0 , ipnt )
+                  call fill(  nuMinArray ,   0.001, 0.04 , n0 )
+                  call fill( 0.001,   0.109, 0.03, n0 )
+                  call fill( 0.109,   0.26 , 0.01, n0 )
+                  call fill( 0.26,    0.90 , 0.009, n0 )
+                  call fill( 0.90 ,   0.985, 0.001, n0 )
                   !     all the lyman lines merge here
-                  call fill( 0.985,   1.01 , 0.001,n0 , ipnt )
-                  call fill( 1.01 ,   1.78 , 0.008, n0 , ipnt )
-                  call fill( 1.78 ,   1.82 , 0.002, n0 , ipnt )
-                  call fill( 1.82 ,   3.97 , 0.008, n0 , ipnt )
-                  call fill( 3.97 ,   4.05 , 0.002, n0 , ipnt )
-                  call fill( 4.05 ,   50.0 , 0.008, n0 , ipnt )
-                  call fill( 50.  ,   468.,  0.01 , n0 , ipnt )
-                  call fill( 468.,    472.,  0.0005 , n0 , ipnt )
-                  call fill( 472.  ,  600. , 0.01 , n0 , ipnt )
+                  call fill( 0.985,   1.01 , 0.001,n0 )
+                  call fill( 1.01 ,   1.78 , 0.008, n0 )
+                  call fill( 1.78 ,   1.82 , 0.002, n0 )
+                  call fill( 1.82 ,   3.97 , 0.008, n0 )
+                  call fill( 3.97 ,   4.05 , 0.002, n0 )
+                  call fill( 4.05 ,   50.0 , 0.008, n0 )
+                  call fill( 50.  ,   468.,  0.01 , n0 )
+                  call fill( 468.,    472.,  0.0005 , n0 )
+                  call fill( 472.  ,  600. , 0.01 , n0 )
 
-                  call fill( 600. ,    7e4 , 0.05 , n0 , ipnt )
-                  call fill(  7e4 , 7.3e6 , 0.10 , n0 , ipnt )
+                  call fill( 600. ,    7e4 , 0.05 , n0 )
+                  call fill(  7e4 , 7.3e6 , 0.10 , n0 )
                else
 
 
-                  call fill(  nuMinArray ,   0.001, 0.05 , n0 , ipnt )
-                  call fill( 0.001,   0.109, 0.007, n0 , ipnt )
-                  call fill( 0.109,   0.26 , 0.003, n0 , ipnt )
-                  call fill( 0.26,    0.90 , 0.02, n0 , ipnt )
-                  call fill( 0.90 ,   0.985, 0.003, n0 , ipnt )
+                  call fill(  nuMinArray ,   0.001, 0.05 , n0 )
+                  call fill( 0.001,   0.109, 0.007, n0 )
+                  call fill( 0.109,   0.26 , 0.003, n0 )
+                  call fill( 0.26,    0.90 , 0.02, n0 )
+                  call fill( 0.90 ,   0.985, 0.003, n0 )
                   !     all the lyman lines merge here
-                  call fill( 0.985,   1.01 , 0.001,n0 , ipnt )
-                  call fill( 1.01 ,   1.78 , 0.02, n0 , ipnt )
-                  call fill( 1.78 ,   1.82 , 0.005, n0 , ipnt )
-                  call fill( 1.82 ,   3.97 , 0.02, n0 , ipnt )
-                  call fill( 3.97 ,   4.05 , 0.005, n0 , ipnt )
-                  call fill( 4.05 ,   50.0 , 0.02, n0 , ipnt )
-                  !            call fill( 50.  ,  600.0 , 0.01 , n0 , ipnt )
-                  call fill( 50.  ,  60.0 , 0.01 , n0 , ipnt )
-                  call fill( 60.  ,  65.0 , 0.0005 , n0 , ipnt )
-                  call fill( 65.  ,  600.0 , 0.01 , n0 , ipnt )
-                  call fill( 600. ,    7e4 , 0.04 , n0 , ipnt )
-                  call fill(  7e4 , 7.3e6 , 0.10 , n0 , ipnt )
+                  call fill( 0.985,   1.01 , 0.001,n0 )
+                  call fill( 1.01 ,   1.78 , 0.02, n0 )
+                  call fill( 1.78 ,   1.82 , 0.005, n0 )
+                  call fill( 1.82 ,   3.97 , 0.02, n0 )
+                  call fill( 3.97 ,   4.05 , 0.005, n0 )
+                  call fill( 4.05 ,   50.0 , 0.02, n0 )
+                  !            call fill( 50.  ,  600.0 , 0.01 , n0 )
+                  call fill( 50.  ,  60.0 , 0.01 , n0 )
+                  call fill( 60.  ,  65.0 , 0.0005 , n0 )
+                  call fill( 65.  ,  600.0 , 0.01 , n0 )
+                  call fill( 600. ,    7e4 , 0.04 , n0 )
+                  call fill(  7e4 , 7.3e6 , 0.10 , n0 )
                end if
 
                nbins = n0 - 1
@@ -607,12 +599,12 @@ module grid_mod
 
     end subroutine initCartesianGrid
 
-    subroutine fill( enlo , enhi , resolv , n0 , ipnt )
+    subroutine fill( enlo , enhi , resolv , n0 )
       implicit none
 
       real, intent(in) ::  enlo , enhi , resolv
       real :: fildel, filres
-      integer, intent(inout) :: n0 , ipnt
+      integer, intent(inout) :: n0
       integer :: i , nbin, ifill0
 
       ifill0 = n0 - 1
@@ -656,31 +648,20 @@ module grid_mod
         type(grid_type), dimension(:),intent(inout) :: grid
 
         ! local variables
-        integer :: i, j, k, l, m, n, elem, ion, iG, jG    ! counters
-        integer :: ios                                    ! I/O status
+        integer :: i, j, k, iG, jG                        ! counters
         integer :: err                                    ! memory allocation status
         integer :: ngridsloc
         integer, parameter :: max_points = 10000          ! safety limit
 
-        character(len=30)            :: in_file
-
-        real :: radius     ! sqrt(x^2 + y^2 + z^2)
-
         ! pointer to the array of 2nd derivatives of the interpolating function
         ! calculated by spline for use into splint
 
-        integer :: iCount, nuCount              ! counters
-        integer :: g0,g1
-        integer :: nEdges
-        integer :: nElec
         integer :: outshell
         integer :: totCells
         integer :: totCellsLoc=0
 
         integer, parameter :: maxLim = 10000
         integer, parameter :: nSeries = 17
-
-        real                 :: nuStepSizeLoc
 
         print*, "in fillGrid"
 
@@ -980,8 +961,6 @@ module grid_mod
         real                           :: denominator   ! denominator
         real                           :: dV           ! volume element
         real                           :: expFactor    ! exp factor in density law calculations
-        real                           :: expTerm      ! exp term
-        real                           :: factor       ! conputation factor
         real                           :: gasCell      ! mass of gas in current cell
         real                           :: H0in         ! estimated H0 at the inner radius for regionI
         real, pointer                  :: MdMg(:,:,:)  ! Md/Mg
@@ -991,7 +970,6 @@ module grid_mod
         real                           :: radius       ! distance from the origin
         real                           :: random       ! random nmumber
         real                           :: readReal     ! real number reader
-        real                           :: surfIn       ! surface at inner radius [e36 cm^2]
         real                           :: totalMass    ! total ionized mass
         real                           :: totalVolume  ! total active volume
 
@@ -1005,15 +983,11 @@ module grid_mod
 
         integer                        :: i,j,k        ! counters
         integer                        :: index        ! general index
-        integer                        :: iOrigin,&    ! indeces of the origin of the grid
-             & jOrigin, kOrigin
         integer                        :: ios, err     ! I/O and allocation error status
         integer                        :: elem, ion    ! counters
         integer                        :: nspec, ai    ! counters
         integer                        :: nu0P         !
         integer                        :: nu0AddP      !
-        integer                        :: RinP         ! pointer to the inner radius intercept
-                                                       ! with one of the axes
         integer                        :: yTop, xPmap  ! 2D indeces
         type(grid_type), intent(inout) :: grid      ! the grid
 
@@ -1835,42 +1809,27 @@ module grid_mod
            implicit none
 
            ! local variables
-           real, pointer                  :: a(:)         ! grain radii
            real                           :: x,y,z        ! x,y,z
            real                           :: delta        ! displacement for realigning subgrids to mothergrid
            real                           :: denominator   ! denominator
            real                           :: denfac       ! enhancement factor
            real                           :: dV           ! volume element
-           real                           :: expFactor    ! exp factor in density law calculations
-           real                           :: expTerm      ! exp term
-           real                           :: factor       ! conputation factor
            real                           :: gasCell      ! mass of gas in current cell
            real                           :: H0in         ! estimated H0 at the inner radius for regionI
            real                           :: MhMg         ! hdrogen to gas mass ratio
-           real                           :: normWeight   ! normalization const for grain size distribution
            real                           :: radius       ! distance from the origin
-           real                           :: random       ! random nmumber
-           real                           :: surfIn       ! surface at inner radius [e36 cm^2]
            real                           :: totalMass    ! total ionized mass
            real                           :: totalVolume  ! total active volume
-           real, pointer                  :: weight(:)    ! weight of grain
-
 
            real, pointer                  :: HdenTemp(:,:,:) ! temporary Hden
            real, pointer                  :: NdustTemp(:,:,:) ! temporary dust number density array
 
            integer                        :: edgeP        ! subgrid edge pointer on mothergrid
-           integer                        :: i,j,k,iG,ai  ! counters
+           integer                        :: iG,ai        ! counters
            integer                        :: ix,iy,iz     ! counters
-           integer                        :: index        ! general index
-           integer                        :: iOrigin,&    ! indeces of the origin of the grid jOrigin,&
-                & kOrigin
            integer                        :: ios, err     ! I/O and allocation error status
            integer                        :: elem, ion    ! counters
-           integer                        :: nspec, nsize ! counters
-           integer                        :: NgrainSize   ! number of grain sizes
-           integer                        :: RinP         ! pointer to the inner radius intercept
-                                                          ! with one of the axes
+           integer                        :: nspec        ! counters
 
            type(grid_type), dimension(:),intent(inout) :: grid        ! the grid
 
@@ -3052,21 +3011,13 @@ module grid_mod
       implicit none
 
 
-      real                 :: p0,p00,p1,p2,p3,p4,p5,p6,p7, acreader
+      real                 :: p0,p00,p1,p2,p3, acreader
       real, pointer        :: p(:)
-      real, dimension(450) :: ordered
-      real, dimension(17)  :: seriesEdge
       real                 :: radius
 
-      real                 :: nuStepSizeLoc
-
-      integer :: iCount, nuCount, iG, ai      ! counters
-      integer :: g0,g1
-      integer :: nEdges
-      integer :: nElec
-      integer :: outshell
+      integer :: iG, ai      ! counters
       integer :: totCells, totcellsloc
-      integer :: yTop, xPmap
+      integer :: xPmap
 
       integer :: iac, jac, kac
       integer, parameter :: maxLim = 10000
@@ -3078,8 +3029,6 @@ module grid_mod
       integer                        :: elem,&!
 &                                       ion,i1 ! counters
       type(grid_type), intent(inout) :: grid(maxGrids)  ! the 3d grids
-
-      logical, save :: lgfirst = .true.
 
       print*, 'resetGrid in'
 

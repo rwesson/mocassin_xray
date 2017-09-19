@@ -25,10 +25,6 @@ program MoCaSSiNplot
     real(kind=8),pointer    :: flinePlot(:,:,:,:)
     real, pointer   :: image(:,:,:,:)
 
-    real, pointer   :: linePDFTemp(:,:)
-    real, pointer   :: opacityTemp(:,:)
-    real, pointer   :: recPDFTemp(:,:)
-    real, pointer   :: totalLinesTemp(:)
     real, dimension(nElements) ::  elemAbundanceUsed  ! local abundances
     real            :: log10NeP, log10TeP
 
@@ -47,7 +43,7 @@ program MoCaSSiNplot
     integer         :: abFileIndexUsed
     integer         :: err            ! allocation error statu
     integer         :: elem, ion      ! element ion counters
-    integer         :: i,j,k,n,freq,iG! counters
+    integer         :: i,j,k,iG       ! counters
     integer         :: iCount         ! cell index
     integer         :: iLine          ! line counter
     integer         :: iup, ilow, l   ! energy levels pointerst
@@ -55,7 +51,6 @@ program MoCaSSiNplot
     integer         :: nxMax,nyMax,nzMax !
     integer         :: maxCells       ! maxCells
     integer         :: plotNum        ! counter
-    integer         :: size,load,rest ! mpi stuff
     integer         :: tranP          ! transmnission coeff index
     integer         :: tranMaxP       ! maximum tran coeff index
     integer         :: contP          ! continuum index counter
@@ -427,7 +422,6 @@ program MoCaSSiNplot
         real                      :: freq        ! cont freq
 
         character(len=10)         :: lineORcont  ! line or continuum ?
-        character(len=10)         :: anOrMC      ! analytical or MC?
         character(len=10)         :: filter      ! filter?
 
 
@@ -630,12 +624,8 @@ print*, lineORcont, code, freq1, freq2
         integer                    :: ilow,&      ! pointer to lower level
              &iup                                 ! pointer to upper level
 
-        real                       :: A4471, A4922! HeI reference lines 
         real                       :: Afit,Bfit,zFit ! fit coeffs
-        real                       :: C5876, C6678! collition exc. corrections
         real                       :: Hbeta(30)    ! Hbeta emission
-        real                       :: HeII4686    ! HeII 4686 emission
-        real                       :: Lalpha      ! Lalpha emission
         real                       :: T4,T4z,Nez  ! TeUsed/10000., scaled, Ne scaled
         real                       :: log10NeZ    ! log10 NeUsed scaled
         real                       :: log10TeZ    ! log10(6^2*Te/Z^2)

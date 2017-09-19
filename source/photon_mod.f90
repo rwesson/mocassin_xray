@@ -25,17 +25,13 @@ module photon_mod
 
     contains
 
-    subroutine energyPacketDriver(iStar, n, grid, plot, gpLoc, cellLoc)
+    subroutine energyPacketDriver(iStar, n, grid, gpLoc, cellLoc)
         implicit none
 
-        real                           :: JDifTot     ! tot JDif
-        real                           :: JsteTot     ! tot Jste
-        real                           :: radius      ! radius
         real, pointer                  :: JnuStart(:,:,:) ! impinging flux (plane parallel only)
 
         type(vector)                   :: posDiff     ! initial position vector for diff ext
         type(vector)                   :: posVector   ! initial position vector for dust emi
-        type(vector)                   :: absPosition ! position of packet absorption
         type(vector)                   :: positionIn  ! position of packet absorption
 
         integer, intent(in)            :: n           ! number of energy packets
@@ -43,22 +39,16 @@ module photon_mod
 
         integer                        :: gPIn        !
         integer                        :: igp         ! 1= mother 2 =sub
-        integer                        :: ian         ! angle counter
-        integer                        :: ifreq       ! freq counter
-        integer                        :: iview       ! viewing angle counter
-        integer                        :: freqP       ! pointer to frequency
-        integer                        :: i,j,k,iG,ii ! counters
+        integer                        :: i,j,k       ! counters
         integer                        :: iCell       ! cell counter
         integer                        :: igrid,ix,iy,iz ! location indeces
         integer                        :: ierr        ! allocation error status
         integer                        :: iPhot       ! counter
-        integer                        :: plotNum     ! counter
         integer                        :: seedSize    ! pseudo random number generator seed
         integer, dimension(2)          :: inX,inY,inZ ! initial position indeces
         integer, pointer               :: seed(:)     ! seed array
         integer                        :: msec        ! millisecs of the sec
         integer                        :: dt(8)       ! date and time values
-        integer                        :: countRecursive
         integer                        :: trapped
         integer                        :: reRun
 
@@ -67,9 +57,6 @@ module photon_mod
              & :: gpLoc                               ! local grid (only used for extra diffuse sources)
         integer, intent(inout) &
              & :: cellLoc(3)                          ! local cell (only used for extra diffuse sources)
-
-        type(plot_type), intent(inout) &
-             & :: plot                                ! only used in the mocassinPlot version
 
         type(grid_type), dimension(:), intent(inout) :: grid        ! the grid(s)
 
@@ -420,9 +407,6 @@ module photon_mod
 
             type(vector),intent(inout) :: position         ! the position of the photon
 
-            real :: number
-            real, save :: ionPhot = 0.
-
             integer, dimension(2), intent(inout)    :: xP, yP, &
                  & zP                                            ! cartesian axes indeces
                                                                  ! 1= mother; 2=sub
@@ -433,8 +417,6 @@ module photon_mod
             integer                          :: igpr             ! grid pointer 1= mother 2=sub
             integer                          :: difSourceL(3)    ! cell indeces
 
-            integer                          :: err              ! allocation error status
-            integer                          :: i, j             ! counters
             integer                          :: idirP, idirT     ! direction cosines
             integer                          :: nP
 
@@ -753,7 +735,7 @@ module photon_mod
                  & zP                                     ! indeces of position on the x, y and z axes
             integer, intent(in)      :: gP                ! grid index
             integer                  :: igpi              ! grid pointer 1=mother, 2=sub
-            integer                  :: i, irepeat        ! counter
+            integer                  :: irepeat           ! counter
 
             type(photon_packet)      :: initPhotonPacket  ! the photon packet
 
@@ -994,8 +976,6 @@ module photon_mod
             integer, intent(out)               :: nextPacket
 
             character(len=7), intent(in)       :: chType         ! stellar or diffuse?
-
-            logical                            :: lgLine_loc=.false.! line photon?
 
             nextPacket = 0
 
@@ -1782,7 +1762,7 @@ module photon_mod
 
           integer                         :: nu1P, highNuP
           integer                         :: idirT,idirP ! direction cosine counters
-          integer                         :: i, j, nS, ifluoloc ! counter
+          integer                         :: i, j, ifluoloc ! counter
           integer                         :: xP,yP,zP ! cartesian axes indeces
           integer                         :: gP       ! grid index
           integer                         :: igpp     ! grid index 1=mother 2=sub
@@ -4106,16 +4086,13 @@ module photon_mod
       real :: fYieldTiKa                      ! fluorescence yields for TiKa
 
       real :: radField
-      real :: dV                              ! volume of the cell [e45 cm^3]
       real :: branch                          ! branching ratio
       real :: phXsec, photoRateFluoFrac
 
       integer, intent(in) :: ifluoin, nuPin
       integer, intent(in) :: xpin,ypin,zpin, igin
-      integer :: ion, i, icell, elP
+      integer :: ion, icell, elP
       integer :: nu1P, highNuP,xSecP
-      integer :: isearch    ! counters
-      integer :: err                          ! allocation error status
 
 !      print*, 'in getFluorescenceL ', xpin,ypin,zpin
 
@@ -4621,18 +4598,10 @@ module photon_mod
         integer, intent(inout)           :: gPin             ! grid index
         integer                          :: gP               ! grid index
         integer                          :: igpr             ! grid pointer 1= mother 2=sub
-        integer                          :: difSourceL(3)    ! cell indeces
 
         ! local variables
 
         type(photon_packet)              :: fluoPacket         ! the energu packet
-
-        integer                          :: err              ! allocation error status
-        integer                          :: i, j             ! counters
-        integer                          :: idirP, idirT     ! direction cosines
-
-        real :: number
-        real, save :: ionPhot = 0.
 
         rvec = rvecin
         xp = xpin
@@ -4836,9 +4805,6 @@ module photon_mod
             integer, intent(inout)             :: gP
             integer                            :: igpn           ! grid pointe 1=motehr, 2=sub
 
-            real                               :: random         ! random number
-
-
             if (gP==1) then
                igpn = 1
             else if (gp>1) then
@@ -4965,7 +4931,7 @@ module photon_mod
              real                            :: tauCell  ! local tau
 
              integer                         :: idirT,idirP ! direction cosine counters
-             integer                         :: i, j, nS ! counter
+             integer                         :: i, j     ! counter
              integer                         :: xP,yP,zP ! cartesian axes indeces
              integer                         :: gP       ! grid index
              integer                         :: igpp     ! grid index 1=mother 2=sub

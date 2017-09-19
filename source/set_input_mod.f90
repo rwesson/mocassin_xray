@@ -17,10 +17,7 @@ module set_input_mod
         integer             :: err              ! allocation error status
         integer             :: i, j             ! counters
         integer             :: ios              ! I/O error status
-        integer             :: iValue           ! integer value corresponding to keyword
         integer             :: maxLim = 1000    ! max limit for reading loop
-
-        real                :: rValue           ! real value corresponding to keyword
 
         character(len=50)   :: cValue           ! character value corresponding to keyword
         character(len=50)   :: in_file          ! input file
@@ -715,8 +712,8 @@ module set_input_mod
             character(len=50), intent(in) :: filename
             character(len=50)             ::  skipC
 
-            integer                       :: i,iG
-            integer                       :: err, ios
+            integer                       :: i
+            integer                       :: ios
             integer                       :: skip
 
             close(17)
@@ -743,10 +740,7 @@ module set_input_mod
 
         character(len=50), intent(in) :: infile
 
-        integer                       :: ios, i, iloop,nSafeLimit=10000
-
-        real                          :: E0
-
+        integer                       :: ios, i
 
         close(13)
         open(file=infile, unit=13, iostat=ios, action="read")
@@ -775,7 +769,7 @@ module set_input_mod
         ContShapeIn='none'
         spID='none'
         tStep=0.
-        nPhotons=0.
+        nPhotons=0
 
         do i = 1, nStars
            read(13,*) TStellar(i), Lstar(i), ContShape(i), starPosition(i)%x, starPosition(i)%y, starPosition(i)%z, &
@@ -807,7 +801,7 @@ module set_input_mod
       subroutine setFluorescenceInput()
         implicit none
 
-        integer           :: ios,ig,i      ! counters
+        integer           :: ios,i      ! counters
         integer           :: err           ! allocation error status
 
         character(len=50) :: filename      ! fluorescence input file

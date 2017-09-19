@@ -59,10 +59,8 @@ module output_mod
         real                        :: g        ! alpha*h*nu (used to calculate line intensities)
         real, pointer               :: HbetaLuminosity(:) ! MC Hbeta luminosity [E36erg/sec]
         real, pointer               :: HbetaVol(:) ! analytical Hbeta vol em  [E36  erg/sec]
-        real                        :: lr       !
         real                        :: LtotAn   ! HbetaVol * sumAn
         real                        :: LtotMC   ! HbetaLuminosity * sumMC
-        real                        :: muLoc    !
         real                        :: sumAn    ! sum of the relative an intensities
         real                        :: sumMC    ! sum of the relative MC intensities
         real                        :: Te10000  ! TeUsed/10000.miser_qinfo -A
@@ -74,8 +72,8 @@ module output_mod
 
         type(grid_type), intent(inout) :: grid(*) ! the 3D grid
 
-        integer                     :: i,j,k,l,i1d,iG, & ! counters
-             & iup,ilow,iLine,lin,elem,ion,n,iCount,iAb,iRes
+        integer                     :: i,j,k,l,iG, & ! counters
+             & iup,ilow,iLine,elem,ion,iCount,iAb,iRes
         integer                     :: nrec              ! counter for rec lines
         integer                     :: abFileUsed
         integer                     :: cellPUsed
@@ -86,10 +84,6 @@ module output_mod
         integer                      :: iz
 
         character(len=30), optional, intent(in) :: extMap
-        character(len=30), dimension(500) :: recOIIMUL       !multiplet
-        character(len=30), dimension(500) :: recOIIlow       !low level
-        character(len=30), dimension(500) :: recOIIup        !upper level
-        character(len=30), dimension(500) :: recNIItran     !transition for NII
 
         logical                     :: lgInSlit !is this cell within the slit?
 
@@ -1862,7 +1856,7 @@ module output_mod
 !     compute N II 3d--4f, ref Escalante 1990, ApJs, 73, 513
           implicit none
           real(kind=8), intent(inout) :: lamb(500),flux(500)
-          real(kind=8)  :: te,den,ahb,emhb,aeff,&
+          real(kind=8)  :: te,ahb,emhb,aeff,&
            &  a(51),b(51),c(51),br(500),em,a1,b1,c1,d1,z,br1
           real, intent(in) :: tk
           integer :: i
@@ -1988,12 +1982,8 @@ module output_mod
         implicit none
 
 
-        real                       :: A4471, A4922! HeI reference lines
         real                       :: Afit,Bfit,zFit ! fit coeffs
-        real                       :: C5876, C6678! collition exc. corrections
         real                       :: Hbeta(30)    ! Hbeta emission
-        real                       :: HeII4686    ! HeII 4686 emission
-        real                       :: Lalpha      ! Lalpha emission
         real                       :: T4,T4z,Nez  ! TeUsed/10000., scaled, Ne scaled
         real                       :: log10NeZ    ! log10 NeUsed scaled
         real                       :: log10TeZ    ! log10(6^2*Te/Z^2)
@@ -2277,12 +2267,8 @@ module output_mod
     subroutine RecLinesEmissionNew()
         implicit none
 
-        real                       :: A4471, A4922! HeI reference lines
         real                       :: aFit,bFit,zfit ! fit coeff
-        real                       :: C5876, C6678! collition exc. corrections
         real                       :: Hbeta(30)    ! Hbeta emission
-        real                       :: HeII4686    ! HeII 4686 emission
-        real                       :: Lalpha      ! Lalpha emission
         real                       :: T4,T4z,NeZ  ! TeUsed/10000.
         real                       :: log10NeZ    !
         real                       :: log10TeZ    !
@@ -2592,7 +2578,6 @@ module output_mod
       integer                    :: nlu        ! upper level
       integer                    :: ne         ! level
       integer                    :: ndum       ! level
-      integer                    :: i          ! integer
       integer                    :: j          ! integer
 
       common/hdatax/densx,tempx,ex,ntempx,ndensx,ntop,nll,nlu
@@ -2623,7 +2608,7 @@ module output_mod
     !  Interpolate in density/temperature for specified line emissivity (iopt=1)
     !  or 2s recombination coefficient (iopt=2)
     ! authors Wang Wei and Yu Pei (PKU)
-    subroutine hlinex(nu,nl,xt,xd,fh,iopt)
+    subroutine hlinex(nu,nl,xt,xd,fh)
       implicit real*8(a-h,o-z)
 
       real, dimension(15)        :: densx
@@ -2659,6 +2644,7 @@ module output_mod
       data max/4/ni/2,3,4,5,6/       ! interpolation parameters
 !          interpolation variables
 
+        ncut=0! not previously initialised. RW 19/09/17
 
         do i=1,ndensx
             x(i)=log10(densx(i))
@@ -3164,7 +3150,7 @@ module output_mod
       real                        :: contI(0:nanglebins) ! continuum int in band
       type(grid_type), intent(in) :: grid(*)
 
-      integer :: ios, err, i,ix,iy,iz, iG        ! I/O error status, counters
+      integer :: ios,ix,iy,iz, iG                ! I/O error status, counters
       integer ::  freq, imu, ifreq1, ifreq2      ! counters
 
       print*, 'in writeContCube'
@@ -3245,7 +3231,7 @@ module output_mod
 
       type(grid_type), intent(in) :: grid(*)
 
-      integer :: ios, err, i,ix,iy,iz, iG        ! I/O error status, counters
+      integer :: ios,ix,iy,iz, iG                ! I/O error status, counters
       integer ::  freq, imu, ifreq1, ifreq2      ! counters
 
       real                        :: totalI      !

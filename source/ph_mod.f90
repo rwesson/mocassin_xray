@@ -247,7 +247,7 @@ module xSec_mod
 
            if (lgFluorescence) then
 
-              nu1PFeka = 1e6
+              nu1PFeka = 1000000
               highNuPFeKa = 0
               do i = 1, min(nstages, 27)
                  nu1PFeKa = min(nu1PFeKa, elementP(26,i,1,1))
@@ -255,7 +255,7 @@ module xSec_mod
                  fluoThreshArray(1) = nuArray(nu1PFeKa)
               end do
 
-              nu1PFeL1 = 1e6
+              nu1PFeL1 = 1000000
               highNuPFeL1 = 0
               do i = 1, min(nstages, 27)
                  nu1PFeL1 = min(nu1PFeL1, elementP(26,i,2,1))
@@ -267,7 +267,7 @@ module xSec_mod
               highNuPFeL2 = highNuPFeL1
               fluoThreshArray(3) = nuArray(nu1PFeL1)
 
-              nu1PCKa = 1e6
+              nu1PCKa = 1000000
               highNuPCKa = 0
               do i = 1, min(nstages, 6)
                  nu1PCKa = min(nu1PCKa, elementP(6,i,1,1))
@@ -275,7 +275,7 @@ module xSec_mod
                  fluoThreshArray(4) = nuArray(nu1PCKa)
               end do
 
-              nu1PNKa = 1e6
+              nu1PNKa = 1000000
               highNuPNKa = 0
               do i = 1, min(nstages, 7)
                  nu1PNKa = min(nu1PNKa, elementP(7,i,1,1))
@@ -283,7 +283,7 @@ module xSec_mod
                  fluoThreshArray(5) = nuArray(nu1PNKa)
               end do
 
-              nu1POKa = 1e6
+              nu1POKa = 1000000
               highNuPOKa = 0
               do i = 1, min(nstages, 8)
                  nu1POKa = min(nu1POKa, elementP(8,i,1,1))
@@ -291,7 +291,7 @@ module xSec_mod
                  fluoThreshArray(6) = nuArray(nu1POKa)
               end do
 
-              nu1PNeKa = 1e6
+              nu1PNeKa = 1000000
               highNuPNeKa = 0
               do i = 1, min(nstages, 10)
                  nu1PNeKa = min(nu1PNeKa, elementP(10,i,1,1))
@@ -299,7 +299,7 @@ module xSec_mod
                  fluoThreshArray(7) = nuArray(nu1PNeKa)
               end do
 
-              nu1PMgKa = 1e6
+              nu1PMgKa = 1000000
               highNuPMgKa = 0
               do i = 1, min(nstages, 12)
                  nu1PMgKa = min(nu1PMgKa, elementP(12,i,1,1))
@@ -307,7 +307,7 @@ module xSec_mod
                  fluoThreshArray(8) = nuArray(nu1PMgKa)
               end do
 
-              nu1PAlKa = 1e6
+              nu1PAlKa = 1000000
               highNuPAlKa = 0
               do i = 1, min(nstages, 13)
                  nu1PAlKa = min(nu1PAlKa, elementP(13,i,1,1))
@@ -315,7 +315,7 @@ module xSec_mod
                  fluoThreshArray(9) = nuArray(nu1PAlKa)
               end do
 
-              nu1PSiKa = 1e6
+              nu1PSiKa = 1000000
               highNuPSiKa = 0
               do i = 1, min(nstages, 14)
                  nu1PSiKa = min(nu1PSiKa, elementP(14,i,1,1))
@@ -323,7 +323,7 @@ module xSec_mod
                  fluoThreshArray(10) = nuArray(nu1PSiKa)
               end do
 
-              nu1PSKa = 1e6
+              nu1PSKa = 1000000
               highNuPSKa = 0
               do i = 1, min(nstages, 16)
                  nu1PSKa = min(nu1PSKa, elementP(16,i,1,1))
@@ -331,7 +331,7 @@ module xSec_mod
                  fluoThreshArray(11) = nuArray(nu1PSKa)
               end do
 
-              nu1PArKa = 1e6
+              nu1PArKa = 1000000
               highNuPArKa = 0
               do i = 1, min(nstages, 18)
                  nu1PArKa = min(nu1PArKa, elementP(18,i,1,1))
@@ -339,7 +339,7 @@ module xSec_mod
                  fluoThreshArray(12) = nuArray(nu1PArKa)
               end do
 
-              nu1PCaKa = 1e6
+              nu1PCaKa = 1000000
               highNuPCaKa = 0
               do i = 1, min(nstages, 20)
                  nu1PCaKa = min(nu1PCaKa, elementP(20,i,1,1))
@@ -347,7 +347,7 @@ module xSec_mod
                  fluoThreshArray(13) = nuArray(nu1PCaKa)
               end do
 
-              nu1PTiKa = 1e6
+              nu1PTiKa = 1000000
               highNuPTiKa = 0
               do i = 1, min(nstages, 22)
                  nu1PTiKa = min(nu1PTiKa, elementP(22,i,1,1))
@@ -757,7 +757,7 @@ module xSec_mod
 
          ! local variables
          integer, parameter :: nData = 10
-         integer :: i, ixSec, j                            ! counters
+         integer :: i, ixSec                               ! counters
          integer :: nPairs                                 ! # of data pair
 
 
@@ -925,7 +925,6 @@ module xSec_mod
       ! makes dust xsections [cm^2] ( pi a^2 Q )
       subroutine makeDustXsec()
 
-        real :: intValue ! interpolated value
         real :: normWeight ! normalization constant for grain size weighting
         real :: value ! general value variable
         real, pointer :: da(:)
@@ -939,12 +938,10 @@ module xSec_mod
         real, pointer :: CTabs(:) ! total abs cross-section [um^2] for grain mixture
         real, pointer :: CTsca(:) ! total sca cross-section [um^2] for grain mixture
         real, pointer :: Ere(:), Eim(:)
-        real, pointer :: temp(:)
 
         integer :: err ! allocation error status
         integer :: i, j, iwav, n, iSize ! counter
         integer :: ios ! I/O error status
-        integer :: iP ! array pointer
         integer :: nSpec, ai ! counter
         integer :: nn, iskip ! counter
         integer :: Nwav, NwavOld ! # of wavelength points used
@@ -1762,7 +1759,7 @@ module xSec_mod
         real                 ::  psi0,psi1,psi,dn,dx,xstop,ymod,dang,chi0,&
              &chi1,apsi0,apsi1,apsi,fn,chi,p,t
 
-        integer              :: nang,j,nstop,nmx,i,n,nn,rn,jj
+        integer              :: nang,j,nstop,nmx,n,nn,rn,jj
 
         nang = 2
         dx=x

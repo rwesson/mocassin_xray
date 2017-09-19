@@ -35,7 +35,7 @@ module elements_mod
     subroutine makeAugerData()
       implicit none
 
-      integer :: elem,ion,shell,nelec,imax,i,j,ios
+      integer :: elem,ion,shell,nelec,i,j
 
       close(12)
       open(unit = 12, file = PREFIX//'/share/mocassin/data/auger.dat', status='old', position='rewind')
@@ -56,7 +56,7 @@ module elements_mod
     subroutine makeHydro()
 
         ! local variables
-        integer :: iup, ilow           ! counters
+        integer :: iup           ! counters
 
         ! define excitation and ionization temperatures for hydrogen
         do iup = 1, nHlevel
@@ -338,7 +338,7 @@ module elements_mod
              &RRbT1read, RRbCread, RRbT2read
         real ::  DRbCread(9), DRbEread(9)
 
-        integer            :: ios, i, z, n,m, w, jlim, j
+        integer            :: ios, i, z, n,m, w, j
         integer, parameter :: limitRRDR = 100000
 
         character(len=2) :: skip
@@ -422,7 +422,7 @@ module elements_mod
      subroutine setPointers()
 
          ! local variables
-         integer :: i, j          ! counters
+         integer :: i          ! counters
 
          if (lgFluorescence) then
 

@@ -67,7 +67,7 @@ module constants_mod
     integer, parameter :: NnuMax = 3000             ! limit to the possible number of energy bins (nbins)
     integer, parameter :: xSecMax = 1000000         ! max limit to xSecArray
     integer, parameter :: nTemps=3000
-    integer, parameter :: recursionLimit=1e5
+    integer, parameter :: recursionLimit=100000
 
 end module constants_mod
 

@@ -45,7 +45,7 @@ program MoCaSSiN
     type(grid_type) :: grid3D(maxGrids)       ! the 3D Cartesian  grid
 
     real            :: test                   ! test
-    integer         :: i, iGrid, err          ! allocation error status
+    integer         :: i, iGrid               ! allocation error status
 
     call mpi_init(ierr)
     call mpi_comm_rank(MPI_COMM_WORLD, taskid, ierr)
