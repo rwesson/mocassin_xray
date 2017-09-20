@@ -580,6 +580,7 @@ module grid_mod
             stop
          end if
          if (allocated(viewPointPPhi)) deallocate(viewPointPPhi) ! todo:would be better to work out when this is no longer needed and deallocate here
+         allocate(viewPointPPhi(0:totAngleBinsPhi), stat = err)
          if (err /= 0) then
             print*, "Can't allocate grid memory, viewAngleP "
             stop
@@ -2217,6 +2218,7 @@ module grid_mod
                     print*, "! setSubGrid: can't allocate grid memory,ionDen"
                     stop
                  end if
+                 if (allocated(ionDenUsed)) deallocate(ionDenUsed)
                  allocate(ionDenUsed(1:nElementsUsed, 1:nstages), stat = err)
                  if (err /= 0) then
                     print*, "! setSubGrid: can't allocate grid memory,ionDenUsed"
