@@ -499,5 +499,26 @@ module common_mod
 
     type(plot_type) :: noPlot
 
+    type atomic_data
+        integer :: NTEMPS
+        integer :: NLEVS
+        integer :: irats
+        character(len=20) :: ion
+        real,allocatable :: logtemp(:)
+        real,allocatable :: roott(:)
+        character(len=20),allocatable :: label(:)
+        integer,allocatable :: g(:) !statistical weight
+        double precision,allocatable :: e(:) ! energy in wavenumbers
+        double precision,allocatable :: a(:,:) !einstein A coefficient
+        double precision,allocatable :: cs(:,:) !collision strength
+        double precision,allocatable :: qeff(:,:)
+        double precision,allocatable :: qom(:,:,:)
+        real,allocatable :: qq(:),qq2(:)
+        real :: a_r(4),a_d(5),z,br
+        real,allocatable :: alphaTotal(:)
+        real,allocatable :: a_fit(:),b_fit(:),c_fit(:),d_fit(:)
+    end type atomic_data
+
+    type(atomic_data), dimension(3:nElements, 1:10) :: atomic_data_array
 
 end module common_mod

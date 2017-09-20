@@ -683,6 +683,20 @@ module elements_mod
        integer           :: i, iup, ilow ! counters
        integer           :: ios        ! I/O error status
 
+       integer, dimension(2) :: indexlow, &      ! lower index for reading CEL data
+                              & indexup          ! upper index for reading CEL data
+
+       character(len=128) :: filename !file containing atomic data
+       logical :: lgFileExists !some data files don't exist yet
+
+       character(len=1) :: comments(78)
+       integer :: J,K,L,N,NCOMS,ID(2),JD(2),KP1,NLEV1,GX,ionl,dummy
+       real :: WN,QX
+       real  :: iRats            ! coll strength (iRats=0) or (coll rates)/10**iRats
+       double precision     ::  ax1,ax2,ax3,ax, ex                    ! readers
+       integer  :: iT, i1, j1, i2, j2, i3, j3  ! counters/indices
+       integer, parameter :: safeLim = 100000 ! loop safety limit
+
        close(17)
        open(file=PREFIX//'/share/mocassin/data/fileNames.dat', action="read", unit=17, status='old', &
             & position='rewind', iostat=ios)
@@ -701,7 +715,154 @@ module elements_mod
           do ion = 1, min(elem+1, 31)
 
              read(17, '(A20)') dataFile(elem, ion)
+             filename = trim(PREFIX)//'/share/mocassin/'//dataFile(elem,ion)
 
+             inquire(file=filename, exist=lgFileExists)
+
+             if (lgFileExists) then
+
+               atomic_data_array(elem,ion)%ion=dataFile(elem,ion)
+
+               open(unit=121, status = 'old', file=filename,action='read')
+
+                   read(121,*)NCOMS
+
+                   do I = 1,NCOMS
+                           read(121,"(78A1)") comments
+                   enddo
+
+!read # levels and temps, then allocate arrays
+                   read(121,*) atomic_data_array(elem,ion)%NLEVS,atomic_data_array(elem,ion)%NTEMPS
+
+                   allocate(atomic_data_array(elem,ion)%label(atomic_data_array(elem,ion)%nlevs))
+                   allocate(atomic_data_array(elem,ion)%logtemp(atomic_data_array(elem,ion)%ntemps))
+                   allocate(atomic_data_array(elem,ion)%roott(atomic_data_array(elem,ion)%ntemps))
+                   allocate(atomic_data_array(elem,ion)%G(atomic_data_array(elem,ion)%nlevs))
+                   allocate(atomic_data_array(elem,ion)%e(atomic_data_array(elem,ion)%nlevs))
+                   allocate(atomic_data_array(elem,ion)%cs(atomic_data_array(elem,ion)%nlevs,atomic_data_array(elem,ion)%nlevs))
+                   allocate(atomic_data_array(elem,ion)%qom(atomic_data_array(elem,ion)%ntemps,atomic_data_array(elem,ion)%nlevs,atomic_data_array(elem,ion)%nlevs))
+                   allocate(atomic_data_array(elem,ion)%a(atomic_data_array(elem,ion)%nlevs,atomic_data_array(elem,ion)%nlevs))
+                   allocate(atomic_data_array(elem,ion)%alphaTotal(atomic_data_array(elem,ion)%nlevs))
+                   allocate(atomic_data_array(elem,ion)%qq(atomic_data_array(elem,ion)%ntemps))
+                   allocate(atomic_data_array(elem,ion)%qq2(atomic_data_array(elem,ion)%ntemps))
+                   allocate(atomic_data_array(elem,ion)%qeff(atomic_data_array(elem,ion)%nlevs,atomic_data_array(elem,ion)%nlevs))
+
+                   atomic_data_array(elem,ion)%cs = 0d0
+                   atomic_data_array(elem,ion)%a = 0d0
+                   atomic_data_array(elem,ion)%G = 0
+                   atomic_data_array(elem,ion)%e= 0d0
+                   atomic_data_array(elem,ion)%logtemp=0d0
+                   atomic_data_array(elem,ion)%roott=0d0
+                   atomic_data_array(elem,ion)%br = 0.d0
+
+                   atomic_data_array(elem,ion)%qom = 0.d0
+                   atomic_data_array(elem,ion)%a_r = 0.d0
+                   atomic_data_array(elem,ion)%a_d = 0.d0
+                   atomic_data_array(elem,ion)%z = 0.d0
+                   atomic_data_array(elem,ion)%alphaTotal = 0.d0
+                   atomic_data_array(elem,ion)%qq = 0.d0
+                   atomic_data_array(elem,ion)%qq2 = 0.d0
+                   atomic_data_array(elem,ion)%qeff = 0.d0
+
+                   !read levels and temperatures
+                   do I = 1,atomic_data_array(elem,ion)%NLEVS
+                     read(121,"(A20)") atomic_data_array(elem,ion)%label(I)
+                   enddo
+                   do I = 1,atomic_data_array(elem,ion)%NTEMPS
+                     read(121,*) atomic_data_array(elem,ion)%logtemp(I)
+                     atomic_data_array(elem,ion)%logtemp(I) = log10(atomic_data_array(elem,ion)%logtemp(I))
+                   enddo
+
+                   read(121,*) irats
+
+                   k=0
+                   if (iRats == 1) then
+                      do i = 1, safeLim
+                         ! read in data
+                         read(121, *) indexlow(2), indexup(2), (atomic_data_array(elem,ion)%qom(k,indexlow(2),indexup(2)), k = 1, atomic_data_array(elem,ion)%NTEMPS)
+                         if (indexlow(2)>=atomic_data_array(elem,ion)%NLEVS-1) then
+               !             print*,indexlow(2), indexup(2), atomic_data_array(elem,ion)%NLEVS
+               !             print*, (qom(k,indexlow(2),indexup(2)), k = 1, nTemp)
+                            exit
+                         end if
+                      end do
+
+                      do k =1 , 2502
+
+                         read(121, *) i, j, ax,  i1, j1, ax1,  i2, j2, ax2,  i3, j3, ax3
+
+                         atomic_data_array(elem,ion)%a(i,j) = ax
+                         atomic_data_array(elem,ion)%a(i1,j1) = ax1
+                         atomic_data_array(elem,ion)%a(i2,j2) = ax2
+                         atomic_data_array(elem,ion)%a(i3,j3) = ax3
+                      end do
+                      read(121, *) i, j, ax,  i1, j1, ax1,  i2, j2, ax2
+
+                      atomic_data_array(elem,ion)%a(i,j) = ax
+                      atomic_data_array(elem,ion)%a(i1,j1) = ax1
+                      atomic_data_array(elem,ion)%a(i2,j2) = ax2
+                   else if (iRats == 0) then
+                      k=0
+                      do i = 1, safeLim
+                         ! read in data
+                         read(121, *) indexlow(2), indexup(2), qx
+
+                         ! check if end of qx dat
+                         if (qx == 0.d0) exit
+
+                         ! indexlow(2) always starts with a non zero value
+                         ! so the else condition is true at first and k initialized
+                         if (indexlow(2) == 0) then
+                            indexlow(2) = indexlow(1)
+                            k = k + 1
+                         else
+                            indexlow(1) = indexlow(2)
+                            k = 1
+                         end if
+                         ! the same as above
+                         if (indexup(2) == 0) then
+                            indexup(2) = indexup(1)
+                         else
+                            indexup(1) = indexup(2)
+                         end if
+
+                         atomic_data_array(elem,ion)%qom(k, indexlow(2), indexup(2)) = qx
+
+                      end do
+                      ! read in transition probabilities
+                      do k = 1, atomic_data_array(elem,ion)%NLEVS-1
+                         do l = k+1, atomic_data_array(elem,ion)%NLEVS
+                            read(121, *) i, j, ax
+                            atomic_data_array(elem,ion)%a(j,i) = ax
+                         end do
+                      end do
+                   end if
+
+                   ! read statistical weights, energy levels [1/cm]
+                   do j = 1, atomic_data_array(elem,ion)%NLEVS
+                      read(121, *) i, gx, ex
+
+                      atomic_data_array(elem,ion)%g(i) = gx
+                      atomic_data_array(elem,ion)%e(i) = ex
+                   end do
+
+                   ! read power law fit coefficients [e-13 cm^3/s]
+                   ! and calculate total recombination coefficient
+                   ! (direct + cascades)
+                   atomic_data_array(elem,ion)%alphaTotal = 0.
+                   do j = 2, atomic_data_array(elem,ion)%NLEVS
+               !       read(unit=11,fmt=*,iostat=ios) a_fit, b_fit
+                      read(unit=11,fmt=*,iostat=ios) atomic_data_array(elem,ion)%br,atomic_data_array(elem,ion)%z,atomic_data_array(elem,ion)%a_r(:),atomic_data_array(elem,ion)%a_d(:) !a_fit, b_fit
+                      if (ios<0) then
+                         exit
+                      else
+                         atomic_data_array(elem,ion)%alphaTotal(1) = 1.
+                      end if
+
+                   end do
+                   close(121)
+
+             endif
 
           end do
        end do
