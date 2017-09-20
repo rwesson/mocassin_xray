@@ -573,12 +573,13 @@ module grid_mod
          ! new
          dPhi = twoPi/totAngleBinsPhi
 
+         if (allocated(viewPointPTheta)) deallocate(viewPointPTheta) ! todo:would be better to work out when this is no longer needed and deallocate there
          allocate(viewPointPTheta(0:totAngleBinsTheta), stat = err)
          if (err /= 0) then
             print*, "Can't allocate grid memory, viewAngleP "
             stop
          end if
-         allocate(viewPointPPhi(0:totAngleBinsPhi), stat = err)
+         if (allocated(viewPointPPhi)) deallocate(viewPointPPhi) ! todo:would be better to work out when this is no longer needed and deallocate here
          if (err /= 0) then
             print*, "Can't allocate grid memory, viewAngleP "
             stop
