@@ -2622,7 +2622,7 @@ module grid_mod
            open(unit=21, file="output/grid0.out",  action="write",&
                 &  position="rewind",status="unknown", iostat = ios)
            if (ios /= 0 ) then
-              print*, "! writeGrid: can't open file for writing - grid1.out"
+              print*, "! writeGrid: can't open file for writing - output/grid1.out"
               stop
            end if
 
@@ -2632,14 +2632,14 @@ module grid_mod
               open(unit=20, file="output/grid1.out", action="write",&
                    &position="rewind",status="unknown", iostat = ios)
               if (ios /= 0 ) then
-                 print*, "! writeGrid: can't open file for writing - grid1.out"
+                 print*, "! writeGrid: can't open file for writing - output/grid1.out"
                  stop
               end if
               close(30)
               open(unit=30, file="output/grid2.out", action="write",&
                    & position="rewind",status="unknown", iostat = ios)
               if (ios /= 0 ) then
-                 print*, "! writeGrid: can't open file for writing - grid2.out"
+                 print*, "! writeGrid: can't open file for writing - output/grid2.out"
                  stop
               end if
            end if
@@ -2648,7 +2648,7 @@ module grid_mod
               open(unit=50, file="output/dustGrid.out", action="write",&
                    &position="rewind",status="unknown", iostat = ios)
               if (ios /= 0 ) then
-                 print*, "! writeGrid: can't open file for writing - dustGrid.out"
+                 print*, "! writeGrid: can't open file for writing - output/dustGrid.out"
                  stop
               end if
            end if
@@ -2657,7 +2657,7 @@ module grid_mod
               close(60)
               open(unit=60, file="output/radPress.out", action="write",position="rewind",status="unknown", iostat = ios)
               if (ios /= 0 ) then
-                 print*, "! writeGrid: can't open file for writing - radPress.out"
+                 print*, "! writeGrid: can't open file for writing - output/radPress.out"
                  stop
               end if
            end if
@@ -2760,7 +2760,7 @@ module grid_mod
            open(unit=42, file="output/photoSource.out", action="write",&
                 &position="rewind",status="unknown", iostat = ios)
            if (ios /= 0 ) then
-              print*, "! writeGrid: can't open file for writing - photoSource.out"
+              print*, "! writeGrid: can't open file for writing - output/photoSource.out"
               stop
            end if
 
@@ -2784,7 +2784,7 @@ module grid_mod
            open(unit=40, file="output/grid3.out", action="write",position="rewind",&
                 &status="unknown", iostat = ios)
            if (ios /= 0 ) then
-              print*, "! writeGrid: can't open file for writing - grid3.out"
+              print*, "! writeGrid: can't open file for writing - output/grid3.out"
               stop
            end if
 
@@ -3041,7 +3041,7 @@ module grid_mod
       open(unit=72, file="output/photoSource.out",action="read", &
            & position="rewind",status="old", iostat = ios)
       if (ios /= 0 ) then
-         print*, "! writeGrid: can't open file for reading - photoSource.out"
+         print*, "! writeGrid: can't open file for reading - output/photoSource.out"
          stop
       end if
 
@@ -3078,7 +3078,7 @@ module grid_mod
       open(unit=77, file='output/grid3.out', action="read",position='rewind',  &
 &          status='old', iostat = err)
       if (err /= 0) then
-         print*, "! resetMotherGrid: error opening file grid3.out"
+         print*, "! resetMotherGrid: error opening file output/grid3.out"
          stop
       end if
 
@@ -3211,7 +3211,7 @@ module grid_mod
       open(unit=89, file='output/grid0.out',  action="read",position='rewind',  &
            &          status='old', iostat = err)
       if (err /= 0) then
-         print*, "! resetGrid: error opening file grid0.out"
+         print*, "! resetGrid: error opening file output/grid0.out"
          stop
       end if
 
@@ -3220,7 +3220,7 @@ module grid_mod
          open(unit=78, file='output/grid1.out',  action="read",position='rewind',  &
               &          status='old', iostat = err)
          if (err /= 0) then
-            print*, "! resetGrid: error opening file grid1.out"
+            print*, "! resetGrid: error opening file output/grid1.out"
             stop
          end if
          ! open the grid2.out file for later
@@ -3228,7 +3228,7 @@ module grid_mod
          open(unit=79, file='output/grid2.out', action="read", position='rewind',  &
               &          status='old', iostat = err)
          if (err /= 0) then
-            print*, "! resetGrid: error opening file grid2.out"
+            print*, "! resetGrid: error opening file output/grid2.out"
             stop
          end if
       end if
@@ -3237,7 +3237,7 @@ module grid_mod
          open(unit=88, file='output/dustGrid.out', action="read", position='rewind',  &
               &          status='old', iostat = err)
          if (err /= 0) then
-            print*, "! resetGrid: error opening file dustGrid.out"
+            print*, "! resetGrid: error opening file output/dustGrid.out"
             stop
          end if
       end if

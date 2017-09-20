@@ -3230,7 +3230,7 @@ module update_mod
             open (unit=17, file=PREFIX//'/share/mocassin/data/aldrovandi.dat', status='old',&
                  &position='rewind', iostat = ios, action="read")
             if (ios /= 0) then
-               print*, "! dielectronic: can't open file ",PREFIX,"/share/mocassin/data/alrovandi.dat"
+               print*, "! dielectronic: can't open file ",PREFIX,"/share/mocassin/data/aldrovandi.dat"
                stop
             end if
 
