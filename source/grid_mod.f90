@@ -757,12 +757,12 @@ module grid_mod
 
            call setMotherGrid(grid(1))
 
-           if (taskid == 0) then
-              print*, "Mother Grid:"
-              print*, "xAxis: ", grid(1)%xAxis
-              print*, "yAxis: ", grid(1)%yAxis
-              print*, "zAxis: ", grid(1)%zAxis
-           end if
+!           if (taskid == 0) then
+!              print*, "Mother Grid:"
+!              print*, "xAxis: ", grid(1)%xAxis
+!              print*, "yAxis: ", grid(1)%yAxis
+!              print*, "zAxis: ", grid(1)%zAxis
+!           end if
 
            ! set the subGrids
            if (nGrids>1) call setSubGrids(grid(1:nGrids))
@@ -816,18 +816,18 @@ module grid_mod
         end if
 
         ! print out Grid
-        if (taskid == 0) then
-           print*, "Mother Grid:"
-           print*, "xAxis: ", grid(1)%xAxis
-           print*, "yAxis: ", grid(1)%yAxis
-           print*, "zAxis: ", grid(1)%zAxis
-           do iG = 2, nGrids
-              print*, "Grid : ", iG
-              print*, "xAxis: ", grid(iG)%xAxis
-              print*, "yAxis: ", grid(iG)%yAxis
-              print*, "zAxis: ", grid(iG)%zAxis
-           end do
-        end if
+!        if (taskid == 0) then
+!           print*, "Mother Grid:"
+!           print*, "xAxis: ", grid(1)%xAxis
+!           print*, "yAxis: ", grid(1)%yAxis
+!           print*, "zAxis: ", grid(1)%zAxis
+!           do iG = 2, nGrids
+!              print*, "Grid : ", iG
+!              print*, "xAxis: ", grid(iG)%xAxis
+!              print*, "yAxis: ", grid(iG)%yAxis
+!              print*, "zAxis: ", grid(iG)%zAxis
+!           end do
+!        end if
 
         if (lgPlaneIonization) then
            R_out = 1.e10*sqrt( (grid(1)%xAxis(grid(1)%nx)/1.e10)**2 +&

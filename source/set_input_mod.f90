@@ -135,21 +135,21 @@ module set_input_mod
             select case (keyword)
             case("radPress")
                lgRadPress = .true.
-               print*, keyword,lgRadPress
+               !print*, keyword,lgRadPress
             case("2D")
                lg2D = .true.
-               print*, keyword, lg2D
+               !print*, keyword, lg2D
             case("separateSED")
-               print*, keyword
+               !print*, keyword
                lgSeparateSED = .true.
             case("noCompton")
-               print*, keyword
+               !print*, keyword
                lgCompton = .false.
             case("noBadnell")
-               print*, keyword
+               !print*, keyword
                lgBadnell = .false.
             case("nahar")
-               print*, keyword
+               !print*, keyword
                lgNahar = .true.
             case("nstages")
                backspace 10
@@ -161,49 +161,49 @@ module set_input_mod
                        & and edit the data/fileNames.dat file"
                   stop
                end if
-               print*, keyword, nstages
+               !print*, keyword, nstages
             case ("getEquivalentTau")
                lgEquivalentTau = .true.
-               print*, keyword, lgEquivalentTau
+               !print*, keyword, lgEquivalentTau
             case ("diffuseSource")
                backspace 10
                read(unit=10, fmt=*, iostat=ios) keyword, Ldiffuse, Tdiffuse, shapeDiffuse, nPhotonsDiffuse, emittingGrid
-               print*, keyword, Ldiffuse, Tdiffuse, shapeDiffuse, nPhotonsDiffuse, emittingGrid
+               !print*, keyword, Ldiffuse, Tdiffuse, shapeDiffuse, nPhotonsDiffuse, emittingGrid
             case ("traceHeating")
                lgTraceHeating = .true.
-               print*, keyword, lgTraceHeating
+               !print*, keyword, lgTraceHeating
             case("quantumHeatGrain")
                lgQheat = .true.
                backspace 10
                read(unit=10, fmt=*, iostat=ios) keyword,minaQHeat,minConvQHeat
-               print*, keyword, minaQHeat,minConvQHeat
+               !print*, keyword, minaQHeat,minConvQHeat
             case("quantumHeatGrainParameters")
                backspace 10
                read(unit=10, fmt=*, iostat=ios) keyword,Tmax,nTbins,lgWritePss
-               print*, keyword,Tmax,nTbins,lgWritePss
+               !print*, keyword,Tmax,nTbins,lgWritePss
             case ("noPhotoelectric")
-               print*, keyword
+               !print*, keyword
                lgPhotoelectric = .false.
             case ("multiPhotoSources")
                backspace 10
                read(unit=10, fmt=*, iostat=ios) keyword,multiPhotoSources
-               print*, keyword,multiPhotoSources
+               !print*, keyword,multiPhotoSources
                lgMultiStars=.true.
             case("continuumCube")
                backspace 10
                read(unit=10, fmt=*, iostat=ios) keyword, contCube(1), contCube(2)
-               print*, keyword, contCube
+               !print*, keyword, contCube
             case("noScattering")
-               print*, keyword
+               !print*, keyword
                lgDustScattering = .false.
             case("resLinesTransfer")
                backspace 10
                read(unit=10, fmt=*, iostat=ios) keyword, resLinesTransfer
-               print*, keyword, resLinesTransfer
+               !print*, keyword, resLinesTransfer
             case("multiGrids")
                backspace 10
                read(unit=10, fmt=*, iostat=ios) keyword, nGrids, gridList
-               print*, keyword, nGrids, gridList
+               !print*, keyword, nGrids, gridList
                if (nGrids > maxGrids) then
                   print*, "! readInput: please increse the maxGrids parameter in constants_mod.f90", &
                        & nGrids, maxGrids
@@ -212,29 +212,29 @@ module set_input_mod
                call readGridList(gridList)
             case("recombinationLines")
                lgRecombination=.true.
-               print*, keyword
+               !print*, keyword
             case ("fillingFactor")
                backspace 10
                read(unit=10, fmt=*, iostat=ios) keyword, fillingFactor
-               print*, keyword, fillingFactor
+               !print*, keyword, fillingFactor
             case ("slit")
                backspace 10
                read(unit=10, fmt=*, iostat=ios) keyword, dxSlit, dySlit
-               print*, keyword, dxSlit, dySlit
+               !print*, keyword, dxSlit, dySlit
             case ("inputNe")
                backspace 10
                read(unit=10, fmt=*, iostat=ios) keyword
                lgNeInput = .true.
-               print*, keyword
+               !print*, keyword
             case ("edges")
                backspace 10
                read(unit=10, fmt=*, iostat=ios) keyword, Rnx, Rny, Rnz
-               print*, keyword,  Rnx, Rny, Rnz
+               !print*, keyword,  Rnx, Rny, Rnz
             case ("output")
                backspace 10
                read(unit=10, fmt=*, iostat=ios) keyword
                lgOutput = .true.
-               print*, keyword
+               !print*, keyword
             case ("multiChemistry")
                backspace 10
                read(unit=10, fmt=*, iostat=ios) keyword, nAbComponents
@@ -242,19 +242,19 @@ module set_input_mod
                backspace(10)
                allocate(abundanceFile(1:nAbComponents))
                read(unit=10, fmt=*, iostat=ios) keyword, nAbComponents, (abundanceFile(j), j=1,nAbComponents)
-               print*, keyword, nAbComponents, (abundanceFile(j), j=1,nAbComponents)
+               !print*, keyword, nAbComponents, (abundanceFile(j), j=1,nAbComponents)
             case ("planeIonization")
                backspace 10
                read(unit=10, fmt=*, iostat=ios) keyword, meanFieldin, nu0, nu0Add
                lgPlaneIonization = .true.
-               print*, keyword, meanFieldin, nu0, nu0Add
+               !print*, keyword, meanFieldin, nu0, nu0Add
                allocate(Lstar(1))
                Lstar=0.
             case ("autoPackets")
                backspace 10
                read(unit=10, fmt=*, iostat=ios) keyword, convIncPercent, nPhotIncrease, maxPhotons
                lgAutoPackets = .true.
-               print*, keyword, convIncPercent, nPhotIncrease, maxPhotons
+               !print*, keyword, convIncPercent, nPhotIncrease, maxPhotons
                if (maxPhotons .eq. 0) then
                  print*,'! readInput: autoPackets input invalid - maximum number of photons is zero'
                  stop
@@ -263,37 +263,37 @@ module set_input_mod
                backspace 10
                 read(unit=10, fmt=*, iostat=ios) keyword
                 lg1D = .true.
-                print*, keyword
+                !print*, keyword
                 print*, 'ERROR: oneD option is not currently avalable!!!!'
                 stop
              case ("densityFile")
                  backspace 10
                  read(unit=10, fmt=*, iostat=ios) keyword, densityFile
                  lgDfile = .true.
-                 print*, keyword, densityFile
+                 !print*, keyword, densityFile
              case ("dustFile")
                  backspace 10
                  read(unit=10, fmt=*, iostat=ios) keyword, dustFile(1), dustFile(2)
-                 print*, keyword, dustFile(1), dustFile(2)
+                 !print*, keyword, dustFile(1), dustFile(2)
              case ("debug")
                  backspace 10
                  read(unit=10, fmt=*, iostat=ios) keyword
                  lgDebug = .true.
-                 print*, keyword
+                 !print*, keyword
             case ("nbins")
                 backspace 10
                 read(unit=10, fmt=*, iostat=ios) keyword, nbins
-                print*, keyword, nbins
+                !print*, keyword, nbins
             case ("talk")
                 backspace 10
                 read(unit=10, fmt=*, iostat=ios) keyword
                 lgTalk = .true.
-                print*, keyword
+                !print*, keyword
             case ("symmetricXYZ")
                 backspace 10
                 read(unit=10, fmt=*, iostat=ios) keyword
                 lgSymmetricXYZ = .true.
-                print*, keyword
+                !print*, keyword
             case ("contShape")
                 backspace 10
                 nstars=1
@@ -306,9 +306,9 @@ module set_input_mod
                 if (contShape(1) == 'powerlaw') then
                    backspace 10
                    read(unit=10, fmt=*, iostat=ios) keyword, contShape(1), pwlIndex, pwlMin, pwlMax
-                   print*, keyword, contShape(1), pwlIndex, pwlMin, pwlMax
+                   !print*, keyword, contShape(1), pwlIndex, pwlMin, pwlMax
                 else
-                   print*, keyword, contShape(1)
+                   !print*, keyword, contShape(1)
                 end if
                 if (contShape(1) == 'blackbody' .or. contShape(1) == 'powerlaw') then
                    spID(1) = contShape(1)
@@ -320,27 +320,27 @@ module set_input_mod
                 backspace 10
                 read(unit=10, fmt=*, iostat=ios) keyword, cValue
                 if (cValue=="noGas") lgGas=.false.
-                print*, keyword, cValue
+                !print*, keyword, cValue
                 allocate(abundanceFile(1:nAbComponents))
                 abundanceFile = cValue
             case ("Hdensity")
                 backspace 10
                 read(unit=10, fmt=*, iostat=ios) keyword, Hdensity
                 lgHdenConstant = .true.
-                print*, keyword, Hdensity
+                !print*, keyword, Hdensity
             case ("densityLaw")
                 backspace 10
                 read(unit=10, fmt=*, iostat=ios) keyword, (densityLaw(j),j=1,3)
                 lgDlaw = .true.
-                print*, keyword, densityLaw
+                !print*, keyword, densityLaw
             case ("maxIterateMC")
                 backspace 10
                 read(unit=10, fmt=*, iostat=ios) keyword, maxIterateMC, minConvergence
-                if (taskid==0) print*, keyword, maxIterateMC, minConvergence
+                !if (taskid==0) print*, keyword, maxIterateMC, minConvergence
             case ("nPhotons")
                 backspace 10
                 read(unit=10, fmt=*, iostat=ios) keyword, nPhotonsTot
-                print*, keyword, nPhotonsTot
+                !print*, keyword, nPhotonsTot
                 if (nPhotonsTot .eq. 0) then
                   print*,'! readInput: no photons in model.'
                   stop
@@ -362,50 +362,50 @@ module set_input_mod
              case ("TeStart")
                 backspace 10
                 read(unit=10, fmt=*, iostat=ios) keyword, TeStart
-                print*, keyword, TeStart
+                !print*, keyword, TeStart
             case ("NeStart")
                 backspace 10
                 read(unit=10, fmt=*, iostat=ios) keyword, NeStart
-                print*, keyword, NeStart
+                !print*, keyword, NeStart
             case ("TStellar")
                 backspace 10
                 allocate(TStellar(0:1))
                 read(unit=10, fmt=*, iostat=ios) keyword, TStellar(1)
-                print*, keyword, TStellar(1)
+                !print*, keyword, TStellar(1)
             case ("convLimit")
                 backspace 10
                 read(unit=10, fmt=*, iostat=ios) keyword,  XHILimit
-                print*, keyword, XHILimit
+                !print*, keyword, XHILimit
             case ("H0Start")
                 backspace 10
                 read(unit=10, fmt=*, iostat=ios) keyword, H0Start
-                print*, keyword, H0Start
+                !print*, keyword, H0Start
             case ("LStar")
                 backspace 10
                 allocate(Lstar(0:1))
                 read(unit=10, fmt=*, iostat=ios) keyword, LStar(1)
-                print*, keyword, LStar(1)
+                !print*, keyword, LStar(1)
             case ("LPhot")
                 backspace 10
                 if (.not. allocated(LStar)) allocate(Lstar(0:1))
                 read(unit=10, fmt=*, iostat=ios) keyword, LPhot
-                print*, keyword, LPhot
+                !print*, keyword, LPhot
             case ("nuMax")
                 backspace 10
                 read(unit=10, fmt=*, iostat=ios) keyword, nuMax
-                print*, keyword, nuMax
+                !print*, keyword, nuMax
             case ("nuMin")
                 backspace 10
                 read(unit=10, fmt=*, iostat=ios) keyword, nuMin
-                print*, keyword, nuMin
+                !print*, keyword, nuMin
             case ("Rin")
                 backspace 10
                 read(unit=10, fmt=*, iostat=ios) keyword, R_in
-                print*, keyword, R_in
+                !print*, keyword, R_in
             case ("Rout")
                 backspace 10
                 read(unit=10, fmt=*, iostat=ios) keyword, R_out
-                print*, keyword, R_out
+                !print*, keyword, R_out
             case ("MdMg")
                 backspace 10
                 read(unit=10, fmt=*, iostat=ios) keyword, keyword
@@ -465,7 +465,7 @@ module set_input_mod
             case ("writeGrid")
                 backspace 10
                 read(unit=10, fmt=*, iostat=ios) keyword, convWriteGrid
-                if (taskid==0) print*, keyword, convWriteGrid
+                !if (taskid==0) print*, keyword, convWriteGrid
             case ("inclination")
                backspace 10
                read(unit=10, fmt=*, iostat=ios) keyword, nAngleBins
@@ -489,7 +489,7 @@ module set_input_mod
                viewPointPhi=0.
                backspace 10
                read(unit=10, fmt=*, iostat=ios) keyword, nAngleBins, (viewPointTheta(j), viewPointPhi(j), j=1,nAngleBins)
-               if (taskid==0) print*, keyword, nAngleBins, (viewPointTheta(j), viewPointPhi(j), j = 1, nAngleBins)
+               !if (taskid==0) print*, keyword, nAngleBins, (viewPointTheta(j), viewPointPhi(j), j = 1, nAngleBins)
             case default
                 print*, "! readInput: invalid keyword in model parameter input file", &
 &                        in_file, keyword
