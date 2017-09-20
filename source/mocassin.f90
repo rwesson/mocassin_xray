@@ -46,14 +46,25 @@ program MoCaSSiN
 
     real            :: test                   ! test
     integer         :: i, iGrid               ! allocation error status
+    real, dimension(2) :: timing              ! cputimer
+    integer         :: nhours, nminutes, nseconds
 
-    print*, "MOCASSIN 2007 Version 3"
-    print*, " "
+    call cpu_time(timing(1))
+    call mpi_init(ierr)
+    call mpi_comm_rank(MPI_COMM_WORLD, taskid, ierr)
+    call mpi_comm_size(MPI_COMM_WORLD, numtasks, ierr)
+
+    if (taskid == 0) then
+        print*, "MOCASSIN 2007 Version 3"
+        print*, " "
+    end if
 
     ! read the input parameters of the simulation
     call readInput()
 
-    print*, " "
+    if (taskid == 0) then
+        print*, " "
+    end if
 
     ! initialize the 3D cartesian grid
 
@@ -71,15 +82,17 @@ program MoCaSSiN
 
     call setStarPosition(grid3D(1)%xAxis,grid3D(1)%yAxis,grid3D(1)%zAxis, grid3D(1:nGrids))
 
-    do iGrid = 1, nGrids
-      print*, 'Grid : ', iGrid
-      print*, 'active cells: ', grid3D(iGrid)%nCells
-    end do
+    if (taskid==0) then
+      do iGrid = 1, nGrids
+        print*, 'Grid : ', iGrid
+        print*, 'active cells: ', grid3D(iGrid)%nCells
+      end do
+    endif
 
     ! prepare atomica data stuff
     if (lgGas) call makeElements()
 
-    print*, 'active elements: ', nElementsUsed
+    if (taskid==0) print*, 'active elements: ', nElementsUsed
 
     ! if grains are included, calculate the dust opacity
     if (lgDust) then
@@ -90,9 +103,7 @@ program MoCaSSiN
        print*, '! mocassin: dustDriver done'
     end if
 
-    call mpi_init(ierr)
-    call mpi_comm_rank(MPI_COMM_WORLD, taskid, ierr)
-    call mpi_comm_size(MPI_COMM_WORLD, numtasks, ierr)
+    call mpi_barrier(mpi_comm_world, ierr)
 
     ! set local diffuse ionisation field
     if (Ldiffuse>0.) then
@@ -122,11 +133,25 @@ program MoCaSSiN
     call mpi_barrier(mpi_comm_world, ierr)
 
     ! free all space allocated to the 3D grid
-    do iGrid=1, nGrids
-       call freeGrid(grid3D(iGrid))
-    end do
+    if (taskid==0) then
+      do iGrid=1, nGrids
+         call freeGrid(grid3D(iGrid))
+      end do
+    endif
 
     call mpi_finalize(ierr)
-    stop '! MoCaSSin: end simulation reached - clean exit -'
+    call cpu_time(timing(2))
+
+    timing(1)=timing(1)/60.
+    timing(2)=timing(2)/60.
+    nhours = int((timing(2)-timing(1))/60.)
+    nminutes = int(mod(timing(2)-timing(1),60.))
+    nseconds = nint(60.*((timing(2)-timing(1))-real(nhours*60)-real(nminutes)))
+
+    if (taskid==0) then
+      print "(A,I3.2,A,I2.2,A,I2.2,A)","total run time per processor ",nhours,":",nminutes,":",nseconds," (HMS)"
+      print *,'! MoCaSSin: end simulation reached - clean exit -'
+    endif
+
 
 end program MoCaSSiN
