@@ -1368,7 +1368,7 @@ module grid_mod
              end if
              allocate(ionDenUsed(1:nElementsUsed, 1:nstages), stat = err)
              if (err /= 0) then
-                print*, "! setMotherGrid: can't allocate grid memory,ionDen"
+                print*, "! setMotherGrid: can't allocate grid memory,ionDenUsed"
                 stop
              end if
              allocate(grid%Ne(0:grid%nCells), stat = err)
@@ -2219,7 +2219,7 @@ module grid_mod
                  end if
                  allocate(ionDenUsed(1:nElementsUsed, 1:nstages), stat = err)
                  if (err /= 0) then
-                    print*, "! setSubGrid: can't allocate grid memory,ionDen"
+                    print*, "! setSubGrid: can't allocate grid memory,ionDenUsed"
                     stop
                  end if
                  allocate(grid(iG)%Ne(0:grid(iG)%nCells), stat = err)
@@ -3315,7 +3315,7 @@ module grid_mod
 
             allocate(ionDenUsed(1:nElementsUsed, 1:nstages), stat = err)
             if (err /= 0) then
-               print*, "! resetGrid: can't allocate grid memory,ionDen"
+               print*, "! resetGrid: can't allocate grid memory,ionDenUsed"
                stop
             end if
 
