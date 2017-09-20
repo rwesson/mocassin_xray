@@ -28,7 +28,7 @@ module photon_mod
     subroutine energyPacketDriver(iStar, n, grid, gpLoc, cellLoc)
         implicit none
 
-        real, pointer                  :: JnuStart(:,:,:) ! impinging flux (plane parallel only)
+        real, allocatable              :: JnuStart(:,:,:) ! impinging flux (plane parallel only)
 
         type(vector)                   :: posDiff     ! initial position vector for diff ext
         type(vector)                   :: posVector   ! initial position vector for dust emi
@@ -46,7 +46,7 @@ module photon_mod
         integer                        :: iPhot       ! counter
         integer                        :: seedSize    ! pseudo random number generator seed
         integer, dimension(2)          :: inX,inY,inZ ! initial position indeces
-        integer, pointer               :: seed(:)     ! seed array
+        integer, allocatable           :: seed(:)     ! seed array
         integer                        :: msec        ! millisecs of the sec
         integer                        :: dt(8)       ! date and time values
         integer                        :: trapped
@@ -100,7 +100,7 @@ module photon_mod
 
         call random_seed(put = seed)
 
-        if (associated(seed)) deallocate(seed)
+        if (allocated(seed)) deallocate(seed)
 
         Qphot = 0.
         QfluoBins = 0.

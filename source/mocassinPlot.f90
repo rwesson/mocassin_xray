@@ -22,15 +22,15 @@ program MoCaSSiNplot
 
     type(plot_type) :: plot           ! the plot
 
-    real(kind=8),pointer    :: flinePlot(:,:,:,:)
-    real, pointer   :: image(:,:,:,:)
+    real(kind=8),allocatable:: flinePlot(:,:,:,:)
+    real, allocatable   :: image(:,:,:,:)
 
     real, dimension(nElements) ::  elemAbundanceUsed  ! local abundances
     real            :: log10NeP, log10TeP
 
     ! filter transmission stuff
     real            :: frequency(5000), frequencyTemp(5000),tranCoeff(5000),tranCoeffTemp(5000)
-    Real, pointer   :: coeff(:)
+    Real, allocatable   :: coeff(:)
 
     real            :: dV                     ! volume of local cell [e45 cm^3]
     real            :: freq1,freq2
@@ -398,8 +398,8 @@ program MoCaSSiNplot
     ! free all space allocated to the plot
     call freePlot(plot)
     
-    if (associated(ionDenUsed)) deallocate(ionDenUsed)
-    if (associated(fLinePlot)) deallocate(fLinePlot)
+    if (allocated(ionDenUsed)) deallocate(ionDenUsed)
+    if (allocated(fLinePlot)) deallocate(fLinePlot)
     
 
     call mpi_finalize(ierr)
@@ -560,10 +560,10 @@ print*, lineORcont, code, freq1, freq2
 
         type(plot_type), intent(inout) :: plot
         
-        if (associated(plot%intensity))  deallocate(plot%intensity)
-        if (associated(plot%lgLine))     deallocate(plot%lgLine)
-        if (associated(plot%lineNumber)) deallocate(plot%lineNumber)
-        if (associated(plot%nuP))        deallocate(plot%nuP)
+        if (allocated(plot%intensity))  deallocate(plot%intensity)
+        if (allocated(plot%lgLine))     deallocate(plot%lgLine)
+        if (allocated(plot%lineNumber)) deallocate(plot%lineNumber)
+        if (allocated(plot%nuP))        deallocate(plot%nuP)
 
       end subroutine freePlot
 

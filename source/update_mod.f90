@@ -41,15 +41,15 @@ module update_mod
 
         ! dust-gas interaction heating and cooling process
         real                           :: grainEmi, grainRec ! grain emissions and recom
-        real, pointer                  :: gasDustColl_d(:,:) ! cooling/heating of the
+        real, allocatable              :: gasDustColl_d(:,:) ! cooling/heating of the
                                                              ! dust through collisions with grains
         real                           :: gasDustColl_g=0. ! cooling/heating of the
                                                        ! gas through collisions with grains
-        real,pointer                   :: photoelHeat_d(:,:) ! cooling of dust by photoelectric
+        real,allocatable               :: photoelHeat_d(:,:) ! cooling of dust by photoelectric
                                                              ! emission
         real                           :: photoelHeat_g=0. ! heating of gas by dust photoelctric
                                                        !emission
-        real,pointer                   :: grainPot(:,:)  ! [Ryd]
+        real,allocatable               :: grainPot(:,:)  ! [Ryd]
 
         real, parameter                :: hcRyd_k = &  ! constant: h*cRyd/k (Ryd at inf used) [K]
              & 157893.94
@@ -67,7 +67,7 @@ module update_mod
 
 
 
-        integer ,pointer               :: grainPotP(:,:)
+        integer ,allocatable           :: grainPotP(:,:)
         integer                        :: cellP        ! points to this cell
         integer                        :: elem         ! element counter
         integer                        :: err          ! allocation error status

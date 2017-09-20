@@ -7,14 +7,14 @@ module continuum_mod
     use interpolation_mod
 
     ! common variables
-    real(kind=8), pointer, save :: inSpectrumErg(:) ! input specrum energy distribution [erg/(cm^2*s*Hz*sr)]
-    real(kind=8), pointer, save :: inSpectrumPhot(:) ! input specrum energy distribution [phot/(cm^2*s*Hz*sr)]
+    real(kind=8), allocatable, save :: inSpectrumErg(:) ! input specrum energy distribution [erg/(cm^2*s*Hz*sr)]
+    real(kind=8), allocatable, save :: inSpectrumPhot(:) ! input specrum energy distribution [phot/(cm^2*s*Hz*sr)]
 
 
     real, parameter      :: hcRyd_k = 157893.94    ! constant: h*cRyd/k (Ryd at inf used) [K]
     real, parameter      :: hcRyd = 2.1799153e-11  ! constant: h*c*Ryd (Ryd at inf used) [erg]
     real, parameter      :: cRyd = 3.2898423e15    ! constant: c*Ryd (Ryd at inf used) [Hz]
-    real, pointer, save :: inSpectrumProbDen(:,:)  ! probability density for input spectrum (nstars,nbins)
+    real, allocatable, save :: inSpectrumProbDen(:,:)  ! probability density for input spectrum (nstars,nbins)
 
     real, save          :: normConstantErg = 0.    ! normalization constant (area beyond input spectrum)
     real, save          :: normConstantPhot= 0.    ! normalization constant (area beyond input spectrum)
@@ -324,7 +324,7 @@ module continuum_mod
               print*, "RStar = ", RStar, " [e18 cm]"
 !              print*, "deltaE = ", deltaE, " [e36 erg/s]"
 
-           else if (associated(Lstar)) then ! calculate LPhot [e36 phot/s]
+           else if (allocated(Lstar)) then ! calculate LPhot [e36 phot/s]
 
 !              deltaE(1)=Lstar(1)/nPhotons(1)
 
@@ -417,8 +417,8 @@ module continuum_mod
 
         real :: maxp
 
-        real, pointer :: inSpSumErg(:)    ! partial input spectrum sum [erg/s]
-        real, pointer :: inSpSumPhot(:)   ! partial input spectrum sum [phot/s]
+        real, allocatable :: inSpSumErg(:)    ! partial input spectrum sum [erg/s]
+        real, allocatable :: inSpSumPhot(:)   ! partial input spectrum sum [phot/s]
 
 
         integer, intent(in) :: iS         ! central star index
@@ -492,7 +492,7 @@ module continuum_mod
         end if
 
 
-        if (associated(inSpSumPhot)) deallocate(inSpSumPhot)
+        if (allocated(inSpSumPhot)) deallocate(inSpSumPhot)
 
       end subroutine setProbDen
 

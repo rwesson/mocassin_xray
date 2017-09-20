@@ -10,9 +10,9 @@ module emission_mod
 
 
     ! units are [e-40erg/cm^3/s/Hz]
-    real (kind=8), pointer :: emissionHI(:)               ! HI continuum emission coefficient
-    real (kind=8), pointer :: emissionHeI(:)              ! HeI continuum emission coefficient
-    real (kind=8), pointer :: emissionHeII(:)             ! HeII continuum emission coefficient
+    real (kind=8), allocatable :: emissionHI(:)               ! HI continuum emission coefficient
+    real (kind=8), allocatable :: emissionHeI(:)              ! HeI continuum emission coefficient
+    real (kind=8), allocatable :: emissionHeII(:)             ! HeII continuum emission coefficient
 
     ! units are [e-25erg/s/N_gas]
     real (kind=8), dimension(1:30, 2:15, 1:8) :: hydroLines     ! emissivity from HI rec lines
@@ -23,7 +23,7 @@ module emission_mod
     real                                :: log10Ne     ! log10(Ne) at this cell
     real                                :: log10Te     ! log10(Te) at this cell
     real                                :: sqrTeUsed   ! sqr(Te) at this cell
-    type(resLine_type), pointer         :: resLine(:)  ! resonant lines
+    type(resLine_type), allocatable     :: resLine(:)  ! resonant lines
 
     integer                             :: abFileUsed  ! abundance file index used
     integer                             :: cellPUsed   !  cell index
@@ -36,15 +36,15 @@ module emission_mod
     subroutine emissionDriver(grids, ix, iy, iz, ig)
         implicit none
 
-        real (kind=8), pointer :: gammaHI(:)          ! HI fb+ff emission coefficient [e-40 erg*cm^3/s/Hz]
-        real (kind=8), pointer :: gammaHeI(:)         ! HeI fb+ff emission coefficient [e-40erg*cm^3/s/Hz]
-        real (kind=8), pointer :: gammaHeII(:)        ! HeII fb+ff emission coefficient [e-40erg*cm^3/s/Hz]
-        real (kind=8), pointer :: gammaHeavies(:)     ! Heavy ions f-b emission coefficient [e-40 erg*cm^3/s/Hz]
-        real (kind=8), pointer :: ffCoeff1(:)         ! ff emission coefficient for Z=1 ions [e-40 erg*cm^3/s/Hz]
-        real (kind=8), pointer :: ffCoeff2(:)         ! ff emission coefficient for Z=2 ions [e-40 erg*cm^3/s/Hz]
-        real (kind=8), pointer :: twoPhotHI(:)        ! HI 2photon emission coefficient [e-40 erg*cm^3/s/Hz]
-        real (kind=8), pointer :: twoPhotHeI(:)       ! HeI 2photon emission coefficient [e-40 erg*cm^3/s/Hz]
-        real (kind=8), pointer :: twoPhotHeII(:)      ! HeII 2photon emission coefficient [e-40 erg*cm^3/s/Hz]
+        real (kind=8), allocatable :: gammaHI(:)          ! HI fb+ff emission coefficient [e-40 erg*cm^3/s/Hz]
+        real (kind=8), allocatable :: gammaHeI(:)         ! HeI fb+ff emission coefficient [e-40erg*cm^3/s/Hz]
+        real (kind=8), allocatable :: gammaHeII(:)        ! HeII fb+ff emission coefficient [e-40erg*cm^3/s/Hz]
+        real (kind=8), allocatable :: gammaHeavies(:)     ! Heavy ions f-b emission coefficient [e-40 erg*cm^3/s/Hz]
+        real (kind=8), allocatable :: ffCoeff1(:)         ! ff emission coefficient for Z=1 ions [e-40 erg*cm^3/s/Hz]
+        real (kind=8), allocatable :: ffCoeff2(:)         ! ff emission coefficient for Z=2 ions [e-40 erg*cm^3/s/Hz]
+        real (kind=8), allocatable :: twoPhotHI(:)        ! HI 2photon emission coefficient [e-40 erg*cm^3/s/Hz]
+        real (kind=8), allocatable :: twoPhotHeI(:)       ! HeI 2photon emission coefficient [e-40 erg*cm^3/s/Hz]
+        real (kind=8), allocatable :: twoPhotHeII(:)      ! HeII 2photon emission coefficient [e-40 erg*cm^3/s/Hz]
 
 
         type(grid_type), intent(inout) :: grids(*) ! the cartesian grid
@@ -235,18 +235,18 @@ module emission_mod
 
 
         ! deallocate arrays
-        if ( associated(emissionHI) ) deallocate(emissionHI)
-        if ( associated(emissionHeI) ) deallocate(emissionHeI)
-        if ( associated(emissionHeII) ) deallocate(emissionHeII)
-        if ( associated(gammaHI) ) deallocate(gammaHI)
-        if ( associated(gammaHeI) ) deallocate(gammaHeI)
-        if ( associated(gammaHeII) ) deallocate(gammaHeII)
-        if ( associated(gammaHeavies) ) deallocate(gammaHeavies)
-        if ( associated(twoPhotHI) ) deallocate(twoPhotHI)
-        if ( associated(twoPhotHeI) ) deallocate(twoPhotHeI)
-        if ( associated(twoPhotHeII) ) deallocate(twoPhotHeII)
-        if ( associated(ffCoeff1) ) deallocate(ffCoeff1)
-        if ( associated(ffCoeff2) ) deallocate(ffCoeff2)
+        if ( allocated(emissionHI) ) deallocate(emissionHI)
+        if ( allocated(emissionHeI) ) deallocate(emissionHeI)
+        if ( allocated(emissionHeII) ) deallocate(emissionHeII)
+        if ( allocated(gammaHI) ) deallocate(gammaHI)
+        if ( allocated(gammaHeI) ) deallocate(gammaHeI)
+        if ( allocated(gammaHeII) ) deallocate(gammaHeII)
+        if ( allocated(gammaHeavies) ) deallocate(gammaHeavies)
+        if ( allocated(twoPhotHI) ) deallocate(twoPhotHI)
+        if ( allocated(twoPhotHeI) ) deallocate(twoPhotHeI)
+        if ( allocated(twoPhotHeII) ) deallocate(twoPhotHeII)
+        if ( allocated(ffCoeff1) ) deallocate(ffCoeff1)
+        if ( allocated(ffCoeff2) ) deallocate(ffCoeff2)
 
         grids(iG) = grid
 
@@ -346,7 +346,7 @@ module emission_mod
 
         real, dimension(3)              :: statW      ! g0/g1 for HI, HeI and HeII
 
-        real, pointer :: logGammaHIloc(:), &
+        real, allocatable :: logGammaHIloc(:), &
              &logGammaHeIloc(:), logGammaHeIIloc(:)
                                                       ! gamma [e-40 erg/Hz] for HI, HeI and HeII
         integer            :: elem, ion       ! counters
@@ -1532,10 +1532,10 @@ module emission_mod
         real, dimension(4) &
 &                          :: HeIILymanNu       ! HeII Lyman lines freq. [Ryd]
 
-        real, pointer     :: sumDiffuseDust(:) ! summation terms for dust emission
-        real, pointer     :: sumDiffuseHI(:)   ! summation terms for HI emission
-        real, pointer     :: sumDiffuseHeI(:)  ! summation terms for HeI emission
-        real, pointer     :: sumDiffuseHeII(:) ! summation terms for HeII emission
+        real, allocatable :: sumDiffuseDust(:) ! summation terms for dust emission
+        real, allocatable :: sumDiffuseHI(:)   ! summation terms for HI emission
+        real, allocatable :: sumDiffuseHeI(:)  ! summation terms for HeI emission
+        real, allocatable :: sumDiffuseHeII(:) ! summation terms for HeII emission
 
         integer           :: elem, ion          ! counters
         integer           :: err                ! allocation error status
@@ -1882,11 +1882,11 @@ module emission_mod
 
         grid%totalLines(grid%active(ix,iy,iz)) = grid%totalLines(grid%active(ix,iy,iz)) / normalize
         ! deallocate arrays
-        if ( associated(sumDiffuseHI) ) deallocate(sumDiffuseHI)
-        if ( associated(sumDiffuseHeI) ) deallocate(sumDiffuseHeI)
-        if ( associated(sumDiffuseHeII) ) deallocate(sumDiffuseHeII)
+        if ( allocated(sumDiffuseHI) ) deallocate(sumDiffuseHI)
+        if ( allocated(sumDiffuseHeI) ) deallocate(sumDiffuseHeI)
+        if ( allocated(sumDiffuseHeII) ) deallocate(sumDiffuseHeII)
         if (lgDust) then
-           if ( associated(sumDiffuseDust) ) deallocate(sumDiffuseDust)
+           if ( allocated(sumDiffuseDust) ) deallocate(sumDiffuseDust)
         end if
 
     end subroutine setDiffusePDF
@@ -2489,26 +2489,25 @@ module emission_mod
     real (kind=8)        :: sqrTe                     ! sqrt(Te)
 
     real (kind=8)                   :: atp         ! 2-phot rate
-    real (kind=8), pointer          :: a(:,:)      ! transition rates array
-    real (kind=8), pointer          :: cs(:,:)     ! collisional strengths array
-    real (kind=8), pointer          :: e(:)        ! energy levels array
-    real (kind=8), pointer          :: qeff(:,:)   ! q eff  array
-    real (kind=8), pointer          :: qom(:,:,:)  ! qom array
-    real (kind=8), pointer          :: tnij(:,:)   ! tnij array
-    real (kind=8), pointer          :: x(:,:)      ! matrix arrays
-    real (kind=8), pointer          :: y(:)        !
-    real (kind=8), &
-         & pointer :: n(:), n2(:) ! level population arrays
+    real (kind=8), allocatable      :: a(:,:)      ! transition rates array
+    real (kind=8), allocatable      :: cs(:,:)     ! collisional strengths array
+    real (kind=8), allocatable      :: e(:)        ! energy levels array
+    real (kind=8), allocatable      :: qeff(:,:)   ! q eff  array
+    real (kind=8), allocatable      :: qom(:,:,:)  ! qom array
+    real (kind=8), allocatable      :: tnij(:,:)   ! tnij array
+    real (kind=8), allocatable      :: x(:,:)      ! matrix arrays
+    real (kind=8), allocatable      :: y(:)        !
+    real (kind=8), allocatable      :: n(:), n2(:) ! level population arrays
 
 
 
     real                 :: a_r(4),a_d(5),z,br        !
-    real,    pointer     :: alphaTotal(:)             ! maximum 100-level ion
+    real,allocatable     :: alphaTotal(:)             ! maximum 100-level ion
     real                 :: a_fit, b_fit, c_fit, d_fit!
     real                 :: qomInt                    ! interpolated value of qom
-    real,    pointer     :: logTemp(:)                ! log10 temperature points array
-    real,    pointer     :: qq(:)                     ! qq array
-    real,    pointer     :: qq2(:)                    ! 2nd deriv qq2 array
+    real,allocatable     :: logTemp(:)                ! log10 temperature points array
+    real,allocatable     :: qq(:)                     ! qq array
+    real,allocatable     :: qq2(:)                    ! 2nd deriv qq2 array
 
     real, intent(in) &
          & :: Te, &    ! electron temperature [K]
@@ -2531,14 +2530,14 @@ module emission_mod
 
     integer, parameter :: safeLim = 10000 ! loop safety limit
 
-    integer, pointer :: g(:)              ! statistical weight array
+    integer, allocatable :: g(:)              ! statistical weight array
 
     integer, dimension(2) :: ilow, &      ! lower index
          & iup          ! upper index
 
     logical, intent(in) :: rec
 
-    character(len = 20), pointer :: &
+    character(len = 20), allocatable :: &
          & label(:)! labels array
 
     character(len = 75) :: text  ! lines of text
@@ -2972,22 +2971,22 @@ module emission_mod
 
 
     ! deallocate arrays
-    if( associated(alphaTotal) ) deallocate(alphaTotal)
-    if( associated(label) ) deallocate(label)
-    if( associated(logTemp) ) deallocate(logTemp)
-    if( associated(a) ) deallocate(a)
-    if( associated(cs) ) deallocate(cs)
-    if( associated(n) ) deallocate(n)
-    if( associated(n2) ) deallocate(n2)
-    if( associated(qeff) ) deallocate(qeff)
-    if( associated(qq) ) deallocate(qq)
-    if( associated(qq2) ) deallocate(qq2)
-    if( associated(tnij) ) deallocate(tnij)
-    if( associated(x) ) deallocate(x)
-    if( associated(y) ) deallocate(y)
-    if( associated(e) ) deallocate(e)
-    if( associated(g) ) deallocate(g)
-    if( associated(qom) ) deallocate(qom)
+    if( allocated(alphaTotal) ) deallocate(alphaTotal)
+    if( allocated(label) ) deallocate(label)
+    if( allocated(logTemp) ) deallocate(logTemp)
+    if( allocated(a) ) deallocate(a)
+    if( allocated(cs) ) deallocate(cs)
+    if( allocated(n) ) deallocate(n)
+    if( allocated(n2) ) deallocate(n2)
+    if( allocated(qeff) ) deallocate(qeff)
+    if( allocated(qq) ) deallocate(qq)
+    if( allocated(qq2) ) deallocate(qq2)
+    if( allocated(tnij) ) deallocate(tnij)
+    if( allocated(x) ) deallocate(x)
+    if( allocated(y) ) deallocate(y)
+    if( allocated(e) ) deallocate(e)
+    if( allocated(g) ) deallocate(g)
+    if( allocated(qom) ) deallocate(qom)
 
   end subroutine equilibrium
 

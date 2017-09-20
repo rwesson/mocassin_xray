@@ -33,30 +33,30 @@ module iteration_mod
            include 'mpif.h'
 
            ! local variables
-           real, pointer :: budgetTemp(:,:)      ! temporary dust heating budget array
-           real, pointer :: dustPDFTemp(:,:)     ! temporary dust emission PDF array
-           real, pointer :: escapedPacketsTemp(:,:,:)!temporary escaped packets array
-           real, pointer :: escapedPacketsComponentsTemp(:,:,:,:)!temporary escaped packets array
-           real, pointer :: fEscapeResPhotonsTemp(:,:) ! temporary escape res line phot
-           real, pointer :: JDifTemp(:,:)        ! temporary diffuse field array
-           real, pointer :: JSteTemp(:,:)        ! temporary stellar field array
-           real, pointer :: linePacketsTemp(:,:) ! temporary line packets array
-           real, pointer :: opacityTemp(:,:)     ! temporary opacities array
-           real, pointer :: recPDFTemp(:,:)      ! temporary rec prob distribution function
-           real, pointer :: linePDFTemp(:,:)     ! temporary line prob distribution function
-           real, pointer :: totalLinesTemp(:)    ! temporary fraction of non-ionizing line phots
-           real, pointer :: totalEmissionTemp(:)    !
+           real, allocatable :: budgetTemp(:,:)      ! temporary dust heating budget array
+           real, allocatable :: dustPDFTemp(:,:)     ! temporary dust emission PDF array
+           real, allocatable :: escapedPacketsTemp(:,:,:)!temporary escaped packets array
+           real, allocatable :: escapedPacketsComponentsTemp(:,:,:,:)!temporary escaped packets array
+           real, allocatable :: fEscapeResPhotonsTemp(:,:) ! temporary escape res line phot
+           real, allocatable :: JDifTemp(:,:)        ! temporary diffuse field array
+           real, allocatable :: JSteTemp(:,:)        ! temporary stellar field array
+           real, allocatable :: linePacketsTemp(:,:) ! temporary line packets array
+           real, allocatable :: opacityTemp(:,:)     ! temporary opacities array
+           real, allocatable :: recPDFTemp(:,:)      ! temporary rec prob distribution function
+           real, allocatable :: linePDFTemp(:,:)     ! temporary line prob distribution function
+           real, allocatable :: totalLinesTemp(:)    ! temporary fraction of non-ionizing line phots
+           real, allocatable :: totalEmissionTemp(:)    !
 
-           real, pointer          :: noHitPercent(:)    ! percentage of no Hit cells
-           real, pointer          :: noIonBalPercent(:) ! percentage of cell where ion bal not conv
-           real, pointer          :: noTeBalPercent(:)  ! percentage of cell where Te bal not conv
-           real, pointer          :: aradtemp(:)     ! temporary radiative acceleration array
+           real, allocatable      :: noHitPercent(:)    ! percentage of no Hit cells
+           real, allocatable      :: noIonBalPercent(:) ! percentage of cell where ion bal not conv
+           real, allocatable      :: noTeBalPercent(:)  ! percentage of cell where Te bal not conv
+           real, allocatable      :: aradtemp(:)     ! temporary radiative acceleration array
            real,save              :: totPercentOld   ! percentage of converged cells from prev iteration
            real                   :: totCells        ! total # of active cells
            real                   :: totheatdust     ! total dust heating
 
-           integer, pointer       :: planeIonDistributionTemp(:,:)
-           integer, pointer       :: resLinePacketsTemp(:) ! temporary array for extra packets
+           integer, allocatable   :: planeIonDistributionTemp(:,:)
+           integer, allocatable   :: resLinePacketsTemp(:) ! temporary array for extra packets
            integer                :: err             ! allocation error status
            integer                :: freq,nS         ! counters
            integer                :: ifreq, ian      ! counters
@@ -174,7 +174,7 @@ module iteration_mod
                        end do
                     end do
                  end do
-                 if ( associated(opacityTemp) ) deallocate(opacityTemp)
+                 if ( allocated(opacityTemp) ) deallocate(opacityTemp)
 
                  print*, '! iterationMC: ionisation skipped ', ionSkipped
 
@@ -506,7 +506,7 @@ module iteration_mod
                        end do
                     end do
 
-                    if (associated(dustPDFTemp)) deallocate(dustPDFTemp)
+                    if (allocated(dustPDFTemp)) deallocate(dustPDFTemp)
                  end if
 
                  call mpi_barrier(mpi_comm_world, ierr)
@@ -547,18 +547,18 @@ module iteration_mod
 
                     call mpi_barrier(mpi_comm_world, ierr)
 
-                    if ( associated(totalLinesTemp) )&
+                    if ( allocated(totalLinesTemp) )&
                          & deallocate(totalLinesTemp)
 
                     if (lgFluorescence) then
-                       if ( associated(totalEmissionTemp) )&
+                       if ( allocated(totalEmissionTemp) )&
                             & deallocate(totalEmissionTemp)
                     end if
 
                     if (lgDebug) then
-                       if ( associated(linePDFTemp) ) deallocate(linePDFTemp)
+                       if ( allocated(linePDFTemp) ) deallocate(linePDFTemp)
                     end if
-                    if ( associated(recPDFTemp) ) deallocate(recPDFTemp)
+                    if ( allocated(recPDFTemp) ) deallocate(recPDFTemp)
                  end if
 
                  ! check if min convergence was reached to carry out resonant line transfer
@@ -595,14 +595,14 @@ module iteration_mod
 
                     size = grid(iG)%nCells+1
 
-                    if (associated(fEscapeResPhotonsTemp)) deallocate(fEscapeResPhotonsTemp)
+                    if (allocated(fEscapeResPhotonsTemp)) deallocate(fEscapeResPhotonsTemp)
 
                     call mpi_allreduce(grid(iG)%resLinePackets, resLinePacketsTemp, size, &
                          & mpi_real, mpi_sum, mpi_comm_world, ierr)
 
                     grid(iG)%resLinePackets(0:grid(iG)%nCells) = resLinePacketsTemp
 
-                    if (associated(resLinePacketsTemp)) deallocate(resLinePacketsTemp)
+                    if (allocated(resLinePacketsTemp)) deallocate(resLinePacketsTemp)
 
                     call mpi_barrier(mpi_comm_world, ierr)
 
@@ -625,10 +625,10 @@ module iteration_mod
 
 
            if (lgFluorescence) then
-              if (associated(viewPointTheta)) deallocate(viewPointTheta)
-              if (associated(viewPointPhi)) deallocate(viewPointPhi)
-              if (associated(viewPointPTheta)) deallocate(viewPointPTheta)
-              if (associated(viewPointPPhi)) deallocate(viewPointPPhi)
+              if (allocated(viewPointTheta)) deallocate(viewPointTheta)
+              if (allocated(viewPointPhi)) deallocate(viewPointPhi)
+              if (allocated(viewPointPTheta)) deallocate(viewPointPTheta)
+              if (allocated(viewPointPPhi)) deallocate(viewPointPPhi)
 
               nAngleBins = nVP
 
@@ -819,7 +819,7 @@ module iteration_mod
                  close(18)
               end if
 
-              if (associated(planeIonDistributionTemp)) deallocate(planeIonDistributionTemp)
+              if (allocated(planeIonDistributionTemp)) deallocate(planeIonDistributionTemp)
 
            end if
 
@@ -887,7 +887,7 @@ module iteration_mod
 
               call mpi_barrier(mpi_comm_world, ierr)
 
-              if ( associated(escapedPacketsTemp) ) deallocate(escapedPacketsTemp)
+              if ( allocated(escapedPacketsTemp) ) deallocate(escapedPacketsTemp)
 
               if (lgSeparateSED) then
 
@@ -910,7 +910,7 @@ module iteration_mod
 
                  call mpi_barrier(mpi_comm_world, ierr)
 
-                 if ( associated(escapedPacketsComponentsTemp) ) deallocate(escapedPacketsComponentsTemp)
+                 if ( allocated(escapedPacketsComponentsTemp) ) deallocate(escapedPacketsComponentsTemp)
 
               end if
 
@@ -983,10 +983,10 @@ module iteration_mod
 
 
               if (lgDebug) then
-                 if ( associated(linePacketsTemp) )    deallocate(linePacketsTemp)
-                 if ( associated(JDifTemp) )           deallocate(JDifTemp)
+                 if ( allocated(linePacketsTemp) )    deallocate(linePacketsTemp)
+                 if ( allocated(JDifTemp) )           deallocate(JDifTemp)
               end if
-              if ( associated(JSteTemp) )           deallocate(JSteTemp)
+              if ( allocated(JSteTemp) )           deallocate(JSteTemp)
 
               do i = 0, grid(iG)%nCells
                  grid(iG)%Jste(i,:) = grid(iG)%Jste(i,:) * 1.e-9
@@ -1021,9 +1021,9 @@ module iteration_mod
 
              end do
 
-!             if ( associated(grid(iG)%escapedPackets) ) deallocate(grid(iG)%escapedPackets)
+!             if ( allocated(grid(iG)%escapedPackets) ) deallocate(grid(iG)%escapedPackets)
 !             if (lgSeparateSED) then
-!                if ( associated(grid(iG)%escapedPacketsComponents) ) &
+!                if ( allocated(grid(iG)%escapedPacketsComponents) ) &
 !                     & deallocate(grid(iG)%escapedPacketsComponents)
 !             end if
 
@@ -1198,7 +1198,7 @@ module iteration_mod
 
                  grid(iG)%arad(0:grid(iG)%nCells) =  aradtemp(0:grid(iG)%nCells)
 
-                 if (associated(aradtemp)) deallocate(aradtemp)
+                 if (allocated(aradtemp)) deallocate(aradtemp)
 
               end if
 
@@ -1251,15 +1251,15 @@ module iteration_mod
 
               call mpi_barrier(mpi_comm_world, ierr)
 
-              if ( associated(lgConvergedTemp) )  deallocate(lgConvergedTemp)
-              if ( associated(lgBlackTemp) )  deallocate(lgBlackTemp)
+              if ( allocated(lgConvergedTemp) )  deallocate(lgConvergedTemp)
+              if ( allocated(lgBlackTemp) )  deallocate(lgBlackTemp)
               if (lgGas) then
-                 if ( associated(NeTemp) )           deallocate(NeTemp)
-                 if ( associated(TeTemp) )           deallocate(TeTemp)
-                 if ( associated(ionDenTemp) )       deallocate(ionDenTemp)
+                 if ( allocated(NeTemp) )           deallocate(NeTemp)
+                 if ( allocated(TeTemp) )           deallocate(TeTemp)
+                 if ( allocated(ionDenTemp) )       deallocate(ionDenTemp)
               end if
               if (lgDust) then
-                 if ( associated(TdustTemp)) deallocate(TdustTemp)
+                 if ( allocated(TdustTemp)) deallocate(TdustTemp)
               end if
 
            end do

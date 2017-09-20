@@ -927,17 +927,17 @@ module xSec_mod
 
         real :: normWeight ! normalization constant for grain size weighting
         real :: value ! general value variable
-        real, pointer :: da(:)
-        real, pointer :: tmp1(:), tmp2(:), tmp3(:), agrain(:), tmp11(:,:), tmp22(:,:),&
+        real, allocatable :: da(:)
+        real, allocatable :: tmp1(:), tmp2(:), tmp3(:), agrain(:), tmp11(:,:), tmp22(:,:),&
              & tmp33(:,:), tmpWav(:), QaTemp(:), QsTemp(:), gTemp(:), temp1nbins(:,:), &
              & temp2nbins(:,:), temp3nbins(:,:)
-        real, pointer :: wav(:) ! wavelength in [um]
-        real, pointer :: gCos(:,:,:) ! phase function parameter
-        real, pointer :: Cabs(:,:,:) ! abs cross-section [um^2] for each grain species and size
-        real, pointer :: Csca(:,:,:) ! sca cross-section [um^2] for each grain species and size
-        real, pointer :: CTabs(:) ! total abs cross-section [um^2] for grain mixture
-        real, pointer :: CTsca(:) ! total sca cross-section [um^2] for grain mixture
-        real, pointer :: Ere(:), Eim(:)
+        real, allocatable :: wav(:) ! wavelength in [um]
+        real, allocatable :: gCos(:,:,:) ! phase function parameter
+        real, allocatable :: Cabs(:,:,:) ! abs cross-section [um^2] for each grain species and size
+        real, allocatable :: Csca(:,:,:) ! sca cross-section [um^2] for each grain species and size
+        real, allocatable :: CTabs(:) ! total abs cross-section [um^2] for grain mixture
+        real, allocatable :: CTsca(:) ! total sca cross-section [um^2] for grain mixture
+        real, allocatable :: Ere(:), Eim(:)
 
         integer :: err ! allocation error status
         integer :: i, j, iwav, n, iSize ! counter
@@ -1223,8 +1223,8 @@ module xSec_mod
               end do
               wav=tmp3
 
-              if (associated(Ere)) deallocate(Ere)
-              if (associated(Eim)) deallocate(Eim)
+              if (allocated(Ere)) deallocate(Ere)
+              if (allocated(Eim)) deallocate(Eim)
 
               allocate (Ere(1:nbins), stat=err)
               if (err/=0) then
@@ -1246,12 +1246,12 @@ module xSec_mod
               ! calculate efficiencies
               call getQs(Ere,Eim,Cabs(nSpec,1:nSizes,1:nbins),Csca(nSpec,1:nSizes,1:nbins))
 
-              if (associated(wav)) deallocate(wav)
-              if (associated(Ere)) deallocate(Ere)
-              if (associated(Eim)) deallocate(Eim)
-              if (associated(tmp1)) deallocate(tmp1)
-              if (associated(tmp2)) deallocate(tmp2)
-              if (associated(tmp3)) deallocate(tmp3)
+              if (allocated(wav)) deallocate(wav)
+              if (allocated(Ere)) deallocate(Ere)
+              if (allocated(Eim)) deallocate(Eim)
+              if (allocated(tmp1)) deallocate(tmp1)
+              if (allocated(tmp2)) deallocate(tmp2)
+              if (allocated(tmp3)) deallocate(tmp3)
 
 
            case ('Q')
@@ -1420,14 +1420,14 @@ module xSec_mod
 
               close(20)
 
-              if (associated(QaTemp)) deallocate(QaTemp)
-              if (associated(QsTemp)) deallocate(QsTemp)
-              if (associated(gTemp)) deallocate(gTemp)
-              if (associated(tmp11)) deallocate(tmp11)
-              if (associated(tmp22)) deallocate(tmp22)
-              if (associated(tmp33)) deallocate(tmp33)
-              if (associated(wav)) deallocate(wav)
-              if (associated(tmpWav)) deallocate(tmpWav)
+              if (allocated(QaTemp)) deallocate(QaTemp)
+              if (allocated(QsTemp)) deallocate(QsTemp)
+              if (allocated(gTemp)) deallocate(gTemp)
+              if (allocated(tmp11)) deallocate(tmp11)
+              if (allocated(tmp22)) deallocate(tmp22)
+              if (allocated(tmp33)) deallocate(tmp33)
+              if (allocated(wav)) deallocate(wav)
+              if (allocated(tmpWav)) deallocate(tmpWav)
 
               ! interpolate over the grain size distribution
               do i = 1, nSizes
@@ -1474,10 +1474,10 @@ module xSec_mod
 
               end do
 
-              if (associated(agrain)) deallocate(agrain)
-              if (associated(temp1nbins)) deallocate(temp1nbins)
-              if (associated(temp2nbins)) deallocate(temp2nbins)
-              if (associated(temp3nbins)) deallocate(temp3nbins)
+              if (allocated(agrain)) deallocate(agrain)
+              if (allocated(temp1nbins)) deallocate(temp1nbins)
+              if (allocated(temp2nbins)) deallocate(temp2nbins)
+              if (allocated(temp3nbins)) deallocate(temp3nbins)
 
 
            case default
@@ -1574,11 +1574,11 @@ module xSec_mod
         ! update value of xSecTop
         xSecTop = xSecTop + 2*nbins*(nSpecies+1)*nSizes
 
-        if (associated(Csca)) deallocate(Csca)
-        if (associated(Cabs)) deallocate(Cabs)
-        if (associated(CTsca)) deallocate(CTsca)
-        if (associated(CTabs)) deallocate(CTabs)
-        if (associated(gCos)) deallocate(gCos)
+        if (allocated(Csca)) deallocate(Csca)
+        if (allocated(Cabs)) deallocate(Cabs)
+        if (allocated(CTsca)) deallocate(CTsca)
+        if (allocated(CTabs)) deallocate(CTabs)
+        if (allocated(gCos)) deallocate(gCos)
 
         do n = 1, nSpecies
            do i = 1, nbins
