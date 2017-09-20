@@ -439,7 +439,7 @@ module iteration_mod
 
                     ! The Balmer Jump is now wrong in the new fast routines - Balmer
                     ! Jump should be calculated directly from SED
-                    !                print*, "Balmer Jump: [erg/s/A] ", Bjump
+                    !                if (taskid==0) print*, "Balmer Jump: [erg/s/A] ", Bjump
 
                     allocate(recPDFTemp(0:grid(iG)%nCells, 1:nbins),&
                          & stat = err)
@@ -1040,7 +1040,7 @@ module iteration_mod
                    &  scaInt*100./(scaInt+absInt),"%"
            end if
 
-           print*, " total Escaped Packets :",  totalEscaped
+           if (taskid==0) print*, " total Escaped Packets :",  totalEscaped
 
 
 

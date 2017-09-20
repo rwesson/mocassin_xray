@@ -318,11 +318,12 @@ module continuum_mod
               LStar(1) = fourPi*RStar*RStar*sigma*TStellar(1)**4.
 
 !              deltaE(1)=Lstar(1)/nPhotons(1)
-
-              print*, "Q(H) = ", LPhot, " [e36 phot/s]"
-              print*, "LStar= ", LStar(1), " [e36 erg/s]"
-              print*, "RStar = ", RStar, " [e18 cm]"
-!              print*, "deltaE = ", deltaE, " [e36 erg/s]"
+              if (taskid==0) then
+                print*, "Q(H) = ", LPhot, " [e36 phot/s]"
+                print*, "LStar= ", LStar(1), " [e36 erg/s]"
+                print*, "RStar = ", RStar, " [e18 cm]"
+!                print*, "deltaE = ", deltaE, " [e36 erg/s]"
+              endif
 
            else if (allocated(Lstar)) then ! calculate LPhot [e36 phot/s]
 
@@ -333,9 +334,11 @@ module continuum_mod
 
                  LPhot = fourPi*RStar*RStar*normConstantPhot*cRyd
 
-                 print*, "RStar = ", RStar, " [e18 cm]"
-                 print*, "Q(H) = ", LPhot, " [e36 phot/s]"
-                 print*, "LStar = ", LStar(1), " [e36erg/s]"
+                 if (taskid==0) then
+                   print*, "RStar = ", RStar, " [e18 cm]"
+                   print*, "Q(H) = ", LPhot, " [e36 phot/s]"
+                   print*, "LStar = ", LStar(1), " [e36erg/s]"
+                 endif
               end if
 
 !              print*, "deltaE = ", deltaE(1), " [e36 erg/s]"
