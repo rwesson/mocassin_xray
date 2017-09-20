@@ -303,7 +303,6 @@ module common_mod
     integer            :: nResLines=0      ! number of resonant lines to be transfered
 
     type grid_type             ! derived grid type
-        sequence
 
         character(len=20) :: composition            ! chemical composition
 
