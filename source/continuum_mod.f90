@@ -433,10 +433,10 @@ module continuum_mod
         inSpSumPhot = 0.
         inSpSumErg = 0.
 
-        if (taskid==0) print*,'Ionising/illuminating spectrum:'
+!        if (taskid==0) print*,'Ionising/illuminating spectrum:'
 
         do i = 1, nbins
-           if (taskid==0) print*, i, nuArray(i),  inSpectrumErg(i)
+!           if (taskid==0) print*, i, nuArray(i),  inSpectrumErg(i)
            inSpSumErg(i)  =  inSpectrumErg(i)
            inSpSumPhot(i) =  inSpectrumPhot(i)
         end do
