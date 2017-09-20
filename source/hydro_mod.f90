@@ -203,7 +203,7 @@ module elements_mod
        close(13)
      end subroutine readHeIRecLines
 
-     ! this subroutine assignes continuum energy pointers
+     ! this subroutine assigns continuum energy pointers
      ! to shells for all atoms
      subroutine setShells(nElem)
          implicit none
@@ -429,7 +429,7 @@ module elements_mod
             ! set FeKaP nu=6.4KeV=470.388ryd -cold iron
             call locate(nuArray,FeKaCold,FeKaColdP)
             if (FeKaColdP>=nbins.or.FeKaColdP<0) then
-               print*, "! setPointers: insanity occured in FeKaColdP assignement",&
+               print*, "! setPointers: insanity occurred in FeKaColdP assignement",&
                     & FeKaColdP, FeKaCold, nuArray(1), nuArray(nbins)
                stop
             end if
@@ -437,7 +437,7 @@ module elements_mod
             ! set FeL1P
             call locate(nuArray,FeL1,FeL1P)
             if (FeL1P>=nbins.or.FeL1P<0) then
-               print*, "! setPointers: insanity occured in FeL1P assignement",&
+               print*, "! setPointers: insanity occurred in FeL1P assignement",&
                     & FeL1P, FeL1, nuArray(1), nuArray(nbins)
                stop
             end if
@@ -445,7 +445,7 @@ module elements_mod
             ! set FeL2P
             call locate(nuArray,FeL2,FeL2P)
             if (FeL2P>=nbins.or.FeL2P<0) then
-               print*, "! setPointers: insanity occured in FeL2P assignement",&
+               print*, "! setPointers: insanity occurred in FeL2P assignement",&
                     & FeL2P, FeL2, nuArray(1), nuArray(nbins)
                stop
             end if
@@ -453,7 +453,7 @@ module elements_mod
             ! set CKa
             call locate(nuArray,CKa,CKaP)
             if (CKaP>=nbins.or.CKaP<0) then
-               print*, "! setPointers: insanity occured in CKaP assignement",&
+               print*, "! setPointers: insanity occurred in CKaP assignement",&
                     & CKaP, CKa, nuArray(1), nuArray(nbins)
                stop
             end if
@@ -461,7 +461,7 @@ module elements_mod
             ! set NKa
             call locate(nuArray,NKa,NKaP)
             if (NKaP>=nbins.or.NKaP<0) then
-               print*, "! setPointers: insanity occured in NKaP assignement",&
+               print*, "! setPointers: insanity occurred in NKaP assignement",&
                     & NKaP, NKa, nuArray(1), nuArray(nbins)
                stop
             end if
@@ -469,7 +469,7 @@ module elements_mod
             ! set OKa
             call locate(nuArray,OKa,OKaP)
             if (OKaP>=nbins.or.OKaP<0) then
-               print*, "! setPointers: insanity occured in OKaP assignement",&
+               print*, "! setPointers: insanity occurred in OKaP assignement",&
                     & OKaP, OKa, nuArray(1), nuArray(nbins)
                stop
             end if
@@ -477,7 +477,7 @@ module elements_mod
             ! set NeKa
             call locate(nuArray,NeKa,NeKaP)
             if (NeKaP>=nbins.or.NeKaP<0) then
-               print*, "! setPointers: insanity occured in NeKaP assignement",&
+               print*, "! setPointers: insanity occurred in NeKaP assignement",&
                     & NeKaP, NeKa, nuArray(1), nuArray(nbins)
                stop
             end if
@@ -485,7 +485,7 @@ module elements_mod
             ! set MgKa
             call locate(nuArray,MgKa,MgKaP)
             if (MgKaP>=nbins.or.MgKaP<0) then
-               print*, "! setPointers: insanity occured in MgKaP assignement",&
+               print*, "! setPointers: insanity occurred in MgKaP assignement",&
                     & MgKaP, MgKa, nuArray(1), nuArray(nbins)
                stop
             end if
@@ -493,7 +493,7 @@ module elements_mod
             ! set AlKa
             call locate(nuArray,AlKa,AlKaP)
             if (AlKaP>=nbins.or.AlKaP<0) then
-               print*, "! setPointers: insanity occured in AlKaP assignement",&
+               print*, "! setPointers: insanity occurred in AlKaP assignement",&
                     & AlKaP, AlKa, nuArray(1), nuArray(nbins)
                stop
             end if
@@ -501,7 +501,7 @@ module elements_mod
             ! set SiKa
             call locate(nuArray,SiKa,SiKaP)
             if (SiKaP>=nbins.or.SiKaP<0) then
-               print*, "! setPointers: insanity occured in SiKaP assignement",&
+               print*, "! setPointers: insanity occurred in SiKaP assignement",&
                     & SiKaP, SiKa, nuArray(1), nuArray(nbins)
                stop
             end if
@@ -509,7 +509,7 @@ module elements_mod
             ! set SKa
             call locate(nuArray,SKa,SKaP)
             if (SKaP>=nbins.or.SKaP<0) then
-               print*, "! setPointers: insanity occured in SKaP assignement",&
+               print*, "! setPointers: insanity occurred in SKaP assignement",&
                     & SKaP, SKa, nuArray(1), nuArray(nbins)
                stop
             end if
@@ -517,7 +517,7 @@ module elements_mod
             ! set ArKa
             call locate(nuArray,ArKa,ArKaP)
             if (ArKaP>=nbins.or.ArKaP<0) then
-               print*, "! setPointers: insanity occured in ArKaP assignement",&
+               print*, "! setPointers: insanity occurred in ArKaP assignement",&
                     & ArKaP, ArKa, nuArray(1), nuArray(nbins)
                stop
             end if
@@ -525,7 +525,7 @@ module elements_mod
             ! set CaKa
             call locate(nuArray,CaKa,CaKaP)
             if (CaKaP>=nbins.or.CaKaP<0) then
-               print*, "! setPointers: insanity occured in CaKaP assignement",&
+               print*, "! setPointers: insanity occurred in CaKaP assignement",&
                     & CaKaP, CaKa, nuArray(1), nuArray(nbins)
                stop
             end if
@@ -533,7 +533,7 @@ module elements_mod
             ! set TiKa
             call locate(nuArray,TiKa,TiKaP)
             if (TiKaP>=nbins.or.TiKaP<0) then
-               print*, "! setPointers: insanity occured in TiKaP assignement",&
+               print*, "! setPointers: insanity occurred in TiKaP assignement",&
                     & TiKaP, TiKa, nuArray(1), nuArray(nbins)
                stop
             end if

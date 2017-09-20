@@ -810,7 +810,7 @@ module grid_mod
 
         else
 
-           print*, '! fillGrid: only neutral option availale &
+           print*, '! fillGrid: only neutral option available &
                 & in this version. plese re-run with neutral keyword'
            stop
         end if
@@ -2103,7 +2103,7 @@ module grid_mod
                        if (ix == grid(iG)%nx) then
                           if ( abs(x-grid(iG)%xAxis(ix)) >= &
                                &abs(grid(iG)%xAxis(ix)-grid(iG)%xAxis(ix-1))  ) then
-                             print*, "! setSubGrids: insanity occured in setting xAxis for&
+                             print*, "! setSubGrids: insanity occurred in setting xAxis for&
                                   & subGrid ", iG,dFileRead,&
                                   & grid(iG)%xAxis
                              stop
@@ -2112,7 +2112,7 @@ module grid_mod
                        if (iy == grid(iG)%ny) then
                           if ( abs(y-grid(iG)%yAxis(iy)) >= abs(grid(iG)%yAxis(iy)-&
                                &grid(iG)%yAxis(iy-1))  ) then
-                             print*, "! setSubGrids: insanity occured in setting yAxis for&
+                             print*, "! setSubGrids: insanity occurred in setting yAxis for&
                                   & subGrid ", iG,dFileRead,&
                                   & grid(iG)%yAxis
                              stop
@@ -2121,7 +2121,7 @@ module grid_mod
                        if (iz == grid(iG)%nz) then
                           if ( abs(z-grid(iG)%zAxis(iz)) >= &
                                &abs(grid(iG)%zAxis(iz)-grid(iG)%zAxis(iz-1))  ) then
-                             print*, "! setSubGrids: insanity occured in setting zAxis for&
+                             print*, "! setSubGrids: insanity occurred in setting zAxis for&
                                   & subGrid ", iG,dFileRead,&
                                   & grid(iG)%zAxis
                              stop

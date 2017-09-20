@@ -3478,7 +3478,7 @@ module emission_mod
                             end if
                          else
                             if ( rVec%x > grids(gPmother)%xAxis(xPmother)) then
-                               print*, '! pathSegment: insanity occured at&
+                               print*, '! pathSegment: insanity occurred at&
                                     & mother grid transfer (x axis +)', &
                                     & rVec%x, gP, gPmother
                                stop
@@ -3492,7 +3492,7 @@ module emission_mod
                             end if
                          else
                             if (rVec%x < grids(gPmother)%xAxis(1)) then
-                               print*, '! pathSegment: insanity occured at&
+                               print*, '! pathSegment: insanity occurred at&
                                     & mother grids transfer (x axis -)', &
                                     & rVec%x, gP, gPmother
                                stop
@@ -3507,7 +3507,7 @@ module emission_mod
                             end if
                          else
                             if ( rVec%y > grids(gPmother)%yAxis( yPmother)) then
-                               print*, '! pathSegment: insanity occured at mother grid transfer (y axis +)', &
+                               print*, '! pathSegment: insanity occurred at mother grid transfer (y axis +)', &
                                     & rVec%y, gP, gPmother
                                stop
                             end if
@@ -3520,7 +3520,7 @@ module emission_mod
                             end if
                          else
                             if (rVec%y < grids(gPmother)%yAxis(1)) then
-                               print*, '! pathSegment: insanity occured at mother grid transfer (y axis -)', &
+                               print*, '! pathSegment: insanity occurred at mother grid transfer (y axis -)', &
                                     & rVec%y, gP, gPmother
                                stop
                             end if
@@ -3534,7 +3534,7 @@ module emission_mod
                             end if
                          else
                             if ( rVec%z > grids(gPmother)%zAxis( zPmother)) then
-                               print*, '! pathSegment: insanity occured at mother grid transfer (z axis +)', &
+                               print*, '! pathSegment: insanity occurred at mother grid transfer (z axis +)', &
                                     & rVec%z, gP, gPmother
                                stop
                             end if
@@ -3547,7 +3547,7 @@ module emission_mod
                             end if
                          else
                             if (rVec%z < grids(gPmother)%zAxis(1)) then
-                               print*, '! pathSegment: insanity occured at mother grid transfer (z axis -)', &
+                               print*, '! pathSegment: insanity occurred at mother grid transfer (z axis -)', &
                                     & rVec%z, gP, gPmother
                                stop
                             end if
@@ -3596,7 +3596,7 @@ module emission_mod
                             yP = yPmother
                             gP = gPmother
                          else
-                            print*, '! setResLineEscapeProb: insanity occured - invalid gP', gP
+                            print*, '! setResLineEscapeProb: insanity occurred - invalid gP', gP
                             stop
                          end if
                       end if
@@ -3614,7 +3614,7 @@ module emission_mod
                             zP = zPmother
                             gP = gPmother
                          else
-                            print*, '! setResLineEscapeProb: insanity occured - invalid gP', gP
+                            print*, '! setResLineEscapeProb: insanity occurred - invalid gP', gP
                             stop
                          end if
 
@@ -3631,7 +3631,7 @@ module emission_mod
                             zP = zPmother
                             gP = gPmother
                          else
-                            print*, '! setResLineEscapeProb: insanity occured - invalid gP', gP
+                            print*, '! setResLineEscapeProb: insanity occurred - invalid gP', gP
                             stop
                          end if
                       end if
@@ -3647,7 +3647,7 @@ module emission_mod
                             zP =  zPmother
                             gP = gPmother
                          else
-                            print*, '! setResLineEscapeProb: insanity occured - invalid gP', gP
+                            print*, '! setResLineEscapeProb: insanity occurred - invalid gP', gP
                             stop
                          end if
 
@@ -3664,7 +3664,7 @@ module emission_mod
                             zP =  zPmother
                             gP = gPmother
                          else
-                            print*, '! setResLineEscapeProb: insanity occured - invalid gP', gP
+                            print*, '! setResLineEscapeProb: insanity occurred - invalid gP', gP
                             stop
                          end if
 
@@ -3681,7 +3681,7 @@ module emission_mod
                             zP = zPmother
                             gP = gPmother
                          else
-                            print*, '! setResLineEscapeProb: insanity occured - invalid gP', gP
+                            print*, '! setResLineEscapeProb: insanity occurred - invalid gP', gP
                             stop
                          end if
 
@@ -3715,7 +3715,7 @@ module emission_mod
                             zP = zPmother
                             gP = gPmother
                          else
-                            print*, '! setResLineEscapeProb: insanity occured - invalid gP - ', gP
+                            print*, '! setResLineEscapeProb: insanity occurred - invalid gP - ', gP
                             stop
                          end if
                       end if
