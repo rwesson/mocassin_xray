@@ -380,7 +380,7 @@ module continuum_mod
 
                ! Wien distribution
                getFlux = constant*energy*energy*energy*&
-                    & exp(-hcRyd_k*energy/temperature)
+                    & exp(dble(-hcRyd_k*energy/temperature)) ! single precision maximum exponent is -87.3365479, double precision necessary to avoid FPEs
                return
             end if
 
@@ -417,8 +417,8 @@ module continuum_mod
 
         real :: maxp
 
-        real, allocatable :: inSpSumErg(:)    ! partial input spectrum sum [erg/s]
-        real, allocatable :: inSpSumPhot(:)   ! partial input spectrum sum [phot/s]
+        double precision :: inSpSumErg(nbins)    ! partial input spectrum sum [erg/s]
+        double precision :: inSpSumPhot(nbins)   ! partial input spectrum sum [phot/s]
 
 
         integer, intent(in) :: iS         ! central star index
@@ -427,19 +427,7 @@ module continuum_mod
         integer :: i                      ! counter
         integer :: nu0AddP
 
-
-        allocate(inSpSumPhot(nbins), stat = err)
-        if (err /= 0) then
-            print*, "! setProbDens: can't allocate grid memory"
-            stop
-        end if
         inSpSumPhot = 0.
-
-        allocate(inSpSumErg(nbins), stat = err)
-        if (err /= 0) then
-            print*, "! setProbDens: can't allocate grid memory"
-            stop
-        end if
         inSpSumErg = 0.
 
         if (taskid==0) print*,'Ionising/illuminating spectrum:'
@@ -490,9 +478,6 @@ module continuum_mod
            normConstantErg = Pi*normConstantErg*hPlanck
            normConstantPhot = Pi*normConstantPhot*hPlanck
         end if
-
-
-        if (allocated(inSpSumPhot)) deallocate(inSpSumPhot)
 
       end subroutine setProbDen
 
