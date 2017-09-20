@@ -24,6 +24,7 @@ module set_input_mod
         character(len=50)   :: keyword          ! input parameter keyword
         character(len=50)   :: multiPhotoSources ! stars file
 
+        logical :: lgOutputExists ! to check for existence of output directory
 
         ! set default values and set non oprional values to 0 or 0. or "zero"
 
@@ -51,6 +52,7 @@ module set_input_mod
         lg1D          = .false.
         lgDustScattering = .true.
         lgSymmetricXYZ= .false.
+        lgOutputExists= .false.
 
         nPhotonsDiffuse = 0
         nStars        = 0
@@ -121,6 +123,12 @@ module set_input_mod
 
         if (ios /= 0) then
             print*, "!out_in: can't open file input/input.in - terminating"
+            stop
+        end if
+
+        inquire(file='./output/.', exist=lgOutputExists)
+        if ( .not. lgOutputExists ) then
+            print *,"!output directory output/ doesn't exist - terminating"
             stop
         end if
 
