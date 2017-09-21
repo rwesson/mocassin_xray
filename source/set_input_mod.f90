@@ -349,10 +349,6 @@ module set_input_mod
                 backspace 10
                 read(unit=10, fmt=*, iostat=ios) keyword, nPhotonsTot
                 !print*, keyword, nPhotonsTot
-                if (nPhotonsTot .eq. 0) then
-                  print*,'! readInput: no photons in model.'
-                  stop
-                endif
             case ("nx")
                 backspace 10
                 read(unit=10, fmt=*, iostat=ios) keyword, nxin(1)
@@ -509,6 +505,11 @@ module set_input_mod
          end do
 
         close(10)
+
+        if (nPhotonsTot .eq. 0 .and. nPhotonsDiffuse .eq. 0) then
+          print*,'! readInput: no photons in model.'
+          stop
+        endif
 
         allocate(lgDataAvailable(3:nElements, 1:nstages), stat=err)
         if (err /= 0) then
