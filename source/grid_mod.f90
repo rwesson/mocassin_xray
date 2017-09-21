@@ -1730,7 +1730,14 @@ module grid_mod
                  print*, 'Total gas mass of ionized region by mass [1.e45 g]: ', totalMass
                  print*, '                                         [Msol]   : ', totalMass*5.025e11
               end if
-              print*, 'Total volume  of the active region [e45 cm^3]: ', totalVolume
+              print*, 'Total volume of the active region [e45 cm^3]: ', totalVolume
+
+! break if no gas or dust present
+
+              if (totalMass + totalDustMass .eq. 0.) then
+                print *,"! fillGrid: total mass in grid is zero. Terminating."
+                stop
+              endif
 
            end if
 
