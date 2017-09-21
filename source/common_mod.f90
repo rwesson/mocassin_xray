@@ -519,6 +519,6 @@ module common_mod
         real,allocatable :: a_fit(:),b_fit(:),c_fit(:),d_fit(:)
     end type atomic_data
 
-    type(atomic_data), dimension(3:nElements, 1:10) :: atomic_data_array
+    type(atomic_data), dimension(3:nElements, 1:28) :: atomic_data_array ! dimensions represent atomic number and number of ionisation stages (normal mocassin only goes up to 10 ionisation stages)
 
 end module common_mod

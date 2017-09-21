@@ -2391,7 +2391,7 @@ module emission_mod
 
 
     do i=3,nelements
-      do j=1,10
+      do j=1,28
         if (trim(atomic_data_array(i,j)%ion) .eq. trim(file_name)) then
           goto 888
         endif
