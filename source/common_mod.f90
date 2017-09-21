@@ -499,6 +499,8 @@ module common_mod
 
     type(plot_type) :: noPlot
 
+    ! CEL atomic data
+
     type atomic_data
         integer :: NTEMPS
         integer :: NLEVS
@@ -520,5 +522,52 @@ module common_mod
         real,allocatable :: a_fit(:),b_fit(:),c_fit(:),d_fit(:)
     end type atomic_data
     type(atomic_data), dimension(3:nElements, 1:28) :: atomic_data_array ! dimensions represent atomic number and number of ionisation stages (normal mocassin only goes up to 10 ionisation stages)
+
+    ! HeI2phot
+
+    real, dimension(41) :: Ay_dat        ! data point in Ay (rates) [1/s]
+    real, dimension(41) :: y_dat         ! data point in y (=nu/nu0)
+
+    ! H I emissivity
+    ! units are [e-25erg/s/N_gas]
+    double precision, dimension(3:30, 2:8) :: HIRecLineData ! data
+    double precision, dimension(3:30, 2:8) :: HIRecLines           ! emissivity from HI rec lines
+
+    ! He II
+
+    integer, parameter:: NHeIILyman = 4     ! Number of HeII Lym lines included
+    real, dimension(NHeIILyman) :: HeIILymanData     ! HeII Lyman lines em.  [e-25ergs*cm^3/s]
+    real, dimension(NHeIILyman) :: HeIILymanNu       ! HeII Lyman lines freq. [Ryd]
+    double precision, dimension(3:30, 2:16) :: HeIIRecLineData ! HeII rec line data (Storey & Hummer 1995)
+    double precision, dimension(3:30, 2:16) :: HeIIRecLines    ! emissivity from HeII rec lines
+
+    ! dielectronic recombination
+
+    type direcdata
+        integer :: elem   ! atomic number
+        integer :: n      ! number of electrons
+        real :: a,b,c,d,f ! fitting coefficients
+        integer :: g      ! temperature flag
+    end type direcdata
+
+    type(direcdata), dimension(25) :: direc_coeffs
+
+    type aldropequidata
+        integer :: elem   ! atomic number
+        integer :: n      ! number of electrons
+        real :: a,b,t0,t1 ! fitting coefficients
+    end type aldropequidata
+
+    type(aldropequidata), dimension(167) :: aldropequi_coeffs
+
+    ! hydrogenic
+
+    type hydrolinestype
+        real, dimension(2:15,8) :: linedata ! iup from 2 to 15, ilow from 1 to min(8,iup-1)
+        real :: dens
+    end type
+
+    type(hydrolinestype), dimension(9,12,13) :: hydroLinesData ! dimension represent ion, number of temperature point, number of density points (maximum in data files is currently 8
+    type(hydrolinestype), dimension(13) :: hydrolinesloc !for more readable code, elements from hydroLinesData are copied into this array. dimension is density
 
 end module common_mod

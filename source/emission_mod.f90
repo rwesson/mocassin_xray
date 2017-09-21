@@ -184,8 +184,7 @@ module emission_mod
                          &Please contact B. Ercolano -1-", ires
 
                  end if
-              else if (resLine(iRes)%elem>1 .and. resLine(iRes)%elem &
-                   &== resLine(iRes)%ion) then
+              else if (resLine(iRes)%elem>1 .and. resLine(iRes)%elem == resLine(iRes)%ion) then
 
                  lineIntensity = lineIntensity+hydrolines(resLine(iRes)%elem,&
                       &resLine(iRes)%mochigh(imul),resLine(iRes)%moclow(imul))*&
@@ -653,28 +652,12 @@ module emission_mod
         real                :: fit1, fit2    ! interpolation coefficients
         real                :: y             ! nu/nu0
 
-        real, dimension(41) :: Ay_dat        ! data point in Ay (rates) [1/s]
-        real, dimension(41) :: y_dat         ! data point in y (=nu/nu0)
-
         integer             :: i, j          ! counters
         integer             :: ios           ! I/O error status
 
         ! assume all HeI singlets finally end up in the 2^1S
         ! use total recombination cofficient to all singlets Benjamin, Skillman and SMits, ApJ, 1999, 514, 307
         alphaEff21SHeI = 6.23*((TeUsed/10000.)**(-0.827))
-
-        ! read in rates from data/HeI2phot.dat
-        close(93)
-        open(unit = 93,  action="read", file = PREFIX//"/share/mocassin/data/HeI2phot.dat", status = "old", position = "rewind", iostat=ios)
-        if (ios /= 0) then
-            print*, "! HeI2phot: can't open file: ",PREFIX,"/share/mocassin/data/HeI2phot.dat"
-            stop
-        end if
-        do i = 1, 41
-            read(unit = 93, fmt = *) y_dat(i), Ay_dat(i)
-        end do
-
-        close(93)
 
         ! calculate coefficients as a function of frequency
         j = 1
@@ -748,8 +731,7 @@ module emission_mod
         real                       :: log10TeZ    ! log10(6^2*Te/Z^2)
         real                       :: x1, x2, yy1, yy2, xx
         real                       :: dens(14)    !
-        real                       :: hydrolinesloc(1:30,1:13,2:15,1:8)
-
+        type(hydrolinestype), dimension(13) :: hydrolinesloc
         integer                    :: itemp, iden, idenp, elup
         integer                    :: ios         ! I/O error status
         integer                    :: i, denint   ! counters
@@ -781,44 +763,27 @@ module emission_mod
         do izp = 1, elup
            if (lgElementOn(izp) .and. nstages > izp) then
 
-              close(94)
-              open(unit = 94,  action="read", file = PREFIX//"/share/mocassin/"//hydroLinesFile(izp,itemp), &
-                   status = "old", position = "rewind", iostat=ios)
-              if (ios /= 0) then
-                 print*, "! RecLinesEmission: can't open file: ",PREFIX,"/share/mocassin/",hydroLinesFile(izp,itemp)
-                 stop
-              end if
-              dens = 0.
-              hydrolinesloc = 0.
-              do iden = 1, 100
-                 read(unit=94, fmt=*, iostat=ios) dens(iden)
-                 if (ios<0) exit
-
-                 do iup = 15, 2, -1
-                    read(94, fmt=*) (hydrolinesloc(izp, iden,iup, ilow), ilow = 1, min(8, iup-1))
-                 end do
-              end do
-              close(94)
+              hydrolinesloc=hydroLinesData(izp,itemp,:)
 
               ! look at density
               idenp = 1
               do iden = 1, 13
-                 if (NeUsed>dens(iden) .and. dens(iden)> 0.) idenp = iden
+                 if (NeUsed.gt.hydrolinesloc(iden)%dens .and. hydrolinesloc(iden)%dens.gt. 0.) idenp = iden
               end do
 
-              if ((dens(13)>0. .and. idenp<13) .or. (dens(13)==0. .and. idenp<9)) then
+              if ((hydrolinesloc(13)%dens>0. .and. idenp<13) .or. (hydrolinesloc(13)%dens==0. .and. idenp<9)) then
                  ! interpolate
                  do iup = 2, 15
                     do ilow = 1, min(8,iup-1)
-                       hydroLines(izp,iup,ilow) = (hydrolinesloc(izp, idenp,iup, ilow)+&
-                            & (hydrolinesloc(izp, idenp+1,iup, ilow)-&
-                            & hydrolinesloc(izp, idenp,iup, ilow))*&
-                            & (NeUsed-dens(idenp))/(dens(idenp+1)-dens(idenp)))
+                       hydroLines(izp,iup,ilow) = (hydrolinesloc(idenp)%linedata(iup, ilow)+&
+                            & (hydrolinesloc(idenp+1)%linedata(iup, ilow)-&
+                            & hydrolinesloc(idenp)%linedata(iup, ilow))*&
+                            & (NeUsed-hydrolinesloc(idenp)%dens)/(hydrolinesloc(idenp+1)%dens-hydrolinesloc(idenp)%dens))
                     end do
                  end do
 
               else
-                 hydroLines(izp,:,:) = hydrolinesloc(izp, idenp,:,:)
+                 hydroLines(izp,:,:) = hydrolinesloc(idenp)%linedata
               end if
 
 
@@ -846,10 +811,10 @@ module emission_mod
                        ! interpolate in density
                        yy1 = rbEdge(izp,3,idenp)+(rbEdge(izp,3,idenp)-&
                             &rbEdge(izp,3,idenp+1))*&
-                            & (NeUsed-dens(idenp))/(dens(idenp+1)-dens(idenp))
+                            & (NeUsed-hydrolinesloc(idenp)%dens)/(hydrolinesloc(idenp+1)%dens-hydrolinesloc(idenp)%dens)
                        yy2 = rbEdge(izp,3,13+idenp)+(rbEdge(izp,3,13+idenp)-&
                             &rbEdge(izp,3,13+idenp+1))*&
-                            & (NeUsed-dens(idenp))/(dens(idenp+1)-dens(idenp))
+                            & (NeUsed-hydrolinesloc(idenp)%dens)/(hydrolinesloc(idenp+1)%dens-hydrolinesloc(idenp)%dens)
                     else
                        yy1 = rbEdge(izp,3,idenp)
                        yy2 = rbEdge(izp,3,13+idenp)
@@ -868,10 +833,10 @@ module emission_mod
                        ! interpolate in density
                        yy1 = r2aEdge(3,idenp)+(r2aEdge(3,idenp)-&
                             &r2aEdge(3,idenp+1))*&
-                            & (NeUsed-dens(idenp))/(dens(idenp+1)-dens(idenp))
+                            & (NeUsed-hydrolinesloc(idenp)%dens)/(hydrolinesloc(idenp+1)%dens-hydrolinesloc(idenp)%dens)
                        yy2 = r2aEdge(3,9+idenp)+(r2aEdge(3,9+idenp)-&
                             &r2aEdge(3,9+idenp+1))*&
-                            & (NeUsed-dens(idenp))/(dens(idenp+1)-dens(idenp))
+                            & (NeUsed-hydrolinesloc(idenp)%dens)/(hydrolinesloc(idenp+1)%dens-hydrolinesloc(idenp)%dens)
                     else
                        yy1 = r2aEdge(3,idenp)
                        yy2 = r2aEdge(3,9+idenp)
@@ -917,43 +882,27 @@ module emission_mod
                       & itemp = itemp+1
               end if
 
-              close(94)
-              open(unit = 94,  action="read", file = PREFIX//"/share/mocassin/"//hydroLinesFile(2,itemp), status = "old", position = "rewind", iostat=ios)
-              if (ios /= 0) then
-                 print*, "! RecLinesEmission: can't open file: ",PREFIX,"/share/mocassin/",hydroLinesFile(2,itemp)
-                 stop
-              end if
-              dens = 0.
-              hydrolinesloc = 0.
-              do iden = 1, 100
-                 read(unit=94, fmt=*, iostat=ios) dens(iden)
-                 if (ios<0) exit
-
-                 do iup = 15, 2, -1
-                    read(94, fmt=*) (hydrolinesloc(izp, iden,iup, ilow), ilow = 1, min(8, iup-1))
-                 end do
-              end do
-              close(94)
+              hydrolinesloc=hydroLinesData(2,itemp,:)
 
               ! look at density
               idenp = 1
               do iden = 1, 13
-                 if (Nez>dens(iden) .and. dens(iden)> 0.) idenp = iden
+                 if (Nez>hydrolinesloc(iden)%dens .and. hydrolinesloc(iden)%dens> 0.) idenp = iden
               end do
 
-              if ((dens(13)>0. .and. idenp<13) .or. (dens(13)==0. .and. idenp<9)) then
+              if ((hydrolinesloc(13)%dens>0. .and. idenp<13) .or. (hydrolinesloc(13)%dens==0. .and. idenp<9)) then
                  ! interpolate
                  do iup = 2, 15
                     do ilow = 1, min(8,iup-1)
-                       hydroLines(izp,iup,ilow) = (hydrolinesloc(izp, idenp,iup, ilow)+&
-                            & (hydrolinesloc(izp, idenp+1,iup, ilow)-&
-                            & hydrolinesloc(izp, idenp,iup, ilow))*&
-                            & (Nez-dens(idenp))/(dens(idenp+1)-dens(idenp)))
+                       hydroLines(izp,iup,ilow) = (hydrolinesloc(idenp)%linedata(iup, ilow)+&
+                            & (hydrolinesloc(idenp+1)%linedata(iup, ilow)-&
+                            & hydrolinesloc(idenp)%linedata(iup, ilow))*&
+                            & (Nez-hydrolinesloc(idenp)%dens)/(hydrolinesloc(idenp+1)%dens-hydrolinesloc(idenp)%dens))
                     end do
                  end do
 
               else
-                 hydroLines(izp,:,:) = hydrolinesloc(izp, idenp,:,:)
+                 hydroLines(izp,:,:) = hydrolinesloc(idenp)%linedata
               end if
 
               ! calculate Hbeta
@@ -1041,9 +990,8 @@ module emission_mod
         real                       :: log10TeZ    ! log10(6^2*Te/Z^2)
         real                       :: x1, x2
         real                       :: dens(14)    !
-        real                       :: hydrolinesloc(1:30,1:13,2:15,1:8)
         real                       :: x,y1,y2
-
+        type(hydrolinestype), dimension(13) :: hydrolinesloc
         integer                    :: itemp, iden, idenp, izp
         integer                    :: ios         ! I/O error status
         integer                    :: i, denint   ! counters
@@ -1076,45 +1024,29 @@ module emission_mod
         do izp = 1, elUp
            if (lgElementOn(izp) .and. nstages > izp) then
 
-              close(94)
-              open(unit = 94,  action="read", file = PREFIX//"share/mocassin/"//hydroLinesFile(izp,itemp), status = "old", position = "rewind", iostat=ios)
-              if (ios /= 0) then
-                 print*, "! RecLinesEmission: can't open file: ",PREFIX,"/share/mocassin/",hydroLinesFile(izp,itemp)
-                 stop
-              end if
-              dens = 0.
-              hydrolinesloc = 0.
-              do iden = 1, 100
-                 read(unit=94, fmt=*, iostat=ios) dens(iden)
-                 if (ios<0) exit
-
-                 do iup = 15, 2, -1
-                    read(94, fmt=*) (hydrolinesloc(izp, iden,iup, ilow), ilow = 1, min(8, iup-1))
-                 end do
-              end do
-              close(94)
+              hydrolinesloc(:)=hydroLinesData(izp,itemp,:)
 
               ! look at density
               idenp = 1
               do iden = 1, 13
-                 if (NeUsed>dens(iden) .and. dens(iden)> 0.) idenp = iden
+                 if (NeUsed>hydrolinesloc(iden)%dens .and. hydrolinesloc(iden)%dens> 0.) idenp = iden
               end do
 
-              if ((dens(13)>0. .and. idenp<13) .or. (dens(13)==0. &
+              if ((hydrolinesloc(13)%dens>0. .and. idenp<13) .or. (hydrolinesloc(13)%dens==0. &
                    & .and. idenp<9)) then
                  ! interpolate
                  do iup = 2, 15
                     do ilow = 1, min(8,iup-1)
                        hydroLines(izp,iup,ilow) = &
-                            &(hydrolinesloc(izp, idenp,iup, ilow)+&
-                            & (hydrolinesloc(izp, idenp+1,iup, ilow)-&
-                            & hydrolinesloc(izp, idenp,iup, ilow))*&
-                            & (NeUsed-dens(idenp))/(dens(idenp+1)-dens(idenp)))
+                            &(hydrolinesloc(idenp)%linedata(iup, ilow)+&
+                            & (hydrolinesloc(idenp+1)%linedata(iup, ilow)-&
+                            & hydrolinesloc(idenp)%linedata(iup, ilow))*&
+                            & (NeUsed-hydrolinesloc(idenp)%dens)/(hydrolinesloc(idenp+1)%dens-hydrolinesloc(idenp)%dens))
                     end do
                  end do
 
               else
-                 hydroLines(izp,:,:) = hydrolinesloc(izp, idenp,:,:)
+                 hydroLines(izp,:,:) = hydrolinesloc(idenp)%linedata
               end if
 
               ! calculate Hbeta
@@ -1134,9 +1066,9 @@ module emission_mod
                  if (idenp<13) then
                     ! interpolate in density
                     y1 = rbEdge(izp,3,idenp)+(rbEdge(izp,3,idenp)-rbEdge(izp,3,idenp+1))*&
-                         & (NeUsed-dens(idenp))/(dens(idenp+1)-dens(idenp))
+                         & (NeUsed-hydrolinesloc(idenp)%dens)/(hydrolinesloc(idenp+1)%dens-hydrolinesloc(idenp)%dens)
                     y2 = rbEdge(izp,3,13+idenp)+(rbEdge(izp,3,13+idenp)-rbEdge(izp,3,13+idenp+1))*&
-                         & (NeUsed-dens(idenp))/(dens(idenp+1)-dens(idenp))
+                         & (NeUsed-hydrolinesloc(idenp)%dens)/(hydrolinesloc(idenp+1)%dens-hydrolinesloc(idenp)%dens)
                  else
                     y1 = rbEdge(izp,3,idenp)
                     y2 = rbEdge(izp,3,13+idenp)
@@ -1158,9 +1090,9 @@ module emission_mod
                  if (idenp<9) then
                    ! interpolate in density
                     y1 = r2aEdge(3,idenp)+(r2aEdge(3,idenp)-r2aEdge(3,idenp+1))*&
-                         & (NeUsed-dens(idenp))/(dens(idenp+1)-dens(idenp))
+                         & (NeUsed-hydrolinesloc(idenp)%dens)/(hydrolinesloc(idenp+1)%dens-hydrolinesloc(idenp)%dens)
                     y2 = r2aEdge(3,9+idenp)+(r2aEdge(3,9+idenp)-r2aEdge(3,9+idenp+1))*&
-                         & (NeUsed-dens(idenp))/(dens(idenp+1)-dens(idenp))
+                         & (NeUsed-hydrolinesloc(idenp)%dens)/(hydrolinesloc(idenp+1)%dens-hydrolinesloc(idenp)%dens)
                  else
                     y1 = r2aEdge(3,idenp)
                     y2 = r2aEdge(3,9+idenp)
@@ -1204,46 +1136,29 @@ module emission_mod
                       & itemp = itemp+1
               end if
 
-              close(94)
               ! this is the HeII case A
-              open(unit = 94,  action="read", file = PREFIX//"/share/mocassin/"//hydroLinesFile(9,itemp), status = "old", position = "rewind", iostat=ios)
-              if (ios /= 0) then
-                 print*, "! RecLinesEmission: can't open file: ",PREFIX,"/share/mocassin/",hydroLinesFile(9,itemp)
-                 stop
-              end if
-              dens = 0.
-              hydrolinesloc = 0.
-              do iden = 1, 100
-                 read(unit=94, fmt=*, iostat=ios) dens(iden)
-                 if (ios<0) exit
-
-                 do iup = 15, 2, -1
-                    read(94, fmt=*) (hydrolinesloc(izp, iden,iup, ilow), ilow = 1, min(8, iup-1))
-                 end do
-              end do
-              close(94)
+              hydrolinesloc=hydroLinesData(9,itemp,:)
 
               ! look at density
               idenp = 1
               do iden = 1, 13
-                 if (Nez>dens(iden) .and. dens(iden)> 0.) idenp = iden
+                 if (Nez>hydrolinesloc(iden)%dens .and. hydrolinesloc(iden)%dens> 0.) idenp = iden
               end do
 
-              if ((dens(13)>0. .and. idenp<13) .or. (dens(13)==0. &
+              if ((hydrolinesloc(13)%dens>0. .and. idenp<13) .or. (hydrolinesloc(13)%dens==0. &
                    &.and. idenp<9)) then
                  ! interpolate
                  do iup = 2, 15
                     do ilow = 1, min(8,iup-1)
-                       hydroLines(izp,iup,ilow) = (hydrolinesloc(izp, &
-                            &idenp,iup, ilow)+&
-                            & (hydrolinesloc(izp, idenp+1,iup, ilow)-&
-                            & hydrolinesloc(izp, idenp,iup, ilow))*&
-                            & (Nez-dens(idenp))/(dens(idenp+1)-dens(idenp)))
+                       hydroLines(izp,iup,ilow) = (hydrolinesloc(idenp)%linedata(iup,ilow)+&
+                            & (hydrolinesloc(idenp+1)%linedata(iup, ilow)-&
+                            & hydrolinesloc(idenp)%linedata(iup, ilow))*&
+                            & (Nez-hydrolinesloc(idenp)%dens)/(hydrolinesloc(idenp+1)%dens-hydrolinesloc(idenp)%dens))
                     end do
                  end do
 
               else
-                 hydroLines(izp,:,:) = hydrolinesloc(izp, idenp,:,:)
+                 hydroLines(izp,:,:) = hydrolinesloc(idenp)%linedata
               end if
 
               ! calculate Hbeta
@@ -1259,9 +1174,9 @@ module emission_mod
                  if (idenp<9) then
                    ! interpolate in density
                     y1 = r2aEdge(3,idenp)+(r2aEdge(3,idenp)-r2aEdge(3,idenp+1))*&
-                         & (NeUsed-dens(idenp))/(dens(idenp+1)-dens(idenp))
+                         & (NeUsed-hydrolinesloc(idenp)%dens)/(hydrolinesloc(idenp+1)%dens-hydrolinesloc(idenp)%dens)
                     y2 = r2aEdge(3,9+idenp)+(r2aEdge(3,9+idenp)-r2aEdge(3,9+idenp+1))*&
-                         & (NeUsed-dens(idenp))/(dens(idenp+1)-dens(idenp))
+                         & (NeUsed-hydrolinesloc(idenp)%dens)/(hydrolinesloc(idenp+1)%dens-hydrolinesloc(idenp)%dens)
                  else
                     y1 = r2aEdge(3,idenp)
                     y2 = r2aEdge(3,9+idenp)
@@ -2449,9 +2364,6 @@ module emission_mod
        end if
 
     end if
-
-    ! close atomic data file
-    close(11)
 
     ! form matrices
     ! set up qeff
