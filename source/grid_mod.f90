@@ -971,7 +971,7 @@ module grid_mod
         real                           :: radius       ! distance from the origin
         real                           :: random       ! random nmumber
         real                           :: readReal     ! real number reader
-        real                           :: totalMass    ! total ionized mass
+        real                           :: totalGasMass ! total ionized mass
         real                           :: totalVolume  ! total active volume
 
         real, dimension(nElements) :: aWeight
@@ -1639,7 +1639,7 @@ module grid_mod
                 & 58.71, 63.546, 65.37 /)
 
            totalDustMass = 0.
-           totalMass = 0.
+           totalGasMass = 0.
            totalVolume = 0.
 
            do i = 1, grid%nx
@@ -1654,7 +1654,7 @@ module grid_mod
                           do elem = 1, nElements
                              gasCell = gasCell + grid%elemAbun(grid%abFileIndex(i,j,k),elem)*&
                                   & aWeight(elem)*amu
-                             totalMass = totalMass + &
+                             totalGasMass = totalGasMass + &
                                   & grid%Hden(grid%active(i,j,k))*dV*&
                                   &grid%elemAbun(grid%abFileIndex(i,j,k),elem)*&
                                   & aWeight(elem)*amu
@@ -1727,14 +1727,14 @@ module grid_mod
 
               print*, 'Mothergrid :'
               if (lgGas) then
-                 print*, 'Total gas mass of ionized region by mass [1.e45 g]: ', totalMass
-                 print*, '                                         [Msol]   : ', totalMass*5.025e11
+                 print*, 'Total gas mass of ionized region by mass [1.e45 g]: ', totalGasMass
+                 print*, '                                         [Msol]   : ', totalGasMass*5.025e11
               end if
               print*, 'Total volume of the active region [e45 cm^3]: ', totalVolume
 
 ! break if no gas or dust present
 
-              if (totalMass + totalDustMass .eq. 0.) then
+              if (totalGasMass + totalDustMass .eq. 0.) then
                 print *,"! fillGrid: total mass in grid is zero. Terminating."
                 stop
               endif
@@ -1827,7 +1827,6 @@ module grid_mod
            real                           :: H0in         ! estimated H0 at the inner radius for regionI
            real                           :: MhMg         ! hdrogen to gas mass ratio
            real                           :: radius       ! distance from the origin
-           real                           :: totalMass    ! total ionized mass
            real                           :: totalVolume  ! total active volume
 
            real, allocatable              :: HdenTemp(:,:,:) ! temporary Hden
@@ -2461,7 +2460,7 @@ module grid_mod
                  if(allocated(NdustTemp)) deallocate(NdustTemp)
               end if
 
-              totalMass = 0.
+              totalGasMass = 0.
               totalVolume = 0.
 
 
@@ -2478,7 +2477,7 @@ module grid_mod
                                 gasCell = gasCell + &
                                      & grid(iG)%elemAbun(grid(iG)%abFileIndex(ix,iy,iz),elem)*&
                                      & aWeight(elem)*amu
-                                totalMass = totalMass + &
+                                totalGasMass = totalGasMass + &
                                      & grid(iG)%Hden(grid(iG)%active(ix,iy,iz))*dV*&
                                      & grid(iG)%elemAbun(grid(iG)%abFileIndex(ix,iy,iz),elem)*&
                                      & aWeight(elem)*amu
@@ -2551,8 +2550,8 @@ module grid_mod
 
                  print*, 'Sub Grid: ', iG
                  if (lgGas) then
-                    print*, 'Total gas mass of ionized region by mass [1.e45 g]: ', totalMass
-                    print*, '                                         [Msol]   : ', totalMass*5.025e11
+                    print*, 'Total gas mass of ionized region by mass [1.e45 g]: ', totalGasMass
+                    print*, '                                         [Msol]   : ', totalGasMass*5.025e11
                  endif
 
                  print*, 'Total volume  of the active region [e45 cm^3]: ', totalVolume
