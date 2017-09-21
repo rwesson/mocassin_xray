@@ -971,7 +971,6 @@ module grid_mod
         real                           :: radius       ! distance from the origin
         real                           :: random       ! random nmumber
         real                           :: readReal     ! real number reader
-        real                           :: totalGasMass ! total ionized mass
         real                           :: totalVolume  ! total active volume
 
         real, dimension(nElements) :: aWeight

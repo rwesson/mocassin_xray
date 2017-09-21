@@ -38,6 +38,7 @@ module common_mod
     real            :: dPhi                    !
     real            :: nu0                     !
     real            :: nu0Add                  !
+    real            :: totalGasMass ! total ionized mass
     real            :: totalDustMass
     real            :: convPercent=0.          ! total convergence percentage
     real            :: pwlIndex = 0.           ! power law input spectrum index
