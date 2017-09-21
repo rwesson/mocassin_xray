@@ -63,9 +63,6 @@ program MoCaSSiN
     ! read the input parameters of the simulation
     call readInput()
 
-    ! read in data files
-    call readdata()
-
     if (taskid == 0) then
         print*, " "
     end if
@@ -94,7 +91,10 @@ program MoCaSSiN
     endif
 
     ! prepare atomica data stuff
-    if (lgGas) call makeElements()
+    if (lgGas) then
+      call readdata()
+      call makeElements()
+    endif
 
     if (taskid==0) print*, 'active elements: ', nElementsUsed
 
