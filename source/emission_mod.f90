@@ -2572,8 +2572,8 @@ module emission_mod
 
              ! for h-like two-photon transition between levels 1 and 2
              ! for he-like two-photon transition between levels 1 and 3
-             if (j == iup2p .and. i ==1 .and. atp >0.) then
-                atomic_data_array(elem,ion)%a(j,i) = atomic_data_array(elem,ion)%a(j,i)-atp
+             if (j == iup2p .and. i ==1 .and. atomic_data_array(elem,ion)%atp(j,i) >0.) then
+                atomic_data_array(elem,ion)%a(j,i) = atomic_data_array(elem,ion)%a(j,i)-atomic_data_array(elem,ion)%atp(j,i)
              end if
 
              fLineEm(i,j) = atomic_data_array(elem,ion)%a(j,i) * Eji * n(j)

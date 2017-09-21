@@ -513,12 +513,12 @@ module common_mod
         double precision,allocatable :: cs(:,:) !collision strength
         double precision,allocatable :: qeff(:,:)
         double precision,allocatable :: qom(:,:,:)
+        real,allocatable :: atp(:,:)
         real,allocatable :: qq(:),qq2(:)
         real :: a_r(4),a_d(5),z,br
         real,allocatable :: alphaTotal(:)
         real,allocatable :: a_fit(:),b_fit(:),c_fit(:),d_fit(:)
     end type atomic_data
-
     type(atomic_data), dimension(3:nElements, 1:28) :: atomic_data_array ! dimensions represent atomic number and number of ionisation stages (normal mocassin only goes up to 10 ionisation stages)
 
 end module common_mod

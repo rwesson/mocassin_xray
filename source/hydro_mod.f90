@@ -746,6 +746,11 @@ module elements_mod
                    allocate(atomic_data_array(elem,ion)%qq(atomic_data_array(elem,ion)%ntemps))
                    allocate(atomic_data_array(elem,ion)%qq2(atomic_data_array(elem,ion)%ntemps))
                    allocate(atomic_data_array(elem,ion)%qeff(atomic_data_array(elem,ion)%nlevs,atomic_data_array(elem,ion)%nlevs))
+                   allocate(atomic_data_array(elem,ion)%atp(atomic_data_array(elem,ion)%nlevs,atomic_data_array(elem,ion)%nlevs))
+                   allocate(atomic_data_array(elem,ion)%a_fit(atomic_data_array(elem,ion)%nlevs))
+                   allocate(atomic_data_array(elem,ion)%b_fit(atomic_data_array(elem,ion)%nlevs))
+                   allocate(atomic_data_array(elem,ion)%c_fit(atomic_data_array(elem,ion)%nlevs))
+                   allocate(atomic_data_array(elem,ion)%d_fit(atomic_data_array(elem,ion)%nlevs))
 
                    atomic_data_array(elem,ion)%cs = 0d0
                    atomic_data_array(elem,ion)%a = 0d0
@@ -763,6 +768,12 @@ module elements_mod
                    atomic_data_array(elem,ion)%qq = 0.d0
                    atomic_data_array(elem,ion)%qq2 = 0.d0
                    atomic_data_array(elem,ion)%qeff = 0.d0
+                   atomic_data_array(elem,ion)%atp = 0.d0
+
+                   atomic_data_array(elem,ion)%a_fit = 0.d0
+                   atomic_data_array(elem,ion)%b_fit = 0.d0
+                   atomic_data_array(elem,ion)%c_fit = 0.d0
+                   atomic_data_array(elem,ion)%d_fit = 0.d0
 
                    !read levels and temperatures
                    do I = 1,atomic_data_array(elem,ion)%NLEVS
