@@ -25,6 +25,8 @@ else
   PREFIX=/usr
 endif
 
+PREFIX=/home/rwesson/software/mocassin-xray-dev/tempinstall/# temporary
+
 # get version from changelog if debian package, or git log otherwise
 VERSION := $(shell if [ -e debian/ ]; then dpkg-parsechangelog -S version; else git describe --always --tags --dirty || echo "3.04.00"; fi)
 
@@ -33,7 +35,7 @@ VERSION := $(shell if [ -e debian/ ]; then dpkg-parsechangelog -S version; else 
 ifeq ($(FC),ifort)
   FFLAGS += -cpp -DPREFIX=\"$(PREFIX)\" -DVERSION=\"$(VERSION)\" -module source/
 else
-  FFLAGS += -cpp -Jsource/ -ffree-line-length-0 -lm -DPREFIX=\"$(PREFIX)\" -DVERSION=\"$(VERSION)\" -I/usr/local/include
+  FFLAGS += -cpp -Jsource/ -ffree-line-length-0 -lm -DPREFIX=\"$(PREFIX)\" -DVERSION=\"$(VERSION)\" -DCOMPILER=\"$(FC)\" -I/usr/local/include
 endif
 
 MANDIR=$(DESTDIR)$(PREFIX)/share/man/man1
