@@ -962,7 +962,7 @@ module output_mod
            end do
 
            write(10, *)
-           write(10, *) "HeI"
+           write(10, *) "HeI recombination lines"
            write(10, *) "  lambda [A]   I/I(Hbeta)  "
 
            do l = 1, 34
@@ -1988,11 +1988,9 @@ module output_mod
         real                       :: log10NeZ    ! log10 NeUsed scaled
         real                       :: log10TeZ    ! log10(6^2*Te/Z^2)
         real                       :: x1, x2, yy1, yy2, xx
-        real                       :: dens(14)    !
         type(hydrolinestype), dimension(13) :: hydrolinesloc
 
         integer                    :: itemp, iden, idenp, izp, elUp
-        integer                    :: ios         ! I/O error status
         integer                    :: i, denint   ! counters
         integer                    :: ilow,&      ! pointer to lower level
              &iup                                 ! pointer to upper level
@@ -2241,12 +2239,10 @@ module output_mod
         real                       :: log10NeZ    !
         real                       :: log10TeZ    !
         real                       :: x1, x2
-        real                       :: dens(14)    !
         type(hydrolinestype), dimension(13) :: hydrolinesloc
         real                       :: x, y1, y2
 
         integer                    :: itemp, iden, idenp, izp
-        integer                    :: ios         ! I/O error status
         integer                    :: i, denint   ! counters
         integer                    :: ilow,&      ! pointer to lower level
              &iup                                 ! pointer to upper level

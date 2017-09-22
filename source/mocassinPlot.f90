@@ -619,7 +619,6 @@ print*, lineORcont, code, freq1, freq2
 
         ! local variables
         integer                    :: itemp, iden, idenp, izp, elUp
-        integer                    :: ios         ! I/O error status
         integer                    :: i, denint   ! counters
         integer                    :: ilow,&      ! pointer to lower level
              &iup                                 ! pointer to upper level

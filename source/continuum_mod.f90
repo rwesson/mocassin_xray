@@ -426,7 +426,6 @@ module continuum_mod
 
         integer, intent(in) :: iS         ! central star index
 
-        integer :: err                    ! allocation error status
         integer :: i                      ! counter
         integer :: nu0AddP
 

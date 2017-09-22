@@ -3169,16 +3169,11 @@ module update_mod
 
             ! local variables
 
-            integer              :: elem      ! atomic number
             integer              :: ion       ! ionization stage
-            integer              :: n         ! number of electrons
-            integer              :: ios       ! I/O error status
-            integer              :: g         ! temperature flag
 
             real, dimension(nElements, nstages) :: aldroPequi! high T dielec rec coeff by A&P73
 
-            real                 :: a,b,c,d,f ! fitting coefficients
-            real                 :: t,t0,t1   ! t = TeUsed/10000., t0,t1 are fitting par
+            real                 :: t         ! t = TeUsed/10000.
             real                 :: alpha
 
             aldroPequi = 0.

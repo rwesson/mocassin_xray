@@ -653,7 +653,6 @@ module emission_mod
         real                :: y             ! nu/nu0
 
         integer             :: i, j          ! counters
-        integer             :: ios           ! I/O error status
 
         ! assume all HeI singlets finally end up in the 2^1S
         ! use total recombination cofficient to all singlets Benjamin, Skillman and SMits, ApJ, 1999, 514, 307
@@ -730,10 +729,8 @@ module emission_mod
         real                       :: log10NeZ    ! log10 NeUsed scaled
         real                       :: log10TeZ    ! log10(6^2*Te/Z^2)
         real                       :: x1, x2, yy1, yy2, xx
-        real                       :: dens(14)    !
         type(hydrolinestype), dimension(13) :: hydrolinesloc
         integer                    :: itemp, iden, idenp, elup
-        integer                    :: ios         ! I/O error status
         integer                    :: i, denint   ! counters
         integer                    :: ilow,&      ! pointer to lower level
              &iup                                 ! pointer to upper level
@@ -989,11 +986,9 @@ module emission_mod
         real                       :: log10NeZ    ! log10 NeUsed scaled
         real                       :: log10TeZ    ! log10(6^2*Te/Z^2)
         real                       :: x1, x2
-        real                       :: dens(14)    !
         real                       :: x,y1,y2
         type(hydrolinestype), dimension(13) :: hydrolinesloc
         integer                    :: itemp, iden, idenp, izp
-        integer                    :: ios         ! I/O error status
         integer                    :: i, denint   ! counters
         integer                    :: ilow,&      ! pointer to lower level
              &iup                                 ! pointer to upper level
@@ -1340,7 +1335,6 @@ module emission_mod
         real              :: sumDiffuseHeII(nbins) ! summation terms for HeII emission
 
         integer           :: elem, ion          ! counters
-        integer           :: err                ! allocation error status
         integer           :: j2TsP              ! pointer to 2s triplet state in nuArray
         integer           :: i,iup,ilow,j       ! counters
         integer           :: ios                ! I/O error status
@@ -2247,26 +2241,19 @@ module emission_mod
          & intent(out), optional :: wav         ! wavelength of transition [A]
 
 
-    real (kind=8)     :: ax, ex                    ! readers
     real (kind=8)     :: constant                  ! calculations constant
     real (kind=8)     :: delTeK                    ! Boltzmann exponent
     real (kind=8)     :: expFac                    ! calculations factor
     real (kind=8)     :: Eji                       ! energy between levels j and i
 
-    real (kind=8)       :: qx                        ! reader
-    real (kind=8)   :: sumN                      ! normalization factor for populations
-    real (kind=8)        :: sqrTe                     ! sqrt(Te)
-
-    real (kind=8)                   :: atp         ! 2-phot rate
     real (kind=8), allocatable      :: x(:,:)      ! matrix arrays
     real (kind=8), allocatable      :: y(:)        !
-    real (kind=8), allocatable      :: n(:), n2(:) ! level population arrays
-
-
+    real (kind=8), allocatable      :: n(:)        ! level population array
 
     real                 :: a_r(4),a_d(5),z,br        !
-    real                 :: a_fit, b_fit, c_fit, d_fit!
     real                 :: qomInt                    ! interpolated value of qom
+    real (kind=8)   :: sumN                      ! normalization factor for populations
+    real (kind=8)        :: sqrTe                     ! sqrt(Te)
 
     real, intent(in) &
          & :: Te, &    ! electron temperature [K]
@@ -2275,31 +2262,16 @@ module emission_mod
 
 
     integer  :: iup2p            ! upper level for 2-phot transitions
-    integer  :: jj
-    integer  :: gx               ! stat weight reader
-    integer  :: i, j, k, l, iT   ! counters/indeces
-    integer  :: iRats            ! coll strength (iRats=0) or (coll rates)/10**iRats
-    integer  :: ios              ! I/O error status
-    integer  :: nLev             ! number of levels in atomic data file
-    integer  :: numLines         ! number of lines for atomic data refernce
+    integer  :: i, j, iT         ! counters/indeces
 
+    integer  :: nLev             ! number of levels in atomic data file
     integer  :: nTemp            ! number of temperature points in atomic data file
-    integer  :: err              ! allocation error status
 
     integer  :: elem, ion        ! location of atomic data in the array
 
     integer, parameter :: safeLim = 10000 ! loop safety limit
 
-    integer, allocatable :: g(:)              ! statistical weight array
-
-    integer, dimension(2) :: ilow, &      ! lower index
-         & iup          ! upper index
-
     logical, intent(in) :: rec
-
-    character(len = 20), allocatable :: label(:)! labels array
-
-    character(len = 75) :: text  ! lines of text
 
     character(len = *), &
          & intent(in)  :: file_name   ! ionic data file name
@@ -2601,7 +2573,7 @@ module emission_mod
     integer :: nL  ! line counter
     integer :: nmul ! number of multiplets
     integer :: nResLinesFile
-    integer :: safeLimit = 1e6 !
+    integer :: safeLimit = 1000000 !
 
     type(grid_type), intent(inout) :: grid(*)
 
