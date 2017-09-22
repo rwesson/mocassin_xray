@@ -1,4 +1,4 @@
-autoPackets 0.20 2. 10000000
+autoPackets 0.20 2. 900000000
 TStellar 80000.
 contShape  blackbody
 output 
@@ -21,3 +21,6 @@ Rin 1.0e15
 Rout 1.0E+18
 convLimit 0.05
 writeGrid 10.
+dustFile 'input/species.dat' 'input/sizes.dat'
+Ndust file 'input/dustgrid.ndust'
+resLinesTransfer 69.
