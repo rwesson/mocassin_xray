@@ -1110,18 +1110,25 @@ module grid_mod
                  stop
               end if
               read(13, *) nSpecies
+
+! todo: check where these are allocated and see if it can all be moved to a higher level
+              if (allocated(rho)) deallocate(rho)
               allocate(rho(1:nSpecies), stat = err)
               if (err /= 0) then
                  print*, "! setMotherGrid: can't allocate rho memory"
                  stop
               end if
               rho=0.
+
+              if (allocated(grainVn)) deallocate(grainVn)
               allocate(grainVn(1:nSpecies), stat = err)
               if (err /= 0) then
                  print*, "! setMotherGrid: can't allocate grainVn memory"
                  stop
               end if
               grainVn=0.
+
+              if (allocated(MsurfAtom)) deallocate(MsurfAtom)
               allocate(MsurfAtom(1:nSpecies), stat = err)
               if (err /= 0) then
                  print*, "! setMotherGrid: can't allocate surfAtom memory"
