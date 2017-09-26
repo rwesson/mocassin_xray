@@ -207,12 +207,10 @@ module grid_mod
 
                if ( (lgDust) .and. (.not.lgGas) ) then
                   close(72)
-                  open (unit= 72,  action="read", file=PREFIX//"/share/mocassin/data/nuDustRyd.dat", &
-                       &status = "old", position = "rewind", &
+                  open (unit= 72,  action="read", file=PREFIX//"/share/mocassin/dustData/nuDustRyd.dat", status = "old", position = "rewind", &
                        & iostat = ios)
                   if (ios /= 0) then
-                     print*, "! initCartesianGrid: can't open dust nu grid file - &
-                          &dustData/nuDustRyd.dat"
+                     print*, "! initCartesianGrid: can't open dust nu grid file - ",PREFIX,"/share/mocassin/dustData/nuDustRyd.dat"
                      stop
                   end if
 
@@ -222,8 +220,7 @@ module grid_mod
                         if (nuArray(i)>nuMax) exit ! nuMax reached
                         if (ios < 0) exit ! end of file reached
                      else
-                        print*, "! initCartesianGrid: nbins is smaller that the number of &
-                             & frequency points in dustData/nuDustRyd.dat file - enlarge nbins"
+                        print*, "! initCartesianGrid: nbins is smaller that the number of frequency points in dustData/nuDustRyd.dat file - enlarge nbins"
                         stop
                      end if
                   end do
@@ -330,12 +327,10 @@ module grid_mod
 
                   ! dust data points
                   close(72)
-                  open (unit= 72,  action="read", file=PREFIX//"/share/mocassin/data/nuDustRyd.dat", &
-                       &status = "old", position = "rewind", &
+                  open (unit= 72,  action="read", file=PREFIX//"/share/mocassin/dustData/nuDustRyd.dat", status = "old", position = "rewind", &
                        & iostat = ios)
                   if (ios /= 0) then
-                     print*, "! initCartesianGrid: can't open dust nu grid file - &
-                          &nuDustGrid.dat"
+                     print*, "! initCartesianGrid: can't open dust nu grid file - ",PREFIX,"/share/mocassin/dustData/nuDustGrid.dat"
                      stop
                   end if
 
@@ -346,8 +341,7 @@ module grid_mod
                         if (ios < 0) exit ! end of file reached
                         if (nuArray(i)>= seriesEdge(1)) exit
                      else
-                        print*, "! initCartesianGrid: nbins is smaller that the number of &
-                             & frequency points in nuDustGrid.dat file - enlarge nbins"
+                        print*, "! initCartesianGrid: nbins is smaller that the number of frequency points in nuDustGrid.dat file - enlarge nbins"
                         stop
                      end if
                   end do
