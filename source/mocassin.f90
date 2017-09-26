@@ -58,6 +58,7 @@ program MoCaSSiN
     if (taskid == 0) then
         print*, "MOCASSIN 2007 Version ",VERSION
         print*, "compiled with ",COMPILER
+        if (CO.ne."co") print *,"CO=",CO
         print*, " "
     end if
 

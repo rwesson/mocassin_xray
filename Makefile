@@ -35,7 +35,7 @@ VERSION := $(shell if [ -e debian/ ]; then dpkg-parsechangelog -S version; else 
 ifeq ($(FC),ifort)
   FFLAGS += -cpp -DPREFIX=\"$(PREFIX)\" -DVERSION=\"$(VERSION)\" -module source/
 else
-  FFLAGS += -cpp -Jsource/ -ffree-line-length-0 -lm -DPREFIX=\"$(PREFIX)\" -DVERSION=\"$(VERSION)\" -DCOMPILER=\"$(FC)\" -I/usr/local/include
+  FFLAGS += -cpp -Jsource/ -ffree-line-length-0 -lm -DPREFIX=\"$(PREFIX)\" -DVERSION=\"$(VERSION)\" -DCOMPILER=\"$(FC)\" -DCO=\"$(CO)\" -I/usr/local/include
 endif
 
 MANDIR=$(DESTDIR)$(PREFIX)/share/man/man1
