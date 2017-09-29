@@ -11,7 +11,7 @@
 ! modify it under the terms of the GNU General Public License
 ! as published by the Free Software Foundation; either version 2
 ! of the License, or (at your option) any later version. This requires
-! that any chnages or improvements made to the program should also be
+! that any changes or improvements made to the program should also be
 ! made freely available.
 
 ! This program is distributed in the hope that it will be useful,
@@ -60,7 +60,7 @@ program MoCaSSiN
         print*, "compiled with ",COMPILER
         if (CO.ne."co") print *,"CO=",CO
         print*, " "
-    end if
+    endif
 
     ! read the input parameters of the simulation
     call readInput()
@@ -158,6 +158,5 @@ program MoCaSSiN
       print "(A,I3.2,A,I2.2,A,I2.2,A)","total run time per processor ",nhours,":",nminutes,":",nseconds," (HMS)"
       print *,'! MoCaSSin: end simulation reached - clean exit -'
     endif
-
 
 end program MoCaSSiN
