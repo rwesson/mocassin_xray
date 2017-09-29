@@ -1318,6 +1318,8 @@ module iteration_mod
                 grid(iG)%noTeBal          = 0
               endif
 
+              totPercent = totPercent + convPercent*grid(iG)%nCells/100.
+
               if (taskid == 0) then
                  if (nIterateMC == 1) then
                     close(21)
@@ -1368,8 +1370,6 @@ module iteration_mod
                        end do
                     end do
                  end if
-
-                 totPercent = totPercent + convPercent*grid(iG)%nCells/100.
 
               end if
 
