@@ -852,6 +852,7 @@ module iteration_mod
                  escapedPacketsComponentsTemp  = 0.
               endif
 
+              if (allocated(JSteTemp)) deallocate(JSteTemp)
               allocate(JSteTemp(0:grid(iG)%nCells, nbins), stat = err)
               if (err /= 0) then
                  print*, "! iterateMC: can't allocate array memory: JsteTemp ", iG
