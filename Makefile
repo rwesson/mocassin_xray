@@ -25,8 +25,6 @@ else
   PREFIX=/usr
 endif
 
-PREFIX=/home/rwesson/software/mocassin-xray-dev/tempinstall/# temporary
-
 # get version from changelog if debian package, or git log otherwise
 VERSION := $(shell if [ -e debian/ ]; then dpkg-parsechangelog -S version; else git describe --always --tags --dirty || echo "3.04.00"; fi)
 
