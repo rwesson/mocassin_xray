@@ -50,7 +50,6 @@ module grid_mod
 
         close(19)
         open(file=PREFIX//"/share/mocassin/data/hydroLinesFiles.dat", unit=19)
-print *,"opened unit 19"
         do i = 1, 9
            do j = 1, 12
               read(19,*) hydroLinesFile(i,j)
@@ -60,7 +59,6 @@ print *,"opened unit 19"
 
         close(21)
         open(file=PREFIX//"/share/mocassin/data/gaussfitHb.dat", unit=21)
-print *,"opened unit 21"
         do i = 1, 9
            read(21,*) (reader(j), j = 1, 8)
            HbACoeff(i,1:4) = reader(1:4)
@@ -73,7 +71,6 @@ print *,"opened unit 21"
 
         close(22)
         open(file=PREFIX//"/share/mocassin/data/r1bEdge.dat", unit=22)
-print *,"opened unit 22"
         do i = 1, 26
            read(22,*) rbEdge(1,1,i), rbEdge(1,2,i), rbEdge(1,3,i)
         end do
@@ -81,7 +78,6 @@ print *,"opened unit 22"
 
         close(23)
         open(file=PREFIX//"/share/mocassin/data/r2bEdge.dat", unit=23)
-print *,"opened unit 23"
         do i = 1, 26
            read(23,*) rbEdge(2,1,i), rbEdge(2,2,i), rbEdge(2,3,i)
         end do
@@ -89,7 +85,6 @@ print *,"opened unit 23"
 
         close(23)
         open(file=PREFIX//"/share/mocassin/data/r2aEdge.dat", unit=23)
-print *,"opened unit 23"
         do i = 1, 18
            read(23,*) r2aEdge(1,i), r2aEdge(2,i), r2aEdge(3,i)
         end do
@@ -214,7 +209,6 @@ print *,"opened unit 23"
                   close(72)
                   open (unit= 72,  action="read", file=PREFIX//"/share/mocassin/dustData/nuDustRyd.dat", status = "old", position = "rewind", &
                        & iostat = ios)
-print *,"opened unit 72"
                   if (ios /= 0) then
                      print*, "! initCartesianGrid: can't open dust nu grid file - ",PREFIX,"/share/mocassin/dustData/nuDustRyd.dat"
                      stop
@@ -335,7 +329,6 @@ print *,"opened unit 72"
                   close(72)
                   open (unit= 72,  action="read", file=PREFIX//"/share/mocassin/dustData/nuDustRyd.dat", status = "old", position = "rewind", &
                        & iostat = ios)
-print *,"opened unit 72"
                   if (ios /= 0) then
                      print*, "! initCartesianGrid: can't open dust nu grid file - ",PREFIX,"/share/mocassin/dustData/nuDustGrid.dat"
                      stop
@@ -1012,7 +1005,6 @@ print *,"opened unit 72"
            if (lgDfile) then
               open (unit= 77,  action="read", file=densityFile, status = "old", position = "rewind", &
                    & iostat = ios)
-print *,"opened unit 77"
               if (ios /= 0) then
                  print*, "! setMotherGrid: can't open density file"
                  stop
@@ -1113,7 +1105,6 @@ print *,"opened unit 77"
               close(13)
               open(file =   dustFile(1), action="read",unit=13, &
                    & position="rewind",status="old", iostat = ios)
-print *,"opened unit 13"
               if (ios /= 0 ) then
                  print*, "! setMotherGrid: can't open file ", dustFile(1)
                  stop
@@ -1149,7 +1140,6 @@ print *,"opened unit 13"
                  read(13,*) extFile
                  open(file=extFile,unit=14,  action="read", &
                       & position="rewind",status="old", iostat = ios)
-print *,"opened unit 14"
                  if (ios /= 0 ) then
                     print*, "! setMotherGrid: can't open file ", extFile
                     stop
@@ -1175,7 +1165,6 @@ print *,"opened unit 14"
                     close(20)
                     open(unit=20, file=MdMgFile,  action="read", &
                          & position="rewind",status="old", iostat = ios)
-print *,"opened unit 20"
                     if (ios /= 0 ) then
                        print*, "! setMotherGrid: can't open MdMgFile file ", MdMgFile
                        stop
@@ -1201,7 +1190,6 @@ print *,"opened unit 20"
                     close(20)
                     open(unit=20, file=NdustFile,  action="read", &
                          &position="rewind",status="old", iostat = ios)
-print *,"opened unit 20"
                     if (ios /= 0 ) then
                        print*, "! setMotherGrid: can't open NdustFile file ", NdustFile
                        stop
@@ -1862,7 +1850,6 @@ print *,"opened unit 20"
            close(71)
            open (unit= 71, file=gridList,  action="read", status = "old", position = "rewind", &
                 & iostat = ios)
-print *,"opened unit 71"
            if (ios /= 0) then
               print*, "! setsubGrids: can't open grid list file", gridList
               stop
@@ -2052,7 +2039,6 @@ print *,"opened unit 71"
               close(72)
               open (unit= 72, file=dFileRead,  action="read", status = "old", position = "rewind", &
                    & iostat = ios)
-print *,"opened unit 72"
               if (ios /= 0) then
                  print*, "! setsubGrids: can't open subgrid density file", dFileRead
                  stop
@@ -2644,7 +2630,6 @@ print *,"opened unit 72"
            close(21)
            open(unit=21, file="output/grid0.out",  action="write",&
                 &  position="rewind",status="unknown", iostat = ios)
-print *,"opened unit 21"
            if (ios /= 0 ) then
               print*, "! writeGrid: can't open file for writing - output/grid1.out"
               stop
@@ -2655,7 +2640,6 @@ print *,"opened unit 21"
               close(20)
               open(unit=20, file="output/grid1.out", action="write",&
                    &position="rewind",status="unknown", iostat = ios)
-print *,"opened unit 20"
               if (ios /= 0 ) then
                  print*, "! writeGrid: can't open file for writing - output/grid1.out"
                  stop
@@ -2663,7 +2647,6 @@ print *,"opened unit 20"
               close(30)
               open(unit=30, file="output/grid2.out", action="write",&
                    & position="rewind",status="unknown", iostat = ios)
-print *,"opened unit 30"
               if (ios /= 0 ) then
                  print*, "! writeGrid: can't open file for writing - output/grid2.out"
                  stop
@@ -2673,7 +2656,6 @@ print *,"opened unit 30"
               close(50)
               open(unit=50, file="output/dustGrid.out", action="write",&
                    &position="rewind",status="unknown", iostat = ios)
-print *,"opened unit 50"
               if (ios /= 0 ) then
                  print*, "! writeGrid: can't open file for writing - output/dustGrid.out"
                  stop
@@ -2683,7 +2665,6 @@ print *,"opened unit 50"
            if (lgRadPress) then
               close(60)
               open(unit=60, file="output/radPress.out", action="write",position="rewind",status="unknown", iostat = ios)
-print *,"opened unit 60"
               if (ios /= 0 ) then
                  print*, "! writeGrid: can't open file for writing - output/radPress.out"
                  stop
@@ -2787,7 +2768,6 @@ print *,"opened unit 60"
            close(42)
            open(unit=42, file="output/photoSource.out", action="write",&
                 &position="rewind",status="unknown", iostat = ios)
-print *,"opened unit 42"
            if (ios /= 0 ) then
               print*, "! writeGrid: can't open file for writing - output/photoSource.out"
               stop
@@ -2812,7 +2792,6 @@ print *,"opened unit 42"
            close(40)
            open(unit=40, file="output/grid3.out", action="write",position="rewind",&
                 &status="unknown", iostat = ios)
-print *,"opened unit 40"
            if (ios /= 0 ) then
               print*, "! writeGrid: can't open file for writing - output/grid3.out"
               stop
@@ -3070,7 +3049,6 @@ print *,"opened unit 40"
       close(72)
       open(unit=72, file="output/photoSource.out",action="read", &
            & position="rewind",status="old", iostat = ios)
-print *,"opened unit 72"
       if (ios /= 0 ) then
          print*, "! writeGrid: can't open file for reading - output/photoSource.out"
          stop
@@ -3108,7 +3086,6 @@ print *,"opened unit 72"
       close(77)
       open(unit=77, file='output/grid3.out', action="read",position='rewind',  &
 &          status='old', iostat = err)
-print *,"opened unit 77"
       if (err /= 0) then
          print*, "! resetMotherGrid: error opening file output/grid3.out"
          stop
@@ -3242,7 +3219,6 @@ print *,"opened unit 77"
       close(89)
       open(unit=89, file='output/grid0.out',  action="read",position='rewind',  &
            &          status='old', iostat = err)
-print *,"opened unit 89"
       if (err /= 0) then
          print*, "! resetGrid: error opening file output/grid0.out"
          stop
@@ -3252,7 +3228,6 @@ print *,"opened unit 89"
          close(78)
          open(unit=78, file='output/grid1.out',  action="read",position='rewind',  &
               &          status='old', iostat = err)
-print *,"opened unit 78"
          if (err /= 0) then
             print*, "! resetGrid: error opening file output/grid1.out"
             stop
@@ -3261,7 +3236,6 @@ print *,"opened unit 78"
          close(79)
          open(unit=79, file='output/grid2.out', action="read", position='rewind',  &
               &          status='old', iostat = err)
-print *,"opened unit 79"
          if (err /= 0) then
             print*, "! resetGrid: error opening file output/grid2.out"
             stop
@@ -3271,7 +3245,6 @@ print *,"opened unit 79"
          close(88)
          open(unit=88, file='output/dustGrid.out', action="read", position='rewind',  &
               &          status='old', iostat = err)
-print *,"opened unit 88"
          if (err /= 0) then
             print*, "! resetGrid: error opening file output/dustGrid.out"
             stop

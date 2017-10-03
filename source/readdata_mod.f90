@@ -37,7 +37,6 @@ contains
     ! read in rates from data/HeI2phot.dat
 
         open(unit = 93,  action="read", file = PREFIX//"/share/mocassin/data/HeI2phot.dat", status = "old", position = "rewind", iostat=ios)
-print *,"opened unit 93"
         if (ios /= 0) then
             print*, "! readData: can't open file: ",PREFIX,"/share/mocassin/data/HeI2phot.dat"
             stop
@@ -51,7 +50,6 @@ print *,"opened unit 93"
         ! dielectronic recombination coefficients
 
         open (unit=18, file=PREFIX//'/share/mocassin/data/dielectronic.dat', status='old',position='rewind', iostat = ios, action="read")
-print *,"opened unit 18"
         do i = 1, 25
            read(unit=18, fmt=*, iostat=ios) direc_coeffs(i)%elem, direc_coeffs(i)%n, direc_coeffs(i)%a, direc_coeffs(i)%b, direc_coeffs(i)%c, direc_coeffs(i)%d, direc_coeffs(i)%f, direc_coeffs(i)%g
            if (ios < 0) exit ! end of file reached
@@ -62,7 +60,6 @@ print *,"opened unit 18"
         ! Aldrovandi and Pequignot 1973
 
         open (unit=17, file=PREFIX//'/share/mocassin/data/aldrovandi.dat', status='old',position='rewind', iostat = ios, action="read")
-print *,"opened unit 17"
         if (ios /= 0) then
            print*, "! readData: can't open file ",PREFIX,"/share/mocassin/data/alrovandi.dat"
            stop
@@ -78,7 +75,6 @@ print *,"opened unit 17"
         !hydrogenic
 
         open(file=PREFIX//"/share/mocassin/data/hydroLinesFiles.dat", unit=19)
-print *,"opened unit 19"
         if (ios /= 0) then
            print*, "! readData: can't open file ",PREFIX,"/share/mocassin/data/hydroLinesFiles.dat"
            stop
@@ -89,7 +85,6 @@ print *,"opened unit 19"
               read(19,*) hydroLinesFile(i,j)
 
               open(unit = 94,  action="read", file = PREFIX//"/share/mocassin/"//hydroLinesFile(i,j), status = "old", position = "rewind", iostat=ios)
-print *,"opened unit 94"
               if (ios /= 0) then
                  print*, "! RecLinesEmission: can't open file: ",PREFIX,"/share/mocassin/",hydroLinesFile(i,j)
                  stop
@@ -110,7 +105,6 @@ print *,"opened unit 94"
         close(19)
 
         open(unit = 98,  action="read", file = PREFIX//"/share/mocassin/data/r2a0100old.dat", status = "old", position = "rewind", iostat=ios)
-print *,"opened unit 98"
         if (ios /= 0) then
             print*, "! setDiffusePDF: can't open file: ",PREFIX,"/share/mocassin/data/r2a0100old.dat"
             stop

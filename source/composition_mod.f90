@@ -26,7 +26,6 @@ module composition_mod
 
            close(80)
            open(unit=80, action="read", file = abundanceFile(i), status="old", position="rewind", iostat = ios)
-print *,"opened unit 80"
            if (ios /= 0) then
               print*, "! setComposition: can't open file: ", abundanceFile(i)
               stop

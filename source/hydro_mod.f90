@@ -17,7 +17,6 @@ module elements_mod
 
       close(12)
       open(unit = 12, file = PREFIX//'/share/mocassin/data/cion.dat', status='old', position='rewind')
-print *,"opened unit 12"
 
       do elem = 1, nElements
          do ion = elem, 1, -1
@@ -40,7 +39,6 @@ print *,"opened unit 12"
 
       close(12)
       open(unit = 12, file = PREFIX//'/share/mocassin/data/auger.dat', status='old', position='rewind')
-print *,"opened unit 12"
 
       nAuger=0
       auger =0.
@@ -193,7 +191,6 @@ print *,"opened unit 12"
 
        close(13)
        open(file=PREFIX//'/share/mocassin/data/HeIrecLines.dat', unit = 13, status='old')
-print *,"opened unit 13"
 
        do iden = 1, 3
           do iline = 1, 34
@@ -356,7 +353,6 @@ print *,"opened unit 13"
         RRbT2 = 0.
 
         open(file=PREFIX//'/share/mocassin/data/rrBadnell.dat', action="read", unit=19, status='old', position='rewind', iostat=ios)
-print *,"opened unit 19"
         if (ios<0) then
            print*, '! initRRDR: error opening file rrBadnell.dat'
            stop
@@ -389,7 +385,6 @@ print *,"opened unit 19"
         DRbEread = 0.
 
         open(file=PREFIX//'/share/mocassin/data/drBadnell.dat', action="read", unit=20, status='old', position='rewind', iostat=ios)
-print *,"opened unit 20"
         if (ios<0) then
            print*, '! initRRDR: error opening file drBadnell.dat'
            stop
@@ -702,7 +697,6 @@ print *,"opened unit 20"
 
        close(17)
        open(file=PREFIX//'/share/mocassin/data/fileNames.dat', action="read", unit=17, status='old', position='rewind', iostat=ios)
-print *,"opened unit 17"
 
        if (ios/=0) then
 
@@ -727,7 +721,6 @@ print *,"opened unit 17"
                atomic_data_array(elem,ion)%ion=dataFile(elem,ion)
 
                open(unit=121, status = 'old', file=filename,action='read')
-print *,"opened unit 121"
 
                    read(121,*)NCOMS
 
@@ -923,7 +916,6 @@ print *,"opened unit 121"
 
              close(18)
              open(file=dataFile(elem,ion), unit=18, action="read", status='old', position='rewind', iostat=ios)
-print *,"opened unit 18"
 
              if (ios == 0) then
 

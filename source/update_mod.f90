@@ -3086,7 +3086,6 @@ module update_mod
             if (lgFirst) then
                 close(17)
                 open (unit=17, file=PREFIX//'/share/mocassin/data/radrec.dat', status='old',position='rewind', iostat = ios, action="read")
-print *,"opened unit 17"
 
                 do ion = 4, 30
                     if (ion /= 11) then

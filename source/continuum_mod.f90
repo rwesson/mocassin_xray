@@ -106,7 +106,6 @@ module continuum_mod
            ! open file for reading
            close(12)
            open(unit = 12, file=filein,  action="read", status = 'old', position = 'rewind', iostat=err)
-print *,"opened unit 12"
 
            if (err /= 0) then
 

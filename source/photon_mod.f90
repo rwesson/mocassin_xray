@@ -389,7 +389,6 @@ module photon_mod
            if (taskid == 0 ) then
               close(29)
               open(unit=29, status='unknown', position='rewind', file='output/radField0.out',  action="write")
-print *,"opened unit 29"
               do i = 1, grid(1)%nx
                  do j = 1, grid(1)%nz
                     do k = 1, nbins

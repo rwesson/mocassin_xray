@@ -2572,7 +2572,6 @@ module emission_mod
     character(len=120) :: reader ! file reader
 
     open(unit=19, action="read", file=PREFIX//"/share/mocassin/data/resLines.dat", status="old", position="rewind", iostat=ios)
-print *,"opened unit 19"
     if (ios /= 0) then
        print*, "! initResLines: can't open file: ",PREFIX,"/share/mocassin/data/resLines"
        stop

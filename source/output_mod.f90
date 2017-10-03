@@ -220,7 +220,6 @@ module output_mod
            cMap=0.
 
            open(unit=19, status='old', position='rewind', file=extMap,  action="read",iostat=ios)
-print *,"opened unit 19"
            if (ios /= 0) then
               print*, "! outputGas: can't open file for reading, ", extMap
               stop
@@ -241,7 +240,6 @@ print *,"opened unit 19"
            close(19)
 
            open(unit=20, status='old', position='rewind', file=PREFIX//'/share/mocassin/data/flambda.dat',  action="read",iostat=ios)
-print *,"opened unit 20"
            if (ios /= 0) then
               print*, "! outputGas: can't open file for reading, ",PREFIX,"/share/mocassin/data/flambda.dat"
               stop
@@ -807,7 +805,6 @@ print *,"opened unit 20"
         if (present(extMap)) then
            open(unit=10, status='unknown', position='rewind', &
                 &file='output/lineFlux.ext', action="write", iostat=ios)
-print *,"opened unit 10"
            if (ios /= 0) then
               print*, "! outputGas: can't open file for writing: output/lineFlux.ext"
               stop
@@ -815,7 +812,6 @@ print *,"opened unit 10"
         else
            open(unit=10, status='unknown', position='rewind', &
                 &file='output/lineFlux.out', action="write",iostat=ios)
-print *,"opened unit 10"
            if (ios /= 0) then
               print*, "! outputGas: can't open file for writing: output/lineFlux.out"
               stop
@@ -1081,14 +1077,12 @@ print *,"opened unit 10"
 
         ! write the temperature.out file
         open(unit=20, status='unknown', position='rewind', file='output/temperature.out', action="write",iostat=ios)
-print *,"opened unit 20"
         if (ios /= 0) then
            print*, "! outputGas: can't open file for writing: output/temperature.out"
            stop
         end if
 
         open(unit=27, status='unknown', position='append', file='output/summary.out', action="write",iostat=ios)
-print *,"opened unit 27"
         if (ios /= 0) then
            print*, "! iterationMC: can't open file for writing, output/summary.out"
            stop
@@ -1097,7 +1091,6 @@ print *,"opened unit 27"
 
         ! write ionratio.out file
         open(unit=30, status='unknown', position='rewind', file='output/ionratio.out', action="write",iostat=ios)
-print *,"opened unit 30"
         if (ios /= 0) then
            print*, "! outputGas: can't open file for writing: output/ionratio.out"
            stop
@@ -1106,7 +1099,6 @@ print *,"opened unit 30"
         if (lgDebug) then
 
            open(unit=60, status='unknown', position='rewind', file='output/ionDen.out', action="write",iostat=ios)
-print *,"opened unit 60"
            if (ios /= 0) then
               print*, "! outputGas: can't open file for writing: output/ionDen.out"
               stop
@@ -1223,7 +1215,6 @@ print *,"opened unit 60"
         end if
 
         open(unit=70, file='output/tau.out', status='unknown', position='rewind',action="write", iostat = ios)
-print *,"opened unit 70"
 
 
         ! initialize arrays with zero
@@ -1416,7 +1407,6 @@ print *,"opened unit 70"
           integer       :: i,g2(500)
 
           open(file=PREFIX//"/share/mocassin/data/Roii.dat",unit=41,status="old", action="read",position="rewind")
-print *,"opened unit 41"
           do i=1,415
              read(41,*) lamb(i),g2(i),&
                   &br(1,i),br(2,i),br(3,i)
@@ -1779,7 +1769,6 @@ print *,"opened unit 41"
          ahb=6.68e-14*te**(-0.507)/(1.+1.221*te** 0.653)
          emhb=1.98648E-08/4861.33*ahb
          open(unit=50,file=PREFIX//'/share/mocassin/data/Rneii.dat',status='old', action="read",position='rewind')
-print *,"opened unit 50"
          do i=1,426
           read(50,*) a,b,c,d,f,lamb(i),br
           aeff=1.e-14*a*te**(f)
@@ -1828,7 +1817,6 @@ print *,"opened unit 50"
          ahb=6.68e-14*te**(-0.507)/(1.+1.221*te** 0.653)
          emhb=1.98648E-08/4861.33*ahb
          open(unit=51,file=PREFIX//'/share/mocassin/data/Rcii.dat',status='old', position='rewind',action="read")
-print *,"opened unit 51"
          do i=1,159
           read(51,*) a,b,c,d,f,lamb(i),br
           aeff=1.e-14*a*te**(f)
@@ -1853,7 +1841,6 @@ print *,"opened unit 51"
           ahb=6.68e-14*te**(-0.507)/(1.+1.221*te** 0.653)
           emhb=1.98648E-08/4861.33*ahb
           open(unit=52,file=PREFIX//'/share/mocassin/data/Rnii.dat',status='old', action="read",position='rewind')
-print *,"opened unit 52"
           do i=1,115
            read(52,*) a,b,c,d,f,u,v,lamb(i),br
            aeff=1.e-14*a*te**(f)
@@ -1881,9 +1868,7 @@ print *,"opened unit 52"
           ahb=6.68e-14*te**(-0.507)/(1.+1.221*te**0.653)
           emhb=1.98648E-08/4861.33*ahb
           open(unit=61,file=PREFIX//"/share/mocassin/data/Rniiold.dat",status='old', action="read",position='rewind')
-print *,"opened unit 61"
           open(unit=62,file=PREFIX//"/share/mocassin/data/Rnii_aeff.dat",status='old', action="read",position='rewind')
-print *,"opened unit 62"
           do i=1,51
            read(62,*) a(i),b(i),c(i)
           end do
@@ -2530,7 +2515,6 @@ print *,"opened unit 62"
       common/hdatax/densx,tempx,ex,ntempx,ndensx,ntop,nll,nlu
       close(337)
       open(unit =337, file = PREFIX//"/share/mocassin/data/e1bx.d", status = "old", position = "rewind", iostat=ios, action="read")
-print *,"opened unit 337"
         if (ios /= 0) then
              print*, "! hdatax: can't open ",PREFIX,"/share/mocassin/data/e1bx.d"
              stop
@@ -2767,7 +2751,6 @@ print *,"opened unit 337"
 
       close(73)
       open(unit=73, file='output/tau.out', status='unknown', position='rewind', iostat = ios, action="write")
-print *,"opened unit 73"
 
       aVec%x = 0.
       aVec%y = 0.
@@ -2893,7 +2876,6 @@ print *,"opened unit 73"
       close(16)
 
       open(unit=16,file='output/SED.out',status='unknown', position='rewind',iostat=ios, action="write")
-print *,"opened unit 16"
       if (ios /= 0) then
          print*, "! writeSED: Cannot open file for writing"
          stop
@@ -2955,7 +2937,6 @@ print *,"opened unit 16"
 
          open (unit=74,file='output/equivalentTau.out',action='write', position='rewind',&
               & iostat=ios, status='unknown')
-print *,"opened unit 74"
 
          do freq = 1, nbins
             if (SEDnoExt(freq)>0. .and. SED(freq,0)>0.) then
@@ -3014,7 +2995,6 @@ print *,"opened unit 74"
       close(16)
       open(unit=16,file='output/SeparateSED.out',status='unknown', &
            &position='rewind',iostat=ios, action="write")
-print *,"opened unit 16"
       if (ios /= 0) then
          print*, "! writeSeparateSED: Cannot open file for writing"
          stop
@@ -3110,7 +3090,6 @@ print *,"opened unit 16"
       close(19)
 
       open(unit=19,file='output/contCube.out',status='unknown', position='rewind',iostat=ios, action="write")
-print *,"opened unit 19"
       if (ios /= 0) then
          print*, "! writeContCube: Cannot open file for writing"
          stop
@@ -3195,7 +3174,6 @@ print *,"opened unit 19"
       close(19)
 
       open(unit=19,file='output/fluorescenceCube.out',status='unknown', position='rewind',iostat=ios, action="write")
-print *,"opened unit 19"
       if (ios /= 0) then
          print*, "! writeFluorescenceCube: Cannot open file for writing"
          stop
