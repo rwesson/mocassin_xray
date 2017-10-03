@@ -38,18 +38,21 @@ module xSec_mod
 
       close(21)
       open(file=PREFIX//'/share/mocassin/data/gammaHI.dat', unit=21, status='old', iostat = err, action="read")
+print *,"opened unit 21"
       if (err /= 0) then
          print*, "! initGammaCont: can't open file: ",PREFIX,"/share/mocassin/data/gammaHI"
          stop
       end if
       close(22)
       open(file=PREFIX//'/share/mocassin/data/gammaHeI.dat', unit=22, status='old', iostat = err, action="read")
+print *,"opened unit 22"
       if (err /= 0) then
          print*, "! initGammaCont: can't open file: ",PREFIX,"/share/mocassin/data/gammaHeI"
          stop
       end if
       close(23)
       open(file=PREFIX//'/share/mocassin/data/gammaHeII.dat', unit=23, status='old', iostat = err, action="read")
+print *,"opened unit 23"
       if (err /= 0) then
          print*, "! initGammaCont: can't open file: ",PREFIX,"/share/mocassin/data/gammaHeII"
          stop
@@ -538,6 +541,7 @@ module xSec_mod
          close(10)
          open(unit = 10, file = PREFIX//"/share/mocassin/data/ph1.dat", status = "old",&
               &  position = "rewind", iostat = ios, action="read")
+print *,"opened unit 10"
          if (ios /= 0) then
             print*, "! phInit: can't open file: ",PREFIX,"/share/mocassin/data/ph1.dat"
             stop
@@ -547,6 +551,7 @@ module xSec_mod
          close(20)
          open(unit = 20, file = PREFIX//"/share/mocassin/data/ph2.dat", status = "old",&
               &  position = "rewind", iostat = ios, action="read")
+print *,"opened unit 20"
          if (ios /= 0) then
             print*, "! phInit: can't open file: ",PREFIX,"/share/mocassin/data/ph2.dat"
             stop
@@ -954,6 +959,7 @@ module xSec_mod
 
         open (unit=10, file=dustFile(1), iostat = ios, status = &
              &'old', position = 'rewind', action="read")
+print *,"opened unit 10"
         if(ios/=0) then
            print*, '! makeDustXSec: cannot open file for reading ', dustFile(1)
            stop
@@ -1012,6 +1018,7 @@ module xSec_mod
 
         open (unit=11, file=dustFile(2), iostat = ios, status = 'old', &
              &position = 'rewind', action="read")
+print *,"opened unit 11"
         if(ios/=0) then
            print*, '! makeDustXSec: cannot open file for reading ', dustFile(2)
            stop
@@ -1096,6 +1103,7 @@ module xSec_mod
 
            open (unit=20, file=extinctionFile, iostat = ios, &
                 &status = 'old', position = 'rewind', action="read")
+print *,"opened unit 20"
            if(ios/=0) then
               print*, '! makeDustXSec: cannot open file for&
                    & reading ', extinctionFile

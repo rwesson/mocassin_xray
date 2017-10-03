@@ -3086,6 +3086,7 @@ module update_mod
             if (lgFirst) then
                 close(17)
                 open (unit=17, file=PREFIX//'/share/mocassin/data/radrec.dat', status='old',position='rewind', iostat = ios, action="read")
+print *,"opened unit 17"
 
                 do ion = 4, 30
                     if (ion /= 11) then
@@ -4009,6 +4010,7 @@ module update_mod
                   close(94)
                   open(unit = 94,  action="read", file = PREFIX//"/share/mocassin/"//hydroLinesFile(izp,itemp), &
                        status = "old", position = "rewind", iostat=ios)
+print *,"opened unit 94"
                   if (ios /= 0) then
                      print*, "! RecLinesEmission: can't open file: ",PREFIX,"/share/mocassin/", hydroLinesFile(izp,itemp)
                      stop
@@ -4117,6 +4119,7 @@ module update_mod
                   ! this is the HeII case A
                   open(unit = 94,  action="read", file = PREFIX//"/share/mocassin/"//hydroLinesFile(9,itemp), &
                        status = "old", position = "rewind", iostat=ios)
+print *,"opened unit 94"
                   if (ios /= 0) then
                      print*, "! RecLinesEmission: can't open file: ",PREFIX,"/share/mocassin/", hydroLinesFile(9,itemp)
                      stop

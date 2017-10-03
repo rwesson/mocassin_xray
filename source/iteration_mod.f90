@@ -248,6 +248,7 @@ module iteration_mod
            if (taskid==0 .and. lgWritePss) then
               open(unit=89, file='output/qHeatPss.out', &
                    &  action="write",status='unknown', position='rewind', iostat=ios)
+print *,"opened unit 89"
               if (ios /= 0) then
                  print*, "! iterationMC: can't open file for writing, output/qHeatPss.out"
                  stop
@@ -815,6 +816,7 @@ module iteration_mod
 
               if (taskid ==0) then
                  open(file="output/planeIonDistribution.out",  action="write",unit=18, status="unknown")
+print *,"opened unit 18"
                  do i = 1, grid(1)%nx
                     do k = 1, grid(1)%nz
                        write(18,*) i,k,planeIonDistribution(i,k)
@@ -1124,6 +1126,7 @@ module iteration_mod
 
                if (lgTraceHeating.and.taskid==0) then
                  open(file="output/thermalBalance.out",  unit=57, status="unknown", iostat=ios)
+print *,"opened unit 57"
                  if (ios /= 0) then
                     print*, "! iterationMC: can't open file for writing, output/thermalBalance.out"
                     stop
@@ -1325,6 +1328,7 @@ module iteration_mod
                  if (nIterateMC == 1) then
                     close(21)
                     open(unit=21, status='unknown', position='rewind', file='output/summary.out', iostat=ios)
+print *,"opened unit 21"
                     if (ios /= 0) then
                        print*, "! iterationMC: can't open file for writing, output/summary.out -1"
                        stop
@@ -1332,6 +1336,7 @@ module iteration_mod
                  else
                     close(21)
                     open(unit=21, status='unknown', position='append', file='output/summary.out', iostat=ios)
+print *,"opened unit 21"
                     if (ios /= 0) then
                        print*, "! iterationMC: can't open file for writing, output/summary.out -2"
                        stop

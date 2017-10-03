@@ -538,7 +538,7 @@ module common_mod
 
     integer, parameter:: NHeIILyman = 4     ! Number of HeII Lym lines included
     real, dimension(NHeIILyman) :: HeIILymanData     ! HeII Lyman lines em.  [e-25ergs*cm^3/s]
-    real, dimension(NHeIILyman) :: HeIILymanNu       ! HeII Lyman lines freq. [Ryd]
+    real, dimension(NHeIILyman) :: HeIILymanNuData   ! HeII Lyman lines freq. [Ryd]
     double precision, dimension(3:30, 2:16) :: HeIIRecLineData ! HeII rec line data (Storey & Hummer 1995)
     double precision, dimension(3:30, 2:16) :: HeIIRecLines    ! emissivity from HeII rec lines
 

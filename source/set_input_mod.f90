@@ -120,6 +120,7 @@ module set_input_mod
 
         close(10)
         open (unit = 10, file = in_file, status = "old", position="rewind",  iostat = ios, action="read")
+print *,"opened unit 10"
 
         if (ios /= 0) then
             print*, "!out_in: can't open file input/input.in - terminating"
@@ -730,6 +731,7 @@ module set_input_mod
             close(17)
             open (unit = 17, file = filename, status = "old", &
                  &position="rewind",  iostat = ios, action="read")
+print *,"opened unit 17"
             if (ios/=0) then
                print*, "! readGridList: can't open file for reading ", filename
                stop
@@ -755,6 +757,7 @@ module set_input_mod
 
         close(13)
         open(file=infile, unit=13, iostat=ios, action="read")
+print *,"opened unit 13"
         if (ios /= 0) then
            print*, "! setMultiPhotoSources: can't open ionising sources file", infile
            stop
@@ -827,6 +830,7 @@ module set_input_mod
         close(10)
         open (unit = 10, file = filename, status = "old", &
              &position="rewind",  iostat = ios, action="read")
+print *,"opened unit 10"
         if (ios /= 0) then
            print*, "! setFluorescenceInput: can't open file input/fluorescence.in"
            stop

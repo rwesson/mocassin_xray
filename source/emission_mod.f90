@@ -1340,7 +1340,6 @@ module emission_mod
         integer           :: ios                ! I/O error status
         integer           :: nuP                ! frequency pointer in nuArray
         integer           :: nS, ai, freq, iT   ! dust counters
-        integer, parameter:: NHeIILyman = 4     ! Number of HeII Lym lines included
 
         character(len=50) :: cShapeLoc
 
@@ -1401,17 +1400,9 @@ module emission_mod
 
         ! read in HeII Lyman line ratios up to level n=5 [e-25 ergs*cm^3/s]
         ! (Storey and Hummer MNRAS 272(1995)41)
-        close(98)
-        open(unit = 98,  action="read", file = PREFIX//"/share/mocassin/data/r2a0100old.dat", status = "old", position = "rewind", iostat=ios)
-        if (ios /= 0) then
-            print*, "! setDiffusePDF: can't open file: ",PREFIX,"/share/mocassin/data/r2a0100.dat"
-            stop
-        end if
-        do i = 1, NHeIILyman
-            read(98, fmt=*) HeIILyman(i), HeIILymanNu(i)
-        end do
 
-        close(98)
+        HeIILyman = HeIILymandata
+        HeIILymanNu = HeIILymanNudata
 
         ! calculate Lyman alpha first
         HeIILyman(4) = 10.**(-0.792*log10(TeUsed)+6.01)
@@ -2581,6 +2572,7 @@ module emission_mod
     character(len=120) :: reader ! file reader
 
     open(unit=19, action="read", file=PREFIX//"/share/mocassin/data/resLines.dat", status="old", position="rewind", iostat=ios)
+print *,"opened unit 19"
     if (ios /= 0) then
        print*, "! initResLines: can't open file: ",PREFIX,"/share/mocassin/data/resLines"
        stop

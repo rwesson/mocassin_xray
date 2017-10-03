@@ -109,6 +109,7 @@ program MoCaSSiNplot
 
     if (plot%lgFilter) then
        open(unit=72, file=bandFile,  action="read",status='old', position='rewind',iostat=ios)
+print *,"opened unit 72"
        if (ios /= 0) then
           print*, "! readPlot: can't open band file for reading: ", bandFile
           stop
@@ -143,6 +144,7 @@ program MoCaSSiNplot
     
     if (taskid == 0) then
        open(unit=29, file='output/grid4.out', status='unknown',  action="write",position='rewind',iostat=ios)
+print *,"opened unit 29"
        if (ios /= 0) then
           print*, "! readPlot: can't open file for writing: output/grid4.out"
           stop
@@ -337,6 +339,7 @@ program MoCaSSiNplot
     end if
        
     open(unit=28, file='output/plot.out', status='unknown',  action="write",position='rewind',iostat=ios)
+print *,"opened unit 28"
     if (ios /= 0) then
        print*, "! readPlot: can't open file for writing: output/plot.out"
        stop
@@ -434,6 +437,7 @@ program MoCaSSiNplot
 
         close(77)
         open(unit=77, file=filename, status='old', position='rewind', action="read",iostat=ios)
+print *,"opened unit 77"
         if (ios /= 0) then
            print*, "! readPlot: can't open file for reading", filename
            stop
@@ -510,6 +514,7 @@ program MoCaSSiNplot
         code                  = 0
 
         open(unit=77, file=filename, status='old', position='rewind', action="read",iostat=ios)
+print *,"opened unit 77"
         if (ios /= 0) then
            print*, "! readPlot: can't open file for reading", filename
            stop
