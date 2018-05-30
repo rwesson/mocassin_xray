@@ -41,7 +41,7 @@ module elements_mod
       open(unit = 12, file = PREFIX//'/share/mocassin/data/auger.dat', status='old', position='rewind')
 
       nAuger=0
-      auger =0.
+      auger =0e0
 
       do i = 1, 1696
          read(12,*) elem,ion,shell,nelec
@@ -345,12 +345,12 @@ module elements_mod
 
         ! RR data
 
-        RRbA  = 0.
-        RRbB  = 0.
-        RRbT0 = 0.
-        RRbT1 = 0.
-        RRbC  = 0.
-        RRbT2 = 0.
+        RRbA  = 0e0
+        RRbB  = 0e0
+        RRbT0 = 0e0
+        RRbT1 = 0e0
+        RRbC  = 0e0
+        RRbT2 = 0e0
 
         open(file=PREFIX//'/share/mocassin/data/rrBadnell.dat', action="read", unit=19, status='old', position='rewind', iostat=ios)
         if (ios<0) then
@@ -379,10 +379,10 @@ module elements_mod
         close(19)
 
         ! DR data
-        DRbC = 0.
-        DRbE = 0.
-        DRbCread = 0.
-        DRbEread = 0.
+        DRbC = 0e0
+        DRbE = 0e0
+        DRbCread = 0e0
+        DRbEread = 0e0
 
         open(file=PREFIX//'/share/mocassin/data/drBadnell.dat', action="read", unit=20, status='old', position='rewind', iostat=ios)
         if (ios<0) then
@@ -678,7 +678,7 @@ module elements_mod
        implicit none
 
        integer           :: elem, ion  ! counters
-       integer           :: i, iup, ilow ! counters
+       integer           :: i, iup, ilow, jj ! counters
        integer           :: ios        ! I/O error status
 
        integer, dimension(2) :: indexlow, &      ! lower index for reading CEL data
@@ -749,6 +749,7 @@ module elements_mod
                    allocate(atomic_data_array(elem,ion)%c_fit(atomic_data_array(elem,ion)%nlevs))
                    allocate(atomic_data_array(elem,ion)%d_fit(atomic_data_array(elem,ion)%nlevs))
 
+                   atomic_data_array(elem,ion)%iup2p = -1
                    atomic_data_array(elem,ion)%cs = 0d0
                    atomic_data_array(elem,ion)%a = 0d0
                    atomic_data_array(elem,ion)%G = 0
@@ -799,7 +800,14 @@ module elements_mod
 
                          read(121, *) i, j, ax,  i1, j1, ax1,  i2, j2, ax2,  i3, j3, ax3
 
-                         atomic_data_array(elem,ion)%a(i,j) = ax
+                         !BE
+                         if (i>0 .and. j>0) then
+                            atomic_data_array(elem,ion)%a(i,j) = ax
+                         else
+                            atomic_data_array(elem,ion)%atp(i,j) = ax
+                         end if
+                         !be
+
                          atomic_data_array(elem,ion)%a(i1,j1) = ax1
                          atomic_data_array(elem,ion)%a(i2,j2) = ax2
                          atomic_data_array(elem,ion)%a(i3,j3) = ax3
@@ -838,13 +846,37 @@ module elements_mod
 
                       end do
                       ! read in transition probabilities
+                      jj = 0
+
                       do k = 1, atomic_data_array(elem,ion)%NLEVS-1
                          do l = k+1, atomic_data_array(elem,ion)%NLEVS
                             read(121, *) i, j, ax
-                            atomic_data_array(elem,ion)%a(j,i) = ax
+
+                            if (i < 0 .and. j <0) then
+                               atomic_data_array(elem,ion)%iup2p = abs(j)
+                               i = abs(i)
+                               j = abs(j)
+                               atomic_data_array(elem,ion)%atp(j,i) = ax
+                               if ( atomic_data_array(elem,ion)%a(j,i) > 0.) then
+                                  jj = jj+1
+                               end if
+                               atomic_data_array(elem,ion)%a(j,i) =  atomic_data_array(elem,ion)%a(j,i) + atomic_data_array(elem,ion)%atp(j,i)
+
+                            elseif (i>0 .and. j>0) then
+                               atomic_data_array(elem,ion)%a(j,i) = ax
+                            else
+                               print*, '! equilibrium: insane transition probability ', filename, i,j
+                               stop
+                            end if
+!                            atomic_data_array(elem,ion)%a(j,i) = ax
                          end do
                       end do
                    end if
+
+                   do k = 1, jj
+                      read(121, *) i, j, ax
+                      atomic_data_array(elem,ion)%a(j,i) = ax
+                   end do
 
                    ! read statistical weights, energy levels [1/cm]
                    do j = 1, atomic_data_array(elem,ion)%NLEVS
@@ -857,10 +889,11 @@ module elements_mod
                    ! read power law fit coefficients [e-13 cm^3/s]
                    ! and calculate total recombination coefficient
                    ! (direct + cascades)
-                   atomic_data_array(elem,ion)%alphaTotal = 0.
+                   atomic_data_array(elem,ion)%alphaTotal = 0e0
                    do j = 2, atomic_data_array(elem,ion)%NLEVS
                !       read(unit=121,fmt=*,iostat=ios) a_fit, b_fit
-                      read(unit=121,fmt=*,iostat=ios) atomic_data_array(elem,ion)%br,atomic_data_array(elem,ion)%z,atomic_data_array(elem,ion)%a_r(:),atomic_data_array(elem,ion)%a_d(:) !a_fit, b_fit
+                      read(unit=121,fmt=*,iostat=ios) atomic_data_array(elem,ion)%br,atomic_data_array(elem,ion)%z,&
+                      &atomic_data_array(elem,ion)%a_r(:),atomic_data_array(elem,ion)%a_d(:) !a_fit, b_fit
                       if (ios<0) then
                          exit
                       else
