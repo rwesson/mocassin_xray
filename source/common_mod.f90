@@ -506,6 +506,7 @@ module common_mod
         integer :: NTEMPS
         integer :: NLEVS
         integer :: irats
+        integer :: iup2p
         character(len=20) :: ion
         real,allocatable :: logtemp(:)
         real,allocatable :: roott(:)
@@ -566,7 +567,7 @@ module common_mod
     type hydrolinestype
         real, dimension(2:15,8) :: linedata ! iup from 2 to 15, ilow from 1 to min(8,iup-1)
         real :: dens
-    end type
+    end type hydrolinestype
 
     type(hydrolinestype), dimension(9,12,13) :: hydroLinesData ! dimension represent ion, number of temperature point, number of density points (maximum in data files is currently 8
     type(hydrolinestype), dimension(13) :: hydrolinesloc !for more readable code, elements from hydroLinesData are copied into this array. dimension is density
