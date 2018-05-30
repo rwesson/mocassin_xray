@@ -23,7 +23,7 @@ module fluorescence_mod
 
 
         real :: number
-        real, save :: ionPhot = 0.
+        real, save :: ionPhot = 0e0
 
         type(vector), intent(inout)                  :: rVec        !
 
@@ -117,7 +117,7 @@ module fluorescence_mod
           ! check if photon packen is line or continuum photon
           if ( lgLine ) then
              ! line photon
-             initFluorescencePacket%nu       = 0.
+             initFluorescencePacket%nu       = 0e0
              initFluorescencePacket%lgLine   = .true.
           else
              ! continuum photon
@@ -156,7 +156,7 @@ module fluorescence_mod
              end if
 
              ! y-direction
-             initFluorescencePacket%position%y = 0.
+             initFluorescencePacket%position%y = 0e0
              initFluorescencePacket%yP(igpi) = 1
 
              ! z-direction
@@ -182,9 +182,9 @@ module fluorescence_mod
              if (initFluorescencePacket%zP(igpi)<1) initFluorescencePacket%zP(igpi)=1
 
              ! direction is parallel to y-axis direction
-             initFluorescencePacket%direction%x = 0.
+             initFluorescencePacket%direction%x = 0e0
              initFluorescencePacket%direction%y = 1.
-             initFluorescencePacket%direction%z = 0.
+             initFluorescencePacket%direction%z = 0e0
 
              if (initFluorescencePacket%xP(igpi) >  grid(gP)%xAxis(grid(gP)%nx) .or. &
                   & initFluorescencePacket%zP(igpi) >  grid(gP)%zAxis(grid(gP)%nz)) then
@@ -421,9 +421,9 @@ module fluorescence_mod
              gP = enPacket%iG
 
              ! initialise distance from walls
-             dSx = 0.
-             dSy = 0.
-             dSz = 0.
+             dSx = 0e0
+             dSy = 0e0
+             dSz = 0e0
 
              if (lg1D) then
                 radius = 1.e10*sqrt((rVec%x/1.e10)*(rVec%x/1.e10) + &
@@ -437,7 +437,7 @@ module fluorescence_mod
              end if
 
              ! initialize optical depth
-             absTau = 0.
+             absTau = 0e0
 
              ! get a random number
              call random_number(random)
@@ -899,7 +899,7 @@ module fluorescence_mod
                       vHat%z = enPacket%direction%z
 
                       ! initialize optical depth
-                      absTau = 0.
+                      absTau = 0e0
 
                       ! get a random number
                       call random_number(random)
@@ -1795,7 +1795,7 @@ module fluorescence_mod
 
    ! calculate new direction
    call getNu2(KNsigmaArray(fPacket%nuP,1:180),newThetaP)
-   newTheta = real(newThetaP)*Pi/180.
+   newTheta = real(newThetaP)*Pi/180e0
 
    ! calculate u,v,w (Harries & Howarth, 1997)
    call random_number(random)
