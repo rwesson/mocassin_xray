@@ -109,7 +109,7 @@ module grid_mod
            print*, "! initCartesianGrid: can't allocate grid memory"
             stop
         end if
-        grid%elemAbun=0.
+        grid%elemAbun=0e0
 
         if (lgFirst) then
 
@@ -378,8 +378,8 @@ module grid_mod
 
                nuMaxArray = nuMax
                nuMinArray = nuMin
-               nuArray = 0.
-               widFlx  = 0.
+               nuArray = 0e0
+               widFlx  = 0e0
                n0=1
                ipnt=0
                if (.not.lgFluorescence) then
@@ -548,9 +548,9 @@ module grid_mod
 
         ! initialize the arrays with zeros
         grid%active = 0
-        grid%xAxis = 0.
-        grid%yAxis = 0.
-        grid%zAxis = 0.
+        grid%xAxis = 0e0
+        grid%yAxis = 0e0
+        grid%zAxis = 0e0
 
         !new
          dTheta = Pi/totAngleBinsTheta
@@ -699,8 +699,8 @@ module grid_mod
                  grid(1)%xAxis(i) = grid(1)%xAxis(i) * Rnx
               end do
 
-              grid(1)%yAxis = 0.
-              grid(1)%zAxis = 0.
+              grid(1)%yAxis = 0e0
+              grid(1)%zAxis = 0e0
 
            else ! not lgSymmetricXYZ
 
@@ -847,7 +847,7 @@ module grid_mod
            print*, "! fillGrid: can't allocate dl memory"
            stop
         end if
-        dl = 0.
+        dl = 0e0
 
         do iG = 1, nGrids
            ! find geometric corrections
@@ -859,8 +859,8 @@ module grid_mod
               grid(iG)%geoCorrZ = (grid(iG)%zAxis(grid(iG)%nz) - &
                    &grid(iG)%zAxis(grid(iG)%nz-1))/2.
            else
-              grid(iG)%geoCorrY = 0.
-              grid(iG)%geoCorrZ = 0.
+              grid(iG)%geoCorrY = 0e0
+              grid(iG)%geoCorrZ = 0e0
            end if
 
            if (taskid==0) print*, "Geometric grid corrections for grid ", &
@@ -877,7 +877,7 @@ module grid_mod
            do i = 1, grid(iG)%nz-1
               dl(iG) = min(dl(iG), abs(grid(iG)%zAxis(i+1)-grid(iG)%zAxis(i)) )
            end do
-           dl(iG) = dl(iG)/50.
+           dl(iG) = dl(iG)/50e0
         end do
 
         if (nGrids>1) then
@@ -1000,7 +1000,7 @@ module grid_mod
               print*, "! setMotherGrid: can't allocate grid memory"
               stop
            end if
-           HdenTemp = 0.
+           HdenTemp = 0e0
 
            if (lgDfile) then
               open (unit= 77,  action="read", file=densityFile, status = "old", position = "rewind", &
@@ -1076,12 +1076,12 @@ module grid_mod
 
                          call random_number(random)
 
-                         if (random > fillingFactor) HdenTemp(i,j,k) = 0.
+                         if (random > fillingFactor) HdenTemp(i,j,k) = 0e0
 
                       end if
 
 
-                      if (grid%active(i,j,k) <= 0 ) HdenTemp(i,j,k) = 0.
+                      if (grid%active(i,j,k) <= 0 ) HdenTemp(i,j,k) = 0e0
 
                    end do
                 end do
@@ -1098,7 +1098,7 @@ module grid_mod
                  stop
               end if
 
-              NdustTemp = 0.
+              NdustTemp = 0e0
 
               ! set grains mass density [g/cm^3]
 
@@ -1118,7 +1118,7 @@ module grid_mod
                  print*, "! setMotherGrid: can't allocate rho memory"
                  stop
               end if
-              rho=0.
+              rho=0e0
 
               if (allocated(grainVn)) deallocate(grainVn)
               allocate(grainVn(1:nSpecies), stat = err)
@@ -1126,7 +1126,7 @@ module grid_mod
                  print*, "! setMotherGrid: can't allocate grainVn memory"
                  stop
               end if
-              grainVn=0.
+              grainVn=0e0
 
               if (allocated(MsurfAtom)) deallocate(MsurfAtom)
               allocate(MsurfAtom(1:nSpecies), stat = err)
@@ -1157,7 +1157,7 @@ module grid_mod
                     print*, "! setMotherGrid: can't allocate MdMg memory"
                     stop
                  end if
-                 MdMg = 0.
+                 MdMg = 0e0
 
                  if (lgDustConstant) then
                     MdMg = MdMgValue
@@ -1240,8 +1240,8 @@ module grid_mod
 
                    end if
 
-                   if (grid%active(i,j,k) <= 0 .and. lgDust ) NdustTemp(i,j,k) = 0.
-                   if (grid%active(i,j,k) <= 0 .and. lgGas ) HdenTemp(i,j,k) = 0.
+                   if (grid%active(i,j,k) <= 0 .and. lgDust ) NdustTemp(i,j,k) = 0e0
+                   if (grid%active(i,j,k) <= 0 .and. lgGas ) HdenTemp(i,j,k) = 0e0
 
                    if (lgDust .and. lgGas) then
                       if (HdenTemp(i,j,k) > 0. .or. NdustTemp(i,j,k)>0.) then
@@ -1249,8 +1249,8 @@ module grid_mod
                          grid%active(i,j,k) = grid%nCells
                       else
                          grid%active(i,j,k) = 0
-                         HdenTemp(i,j,k) = 0.
-                         NdustTemp(i,j,k) = 0.
+                         HdenTemp(i,j,k) = 0e0
+                         NdustTemp(i,j,k) = 0e0
                       end if
                    else if ( lgDust .and. (.not.lgGas) ) then
                       if (NdustTemp(i,j,k)>0.) then
@@ -1258,7 +1258,7 @@ module grid_mod
                          grid%active(i,j,k) = grid%nCells
                       else
                          grid%active(i,j,k) = 0
-                         NdustTemp(i,j,k) = 0.
+                         NdustTemp(i,j,k) = 0e0
                       end if
                    else if ( (.not.lgDust) .and. lgGas) then
                       if (HdenTemp(i,j,k) > 0.) then
@@ -1266,7 +1266,7 @@ module grid_mod
                          grid%active(i,j,k) = grid%nCells
                       else
                          grid%active(i,j,k) = 0
-                         HdenTemp(i,j,k) = 0.
+                         HdenTemp(i,j,k) = 0e0
                       end if
                    else
 
@@ -1393,15 +1393,15 @@ module grid_mod
                 stop
              end if
 
-             grid%Hden = 0.
-             grid%NeOld = 0.
-             grid%TeOld = 0.
-             grid%Ne = 0.
-             grid%Te = 0.
-             grid%ionDen = 0.
-             grid%recPDF = 0.
-             grid%totalLines = 0.
-             if (lgFluorescence) grid%totalEmission = 0.
+             grid%Hden = 0e0
+             grid%NeOld = 0e0
+             grid%TeOld = 0e0
+             grid%Ne = 0e0
+             grid%Te = 0e0
+             grid%ionDen = 0e0
+             grid%recPDF = 0e0
+             grid%totalLines = 0e0
+             if (lgFluorescence) grid%totalEmission = 0e0
 
           end if
 
@@ -1411,7 +1411,7 @@ module grid_mod
                 print*, "! setMotherGrid: can't allocate grid memory : LdiffuseLoc "
                 stop
              end if
-             grid%LdiffuseLoc=0.
+             grid%LdiffuseLoc=0e0
           end if
 
           allocate(grid%opacity(0:grid%nCells, 1:nbins), stat = err)
@@ -1468,7 +1468,7 @@ module grid_mod
                 print*, "! grid: can't allocate Ndust memory"
                 stop
              end if
-             grid%Ndust=0.
+             grid%Ndust=0e0
 
              if (.not.lgGas) then
                 allocate(grid%dustPDF(0:grid%nCells, 1:nbins), stat = err)
@@ -1476,7 +1476,7 @@ module grid_mod
                    print*, "! grid: can't allocate dustPDF memory"
                    stop
                 end if
-                grid%dustPDF = 0.
+                grid%dustPDF = 0e0
              end if
 
           end if
@@ -1488,7 +1488,7 @@ module grid_mod
                 stop
              end if
 
-             grid%Jdif = 0.
+             grid%Jdif = 0e0
 
              ! allocate pointers depending on nLines
              if (nLines > 0) then
@@ -1505,8 +1505,8 @@ module grid_mod
                    stop
                 end if
 
-                grid%linePackets = 0.
-                grid%linePDF     = 0.
+                grid%linePackets = 0e0
+                grid%linePDF     = 0e0
 
              end if
 
@@ -1531,7 +1531,7 @@ module grid_mod
                 print*, "! setMotherGrid: can't allocate grid memory, grid%NeInput"
                 stop
              end if
-             grid%NeInput = 0.
+             grid%NeInput = 0e0
           end if
 
           if (lgRadPress) then
@@ -1540,12 +1540,12 @@ module grid_mod
                 print*, "! setMotherGrid: can't allocate grid memory, grid%arad"
                 stop
              end if
-             grid%arad = 0.
+             grid%arad = 0e0
           end if
 
-          grid%opacity = 0.
-          grid%Jste = 0.
-          grid%H = 0.
+          grid%opacity = 0e0
+          grid%Jste = 0e0
+          grid%H = 0e0
 
           grid%lgConverged = 0
           grid%lgBlack = 0
@@ -1638,9 +1638,9 @@ module grid_mod
                 & 39.948, 39.102, 40.08, 44.956, 47.90, 50.9414, 51.996, 54.9380, 55.847, 58.9332, &
                 & 58.71, 63.546, 65.37 /)
 
-           totalDustMass = 0.
-           totalGasMass = 0.
-           totalVolume = 0.
+           totalDustMass = 0e0
+           totalGasMass = 0e0
+           totalVolume = 0e0
 
            do i = 1, grid%nx
               do j = 1, yTop
@@ -1650,7 +1650,7 @@ module grid_mod
                        dV = getVolume(grid,i,j,k)
 
                        if (lgGas) then
-                          gasCell = 0.
+                          gasCell = 0e0
                           do elem = 1, nElements
                              gasCell = gasCell + grid%elemAbun(grid%abFileIndex(i,j,k),elem)*&
                                   & aWeight(elem)*amu
@@ -1667,7 +1667,7 @@ module grid_mod
 
 
                           if (lgMdMh) then
-                             MhMg=0.
+                             MhMg=0e0
                              do elem = 1, nElements
                                 ! transform to MdMg
                                 MhMg = MhMg+grid%elemAbun(grid%abFileIndex(i,j,k),elem)*&
@@ -1687,7 +1687,7 @@ module grid_mod
                           grid%Ndust(grid%active(i,j,k)) = gasCell*MdMg(i,j,k)*&
                                &grid%Hden(grid%active(i,j,k))
 
-                          denominator = 0.
+                          denominator = 0e0
 
                           do nspec = 1, nSpecies
                              do ai = 1, nSizes
@@ -1774,12 +1774,12 @@ module grid_mod
                  end if
 
                  meanFieldBol = meanField
-                 norm = 0.
+                 norm = 0e0
                  do i = nu0P, nbins
                     norm = norm+inSpectrumPhot(i)*widflx(i)
                  end do
                  scale  = meanFieldBol/norm
-                 norm = 0.
+                 norm = 0e0
                  do i = 1, nbins
                     norm = norm+inSpectrumErg(i)*widFlx(i)
                  end do
@@ -1787,9 +1787,9 @@ module grid_mod
 
                  print*, 'Flux bolometric is ', meanFieldBol
 
-                 norm = 0.
+                 norm = 0e0
                  do i = 1, nbins
-                    if (i<nu0AddP) inSpectrumErg(i) = 0.
+                    if (i<nu0AddP) inSpectrumErg(i) = 0e0
                     norm = norm+inSpectrumErg(i)*widFlx(i)
                  end do
                  meanField = norm*scale
@@ -2050,7 +2050,7 @@ module grid_mod
                     print*, "! setSubGrids: can't allocate NdustTemp memory for subGrid", iG
                     stop
                  end if
-                 NdustTemp = 0.
+                 NdustTemp = 0e0
               end if
 
               ! allocate space for HdenTemp
@@ -2060,7 +2060,7 @@ module grid_mod
                     print*, "! setSubGrid: can't allocate sub grid memory: HdenTemp", iG
                     stop
                  end if
-                 HdenTemp = 0.
+                 HdenTemp = 0e0
               end if
 
               grid(iG)%active = 1
@@ -2157,8 +2157,8 @@ module grid_mod
 
                        end if
 
-                       if (grid(iG)%active(ix,iy,iz) <= 0 .and. lgDust ) NdustTemp(ix,iy,iz) = 0.
-                       if (grid(iG)%active(ix,iy,iz) <= 0 .and. lgGas ) HdenTemp(ix,iy,iz) = 0.
+                       if (grid(iG)%active(ix,iy,iz) <= 0 .and. lgDust ) NdustTemp(ix,iy,iz) = 0e0
+                       if (grid(iG)%active(ix,iy,iz) <= 0 .and. lgGas ) HdenTemp(ix,iy,iz) = 0e0
 
                        if (lgDust .and. lgGas) then
                           if (HdenTemp(ix,iy,iz) > 0. .or. NdustTemp(ix,iy,iz)>0.) then
@@ -2166,8 +2166,8 @@ module grid_mod
                              grid(iG)%active(ix,iy,iz) =  grid(iG)%nCells
                           else
                              grid(iG)%active(ix,iy,iz) = 0
-                             HdenTemp(ix,iy,iz) = 0.
-                             NdustTemp(ix,iy,iz) = 0.
+                             HdenTemp(ix,iy,iz) = 0e0
+                             NdustTemp(ix,iy,iz) = 0e0
                           end if
                        else if ( lgDust .and. (.not.lgGas) ) then
                           if (NdustTemp(ix,iy,iz)>0.) then
@@ -2175,7 +2175,7 @@ module grid_mod
                               grid(iG)%active(ix,iy,iz) =  grid(iG)%nCells
                            else
                               grid(iG)%active(ix,iy,iz) = 0
-                              NdustTemp(ix,iy,iz) = 0.
+                              NdustTemp(ix,iy,iz) = 0e0
                            end if
                         else if ( (.not.lgDust) .and. lgGas) then
                            if (HdenTemp(ix,iy,iz) > 0.) then
@@ -2183,7 +2183,7 @@ module grid_mod
                                grid(iG)%active(ix,iy,iz) =  grid(iG)%nCells
                             else
                                grid(iG)%active(ix,iy,iz) = 0
-                               HdenTemp(ix,iy,iz) = 0.
+                               HdenTemp(ix,iy,iz) = 0e0
                             end if
                          else
 
@@ -2251,14 +2251,14 @@ module grid_mod
                     stop
                  end if
 
-                 grid(iG)%Hden = 0.
-                 grid(iG)%Ne = 0.
-                 grid(iG)%Te = 0.
-                 grid(iG)%NeOld = 0.
-                 grid(iG)%TeOld = 0.
-                 grid(iG)%ionDen = 0.
-                 grid(iG)%recPDF = 0.
-                 grid(iG)%totalLines = 0.
+                 grid(iG)%Hden = 0e0
+                 grid(iG)%Ne = 0e0
+                 grid(iG)%Te = 0e0
+                 grid(iG)%NeOld = 0e0
+                 grid(iG)%TeOld = 0e0
+                 grid(iG)%ionDen = 0e0
+                 grid(iG)%recPDF = 0e0
+                 grid(iG)%totalLines = 0e0
 
               end if
 
@@ -2268,7 +2268,7 @@ module grid_mod
                     print*, "! setSubGrid: can't allocate grid memory : LdiffuseLoc "
                     stop
                  end if
-                 grid(iG)%LdiffuseLoc=0.
+                 grid(iG)%LdiffuseLoc=0e0
               end if
 
 
@@ -2302,7 +2302,7 @@ module grid_mod
                     print*, "! grid: can't allocate Ndust memory"
                     stop
                  end if
-                 grid(iG)%Ndust=0.
+                 grid(iG)%Ndust=0e0
 
                  if (.not.lgGas) then
                     allocate(grid(iG)%dustPDF(0:grid(iG)%nCells, 1:nbins), stat = err)
@@ -2310,7 +2310,7 @@ module grid_mod
                        print*, "! grid: can't allocate dustPDF memory"
                        stop
                     end if
-                    grid(iG)%dustPDF = 0.
+                    grid(iG)%dustPDF = 0e0
                  end if
 
               end if
@@ -2322,7 +2322,7 @@ module grid_mod
                     stop
                  end if
 
-                 grid(iG)%Jdif = 0.
+                 grid(iG)%Jdif = 0e0
 
                  ! allocate pointers depending on nLines
                  if (nLines > 0) then
@@ -2339,8 +2339,8 @@ module grid_mod
                        stop
                     end if
 
-                    grid(iG)%linePackets = 0.
-                    grid(iG)%linePDF     = 0.
+                    grid(iG)%linePackets = 0e0
+                    grid(iG)%linePDF     = 0e0
 
                  end if
 
@@ -2365,12 +2365,12 @@ module grid_mod
                     print*, "! setSubGrid: can't allocate grid memory, grid(iG)%NeInput"
                     stop
                  end if
-                 grid(iG)%NeInput = 0.
+                 grid(iG)%NeInput = 0e0
               end if
 
-              grid(iG)%opacity = 0.
-              grid(iG)%Jste = 0.
-              grid(iG)%H = 0.
+              grid(iG)%opacity = 0e0
+              grid(iG)%Jste = 0e0
+              grid(iG)%H = 0e0
               grid(iG)%lgConverged = 0
               grid(iG)%lgBlack = 0
 
@@ -2460,8 +2460,8 @@ module grid_mod
                  if(allocated(NdustTemp)) deallocate(NdustTemp)
               end if
 
-              totalGasMass = 0.
-              totalVolume = 0.
+              totalGasMass = 0e0
+              totalVolume = 0e0
 
 
               do ix = 1, grid(iG)%nx
@@ -2472,7 +2472,7 @@ module grid_mod
                           dV = getVolume(grid(iG),ix,iy,iz)
 
                           if (lgGas) then
-                             gasCell = 0.
+                             gasCell = 0e0
                              do elem = 1, nElements
                                 gasCell = gasCell + &
                                      & grid(iG)%elemAbun(grid(iG)%abFileIndex(ix,iy,iz),elem)*&
@@ -2489,7 +2489,7 @@ module grid_mod
                           if (lgDust .and. lgMdMg .or. lgMdMh) then
 
                              if (lgMdMh) then
-                                MhMg=0.
+                                MhMg=0e0
                                 do elem = 1, nElements
                                    ! transform to MdMg
                                    MhMg = MhMg+grid(iG)%elemAbun(grid(iG)%abFileIndex(ix,iy,iz),elem)*&
@@ -2511,7 +2511,7 @@ module grid_mod
                                   &gasCell*grid(iG)%Ndust(grid(iG)%active(ix,iy,iz)) &
                                  & *grid(iG)%Hden(grid(iG)%active(ix,iy,iz))
 
-                             denominator = 0.
+                             denominator = 0e0
 
                              do nspec = 1, nSpecies
                                 do ai = 1, nSizes
@@ -2970,7 +2970,7 @@ module grid_mod
 
         real                       :: dx, dz             ! cartesian axes increments [cm]
 
-        getPlaneArea=0.
+        getPlaneArea=0e0
         do xP = 1, grid%nx
            do zP = 1, grid%nz
 
@@ -3213,7 +3213,7 @@ module grid_mod
       close(77)
 
       allocate(p(nstages))
-      p=0.
+      p=0e0
       allocate(lgDataAvailable(3:nElements, nstages))
 
       close(89)
@@ -3347,15 +3347,15 @@ module grid_mod
                end if
             end if
 
-            grid(iG)%Hden = 0.
-            grid(iG)%Ne = 0.
-            grid(iG)%Te = 0.
-            grid(iG)%NeOld = 0.
-            grid(iG)%TeOld = 0.
-            grid(iG)%ionDen = 0.
-            grid(iG)%recPDF = 0.
-            grid(iG)%totalLines = 0.
-            if (lgFluorescence) grid(iG)%totalEmission = 0.
+            grid(iG)%Hden = 0e0
+            grid(iG)%Ne = 0e0
+            grid(iG)%Te = 0e0
+            grid(iG)%NeOld = 0e0
+            grid(iG)%TeOld = 0e0
+            grid(iG)%ionDen = 0e0
+            grid(iG)%recPDF = 0e0
+            grid(iG)%totalLines = 0e0
+            if (lgFluorescence) grid(iG)%totalEmission = 0e0
 
          end if
 
@@ -3365,7 +3365,7 @@ module grid_mod
                print*, "! resetGrid: can't allocate grid memory : LdiffuseLoc "
                stop
             end if
-            grid(iG)%LdiffuseLoc=0.
+            grid(iG)%LdiffuseLoc=0e0
          end if
 
          totCells = totCells + grid(iG)%nCells
@@ -3414,12 +3414,12 @@ module grid_mod
                   stop
                end if
 
-               grid(iG)%linePackets = 0.
-               grid(iG)%linePDF     = 0.
+               grid(iG)%linePackets = 0e0
+               grid(iG)%linePDF     = 0e0
 
             end if
 
-            grid(iG)%Jdif = 0.
+            grid(iG)%Jdif = 0e0
 
          end if
 
@@ -3464,8 +3464,8 @@ module grid_mod
                print*, "Can't allocate grid memory, Tdust"
                stop
             end if
-            grid(iG)%Ndust = 0.
-            grid(iG)%Tdust = 0.
+            grid(iG)%Ndust = 0e0
+            grid(iG)%Tdust = 0e0
 
             if (.not.lgGas) then
 
@@ -3475,14 +3475,14 @@ module grid_mod
                   print*, "Can't allocate grid memory, dustPDF"
                   stop
                end if
-               grid(iG)%dustPDF=0.
+               grid(iG)%dustPDF=0e0
             end if
 
          end if
 
-         grid(iG)%opacity = 0.
-         grid(iG)%Jste = 0.
-         grid(iG)%H = 0.
+         grid(iG)%opacity = 0e0
+         grid(iG)%Jste = 0e0
+         grid(iG)%H = 0e0
          grid(iG)%lgConverged = 0
          grid(iG)%lgBlack = 0
 
@@ -3585,8 +3585,8 @@ module grid_mod
             grid(iG)%geoCorrZ = (grid(iG)%zAxis(grid(iG)%nz) - &
                  & grid(iG)%zAxis(grid(iG)%nz-1))/2.
          else
-            grid(iG)%geoCorrY = 0.
-            grid(iG)%geoCorrZ = 0.
+            grid(iG)%geoCorrY = 0e0
+            grid(iG)%geoCorrZ = 0e0
          end if
          if (taskid == 0) print*, "Geometric grid corrections at grid: ", iG, &
            & grid(iG)%geoCorrX, grid(iG)%geoCorrY, grid(iG)%geoCorrZ
@@ -3602,7 +3602,7 @@ module grid_mod
          do i = 1, grid(iG)%nz-1
             dl(iG) = min(dl(iG), abs(grid(iG)%zAxis(i+1)-grid(iG)%zAxis(i)) )
          end do
-         dl(iG) = dl(iG)/50.
+         dl(iG) = dl(iG)/50e0
 
 
       end do ! closes nGrids loop
