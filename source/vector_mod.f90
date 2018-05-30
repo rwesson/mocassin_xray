@@ -22,37 +22,37 @@ module vector_mod
 
   interface operator(*)
      module procedure mult
-  end interface
+  end interface operator(*)
 
   ! and divide
 
   interface operator(/)
      module procedure divideVec
-  end interface
+  end interface operator(/)
 
   ! add
 
   interface operator(+)
      module procedure add
-  end interface
+  end interface operator(+)
 
   ! subtract
 
   interface operator(-)
      module procedure subtract
-  end interface
+  end interface operator(-)
 
   ! equivalence
 
   interface operator(==)
       module procedure equivalence
-  end interface
+  end interface operator(==)
 
   ! notEquivalence(/=)
 
   interface operator(/=)
       module procedure notEquivalence
-  end interface
+  end interface operator(/=)
 
   ! note that the following two operators are costumised
   ! for use in the mocassinPlot routines, these are only
@@ -62,25 +62,25 @@ module vector_mod
 
   interface operator(>=)
      module procedure greaterEqual
-  end interface
+  end interface operator(>=)
 
   ! <=
 
   interface operator(<=)
      module procedure lessEqual
-  end interface
+  end interface operator(<=)
 
   ! dot product
 
   interface operator(.dot.)
      module procedure dotProd
-  end interface
+  end interface operator(.dot.)
 
   ! cross product
 
   interface operator(.cross.)
      module procedure crossProd
-  end interface
+  end interface operator(.cross.)
 
 contains
 
@@ -247,7 +247,7 @@ contains
 
     r = modulus(vec)
     if ((vec%y == 0.) .and. (vec%x == 0)) then
-       phi = 0.
+       phi = 0e0
     else
        phi = atan2(vec%y, vec%x)
     endif
