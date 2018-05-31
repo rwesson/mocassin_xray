@@ -82,19 +82,19 @@ module emission_mod
         end if
 
         ! zero out arrays
-        continuum      = 0e0
-        emissionHI     = 0e0
-        emissionHeI    = 0e0
-        emissionHeII   = 0e0
-        gammaHI        = 0e0
-        gammaHeI       = 0e0
-        gammaHeII      = 0e0
-        gammaHeavies   = 0e0
-        twoPhotHI      = 0e0
-        twoPhotHeI     = 0e0
-        twoPhotHeII    = 0e0
-        ffCoeff1       = 0e0
-        ffCoeff2       = 0e0
+        continuum      = 0.
+        emissionHI     = 0.
+        emissionHeI    = 0.
+        emissionHeII   = 0.
+        gammaHI        = 0.
+        gammaHeI       = 0.
+        gammaHeII      = 0.
+        gammaHeavies   = 0.
+        twoPhotHI      = 0.
+        twoPhotHeI     = 0.
+        twoPhotHeII    = 0.
+        ffCoeff1       = 0.
+        ffCoeff2       = 0.
 
         ! calculates the H, He and heavy ions f-b and f-f emission
         ! coefficients
@@ -109,9 +109,9 @@ module emission_mod
         emissionHeI = (gammaHeI + twoPhotHeI ) * grids(iG)%elemAbun(grids(iG)%abFileIndex(ix,iy,iz),2) * ionDenUsed(elementXref(2),2)*NeUsed
         emissionHeII= (gammaHeII + twoPhotHeII ) * grids(iG)%elemAbun(grids(iG)%abFileIndex(ix,iy,iz),2) * ionDenUsed(elementXref(2),3)*NeUsed
 
-        where (emissionHI < 1.e-15 ) emissionHI = 0e0
-        where (emissionHeI < 1.e-15 ) emissionHeI = 0e0
-        where (emissionHeII < 1.e-15 ) emissionHeII = 0e0
+        where (emissionHI < 1.e-15 ) emissionHI = 0.
+        where (emissionHeI < 1.e-15 ) emissionHeI = 0.
+        where (emissionHeII < 1.e-15 ) emissionHeII = 0.
 
         continuum = (emissionHI + emissionHeI + emissionHeII)
 
@@ -158,7 +158,7 @@ module emission_mod
         integer             :: iRes, imul
 
         ! calculate total energy deposited into the medium at location icell in grid igrid
-        lineIntensity=0e0
+        lineIntensity=0.
         do iRes = 1, nResLines
            do imul = 1, resLine(iRes)%nmul
 
@@ -279,9 +279,9 @@ module emission_mod
             stop
         end if
 
-        logGammaHIloc = 0e0
-        logGammaHeIloc = 0e0
-        logGammaHeIIloc = 0e0
+        logGammaHIloc = 0.
+        logGammaHeIloc = 0.
+        logGammaHeIIloc = 0.
 
         ! interpolate the coefficients in Temperature (linear in log-log)
 
@@ -561,7 +561,7 @@ module emission_mod
 
             ! check for nu >= nu0
             if (nu >= nu0 ) then
-                hydro2phot = 0e0
+                hydro2phot = 0.
                 return
             end if
 
@@ -595,7 +595,7 @@ module emission_mod
 
             ! check for nu >= nu0
             if (nu >= nu0 ) then
-                hydro2phot = 0e0
+                hydro2phot = 0.
                 return
             end if
 
@@ -673,7 +673,7 @@ module emission_mod
 
             Ay = fit1*y + fit2
 
-            if ( Ay < 9.2163086E-03 ) Ay = 0e0
+            if ( Ay < 9.2163086E-03 ) Ay = 0.
 
             twoPhotHeI(i) = alphaEff21SHeI*Ay*0.66262*y/A21S11S
         end do
@@ -736,7 +736,7 @@ module emission_mod
              &iup                                 ! pointer to upper level
 
 
-        T4 = TeUsed / 10000e0
+        T4 = TeUsed / 10000.
 
         if (T4>hydroLinesTemps(12)) then
            elUp = 2
@@ -995,7 +995,7 @@ module emission_mod
         integer                    :: elUp
 
 
-        T4 = TeUsed / 10000e0
+        T4 = TeUsed / 10000.
 
         ! find the nearest temp bin
         itemp = 1
@@ -1263,7 +1263,7 @@ module emission_mod
         integer :: elem, ion ! counters
 
         ! re-initialize forbiddenLines
-        forbiddenLines = 0e0
+        forbiddenLines = 0.
 
         do elem = 3, nElements
            do ion = 1, min(elem+1, nstages)
@@ -1324,7 +1324,7 @@ module emission_mod
         real              :: normHeII          !                            HeII
         real              :: normRec           !                            rec. lines
         real              :: treal
-        real              :: T4                ! TeUsed/10000e0
+        real              :: T4                ! TeUsed/10000.
 
         real, dimension(4) :: HeIILyman         ! HeII Lyman lines em. [e-25ergs*cm^3/s]
         real, dimension(4) :: HeIILymanNu       ! HeII Lyman lines freq. [Ryd]
@@ -1351,13 +1351,13 @@ module emission_mod
         ! calculate normalization constants for the HI, HeI and HeII diffuse probs
 
         ! initialize constants
-        normHI   = 0e0
-        normHeI  = 0e0
-        normHeII = 0e0
+        normHI   = 0.
+        normHeI  = 0.
+        normHeII = 0.
 
-        sumDiffuseHI = 0e0
-        sumDiffuseHeI = 0e0
-        sumDiffuseHeII = 0e0
+        sumDiffuseHI = 0.
+        sumDiffuseHeI = 0.
+        sumDiffuseHeII = 0.
 
         ! perform summations
         do i = 1, nbins
@@ -1427,8 +1427,8 @@ module emission_mod
         ! calculate dust emission
         if (lgDust) then
 
-           sumDiffuseDust = 0e0
-           normDust       = 0e0
+           sumDiffuseDust = 0.
+           normDust       = 0.
            do ai = 1, nSizes
               do nS = 1, nSpecies
 
@@ -1438,8 +1438,8 @@ module emission_mod
                          & convPercent>minConvQheat .and. nIterateMC>1) then
 
                        tg =  grids(iG)%Tdust(nS,ai,cellPused)
-                       Tspike=0e0
-                       Pspike=0e0
+                       Tspike=0.
+                       Pspike=0.
 
                        call qHeat(nS, ai,tg,Tspike,Pspike)
 
@@ -1497,7 +1497,7 @@ module emission_mod
 
         ! Sum  up energy in recombination lines
 
-        normRec = 0e0
+        normRec = 0.
         ! hydrogenic rec lines
         do izp = 1, 30
            do iup = 2, 15
@@ -1513,7 +1513,7 @@ module emission_mod
 
         ! Sum  up energy in forbidden lines
 
-        normFor = 0e0
+        normFor = 0.
         do elem = 3, nElements
            do ion = 1, min(elem+1, nstages)
               if (.not.lgElementOn(elem)) exit
@@ -1524,7 +1524,7 @@ module emission_mod
                        if (forbiddenLines(elem, ion, ilow, iup) > 1.e-35)  then
                           normFor = normFor + forbiddenLines(elem, ion, ilow, iup)
                        else
-                          forbiddenLines(elem, ion, ilow, iup) = 0e0
+                          forbiddenLines(elem, ion, ilow, iup) = 0.
                        end if
                     end do
                  end do
@@ -1656,12 +1656,12 @@ module emission_mod
 
       character(len=50) :: cShapeLoc
 
-      Tspike=0e0
-      Pspike=0e0
+      Tspike=0.
+      Pspike=0.
 
       cShapeLoc = 'blackbody'
 
-      grids(iG)%dustPDF(grids(iG)%active(ix,iy,iz),:)=0e0
+      grids(iG)%dustPDF(grids(iG)%active(ix,iy,iz),:)=0.
       do n = 1, nSpecies
          do ai = 1, nSizes
 
@@ -1768,14 +1768,14 @@ module emission_mod
          temp(1)=tg
          pss(1) = 1.
          do i = 2, nTbins
-            temp(i)=0e0
-            pss(i) = 0e0
+            temp(i)=0.
+            pss(i) = 0.
          end do
          return
       end if
 
-      temp = 0e0
-      pss  = 0e0
+      temp = 0.
+      pss  = 0.
 
       sorc = grainLabel(ns)(1:1)
 
@@ -1842,7 +1842,7 @@ module emission_mod
                wll = hc/( (U(if)+U(if-1))/2.0 - U(ii)) ! longer wl
 
                if ( wl>= 0.1 .or. wl < lambda(1)) then
-                  A(if,ii) = 0e0
+                  A(if,ii) = 0.
                else
 
                   if (wll>0.1) wll =.1
@@ -1877,7 +1877,7 @@ module emission_mod
                end if
             else
                if ( (wl>=0.1) .or. (wl<lambda(1))) then
-                  A(if,ii) = 0e0
+                  A(if,ii) = 0.
                else
                   A(if,ii) = sQabs(wlP)*&
                        & radField(wlP)*dU(if)*wl**3/(hc**2)
@@ -1891,7 +1891,7 @@ module emission_mod
          UiTrun = U(nTbins)+dU(nTbins)/2.0 - U(ii)
          wlim = hc/UiTrun
 
-         qint = 0e0
+         qint = 0.
          do j = 1,nbins-1
 
             qint1 = lambda(j)*sQabs(j)*radField(j)
@@ -1936,17 +1936,17 @@ module emission_mod
 
 
       ! find the B(f,j) terms
-      B=0e0
+      B=0.
       do ii = 1, nTbins
          B(nTbins,ii) = A(nTbins,ii)
          do if = nTbins-1, ii+1,-1
             B(if,ii) = B(if+1,ii)+A(if,ii) ! G&D p233
          end do
       end do
-      sumX = 0e0
+      sumX = 0.
       x(1) = 1.d-100
       do if = 2, nTbins
-         sumBx = 0e0
+         sumBx = 0.
          do j = 1, if-1
             sumBx = sumBx + B(if,j)*x(j)
          end do
@@ -1956,7 +1956,7 @@ module emission_mod
          if (x(if) > 1.d250) then
             do i = 1, if
                if (x(i)< 1.) then
-                  x(i) = 0e0
+                  x(i) = 0.
                else
                   x(i) = x(i)*1.d-250
                end if
@@ -1970,12 +1970,12 @@ module emission_mod
 
       do i = 1, nTbins-1
          if (x(i) > 0.) then
-            if (dlog10(x(i))-dlog10(sumx) <= -250.) x(i) = 0e0
+            if (dlog10(x(i))-dlog10(sumx) <= -250.) x(i) = 0.
          end if
          Pss(i) = x(i)/sumx
       end do
 
-      qHeatTemp = 0e0
+      qHeatTemp = 0.
       do i = 1, nTbins
 
          qHeatTemp = qHeatTemp+Pss(i)*temp(i)
@@ -2021,14 +2021,14 @@ module emission_mod
       end if
 
       do ifreq = 1, cutoffP
-         radField(ifreq)=0e0
+         radField(ifreq)=0.
       end do
 
       ! zero out dust temperature
-      tmin = 0e0
+      tmin = 0.
 
       ! calculate absorption integral
-      dustAbsIntegral = 0e0
+      dustAbsIntegral = 0.
       do i = 1, cutoffP
          dustAbsIntegral =  dustAbsIntegral + xSecArray(dustAbsXsecP(nS,ai)+i-1)*radField(i)/Pi
       end do
@@ -2114,7 +2114,7 @@ module emission_mod
       exptest=C2/(lam*tIn)
 
       if(exptest > 400.) then
-         bbody=0e0
+         bbody=0.
       else
          bbody = C1*(1./lam**5)/(exp(exptest)-1.)
       end if
@@ -2135,8 +2135,8 @@ module emission_mod
       cutoff = .1 ! cm
 
       ! calculate -dU/dt
-      engin = 0e0
-      engout = 0e0
+      engin = 0.
+      engout = 0.
 
       do k = 1, nbins
 
@@ -2171,20 +2171,20 @@ module emission_mod
       integer :: nshort,nlong,k
 
       if (it>nTbins) then
-         ch=0e0
+         ch=0.
          return
       end if
 
       hc = hPlanck*c
 
-      engin=0e0
+      engin=0.
       nshort=0
       nlong=0
 
       cutoff = .1
 
       if (it>=nTbins) then
-         ch = 0e0
+         ch = 0.
          return
       end if
 
@@ -2192,7 +2192,7 @@ module emission_mod
       shwav=hc/einmax
 
       if(shwav>=cutoff) then
-         ch=0e0
+         ch=0.
          return
       end if
 
@@ -2203,7 +2203,7 @@ module emission_mod
       end do
       nshort = nshort+1
       if (nshort>=nlong) then
-         ch = 0e0
+         ch = 0.
          return
       end if
 
@@ -2293,7 +2293,7 @@ module emission_mod
     nlev = atomic_data_array(elem,ion)%nlevs
     ntemp = atomic_data_array(elem,ion)%ntemps
 
-    atomic_data_array(elem,ion)%alphaTotal = 0e0
+    atomic_data_array(elem,ion)%alphaTotal = 0.
 
     if (rec) then
 
@@ -2394,9 +2394,9 @@ module emission_mod
     allocate(y(nlev))
     allocate(n(nlev))
 
-    x=0e0
-    y=0e0
-    n=0e0
+    x=0.
+    y=0.
+    n=0.
 
     ! set up x
 
@@ -2728,7 +2728,7 @@ module emission_mod
           print*, "! initResLines: can't allocate array memory, fEscapeResPhotons"
           stop
        end if
-       grid(iGrid)%fEscapeResPhotons(0:grid(iGrid)%nCells,1:nResLines) = 0e0
+       grid(iGrid)%fEscapeResPhotons(0:grid(iGrid)%nCells,1:nResLines) = 0.
 
        ! and the extra packets to be transferred from each location
        allocate(grid(iGrid)%resLinePackets(0:grid(iGrid)%nCells), stat = err)
@@ -2736,7 +2736,7 @@ module emission_mod
           print*, "! initResLines: can't allocate array memory, resLinePackets"
           stop
        end if
-       grid(iGrid)%resLinePackets(0:grid(iGrid)%nCells) = 0e0
+       grid(iGrid)%resLinePackets(0:grid(iGrid)%nCells) = 0.
 
     end do
 
@@ -2745,7 +2745,7 @@ module emission_mod
        print*, "! initResLines: can't allocate array memory, dustHeatingBudget"
        stop
     end if
-    dustHeatingBudget=0e0
+    dustHeatingBudget=0.
 
   end subroutine initResLines
 
@@ -2824,7 +2824,7 @@ module emission_mod
        cellP = grids(gPin)%active(xP,yP,zP)
        compoP = grids(gPin)%abFileIndex(xP,yP,zP)
 
-       Pline=0e0
+       Pline=0.
 
        ! calculate mean line opacity for this cell
        DeltaNuD = (resLine(iLine)%freq*fr1Ryd/c)*(2.76124e-16*gastemperature0/resLine(iLine)%m_ion)**0.5
@@ -2852,9 +2852,9 @@ module emission_mod
        end if
 
        ! calculate line profile and calculation integrals
-       I1=0e0
-       I2=0e0
-       deltax=0e0
+       I1=0.
+       I2=0.
+       deltax=0.
 
        ! profiles are too narrow for the following
 
@@ -2864,13 +2864,13 @@ module emission_mod
           stop
        end if
 
-       grids(gPin)%fEscapeResPhotons(grids(gPin)%active(xPin,yPin,zPin),iLine)= 0e0
+       grids(gPin)%fEscapeResPhotons(grids(gPin)%active(xPin,yPin,zPin),iLine)= 0.
 
        uHat%x = 1./sqrt(3.)
        uHat%y = uHat%x
        uHat%z = uHat%x
 
-       deltax=0e0
+       deltax=0.
        do idir = 0,ndirx
           uHat = rotateX(uHat,real(idir)*Pi/2.)
           do jdir = 0,ndiry
@@ -2878,7 +2878,7 @@ module emission_mod
              do kdir = 0,ndirz
                 uHat = rotateZ(uHat,real(kdir)*Pi/2.)
 
-                tau_mu = 0e0
+                tau_mu = 0.
 
                 rVec%x = grids(gPin)%xAxis(xPin)
                 rVec%y = grids(gPin)%yAxis(yPin)
@@ -2946,7 +2946,7 @@ module emission_mod
 
                    else
 
-                      gasdensity=0e0
+                      gasdensity=0.
                       gastemperature=1.
 
                    end if
@@ -3412,13 +3412,13 @@ module emission_mod
                 if (Pline > 1.) Pline = 1.
 
                 if (tau_mu <= 0.) then
-                   deltaxloc=0e0
+                   deltaxloc=0.
                 else
                    deltaxloc = log(tau_mu/sqrt(Pi))
                    if (deltaxloc >0.) then
                       deltaxloc=sqrt(deltaxloc)
                    else
-                      deltaxloc=0e0
+                      deltaxloc=0.
                    end if
                 end if
 
@@ -3442,7 +3442,7 @@ module emission_mod
                & grids(gPin)%fEscapeResPhotons(grids(gPin)%active(xPin,yPin,zPin),iLine)))
 
        else
-          grids(gPin)%fEscapeResPhotons(grids(gPin)%active(xPin,yPin,zPin),iLine) = 0e0
+          grids(gPin)%fEscapeResPhotons(grids(gPin)%active(xPin,yPin,zPin),iLine) = 0.
        end if
 
     end do
@@ -3472,7 +3472,7 @@ module emission_mod
       end if
 
       if (present(profilein)) then
-         getM2_tau=0e0
+         getM2_tau=0.
          do i = 1, nbins
             dx = widFlx(lineIn%nuP)*fr1ryd/(real(nbins-1)*width)
             getM2_tau = getM2_tau+profileIn(i)*exp(-tauIn*profileIn(i))*dx

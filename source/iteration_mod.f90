@@ -89,12 +89,12 @@ module iteration_mod
            do iG = 1, nGrids
               grid(iG)%lgConverged(0:grid(iG)%nCells)    = 0
               grid(iG)%lgBlack(0:grid(iG)%nCells)        = 0
-              if (lgFluorescence) grid(iG)%totalEmission(0:grid(iG)%nCells) = 0e0
+              if (lgFluorescence) grid(iG)%totalEmission(0:grid(iG)%nCells) = 0.
 
               if (lgGas) then
                  ! zero out Balmer jump
-                 BjumpTemp = 0e0
-                 Bjump     = 0e0
+                 BjumpTemp = 0.
+                 Bjump     = 0.
               end if
            end do
 
@@ -135,12 +135,12 @@ module iteration_mod
                                         & grid(iG)%NeOld(grid(iG)%active(i,j,k)) , grid(iG)%active(i,j,k)
                                 else
                                    if (grid(iG)%active(i,j,k)>=0) &
-                                        &grid(iG)%opacity(grid(iG)%active(i,j,k), 1:nbins) = 0e0
+                                        &grid(iG)%opacity(grid(iG)%active(i,j,k), 1:nbins) = 0.
                                    call ionizationDriver(grid(iG),i,j,k)
                                 end if
                              else
                                 if (grid(iG)%active(i,j,k)>=0) &
-                                     & grid(iG)%opacity(grid(iG)%active(i,j,k), 1:nbins) = 0e0
+                                     & grid(iG)%opacity(grid(iG)%active(i,j,k), 1:nbins) = 0.
                              end if
                           end if
                        end do
@@ -154,7 +154,7 @@ module iteration_mod
                     stop
                  end if
 
-                 opacityTemp = 0e0
+                 opacityTemp = 0.
 
                  size = (grid(iG)%nCells+1)*nbins
 
@@ -185,12 +185,12 @@ module iteration_mod
               ! add dust contribution to total opacity
               if (taskid==0) print*, '! iterateMC: adding dust contribution to total opacity ',iG
               if (lgDust) then
-                 grid(iG)%scaOpac(0:grid(iG)%nCells, 1:nbins) = 0e0
-                 grid(iG)%absOpac(0:grid(iG)%nCells, 1:nbins) = 0e0
+                 grid(iG)%scaOpac(0:grid(iG)%nCells, 1:nbins) = 0.
+                 grid(iG)%absOpac(0:grid(iG)%nCells, 1:nbins) = 0.
 
                  if((nIterateMC==1 .and. lgEquivalentTau)) then
-                    grid(iG)%scaOpac(0:grid(iG)%nCells, 1:nbins) = 0e0
-                    grid(iG)%absOpac(0:grid(iG)%nCells, 1:nbins) = 0e0
+                    grid(iG)%scaOpac(0:grid(iG)%nCells, 1:nbins) = 0.
+                    grid(iG)%absOpac(0:grid(iG)%nCells, 1:nbins) = 0.
                  else
 
                     if (ig>1 .or. (.not. lg2D)) then
@@ -261,7 +261,7 @@ module iteration_mod
 
               if ( lgResLinesFirst) call initResLines(grid(1:nGrids))
               lgResLinesFirst = .false.
-              grid(iG)%fEscapeResPhotons(0:grid(iG)%nCells, 1:nReslines) = 0e0
+              grid(iG)%fEscapeResPhotons(0:grid(iG)%nCells, 1:nReslines) = 0.
 
            end if
 
@@ -349,20 +349,20 @@ module iteration_mod
 
                                       if (lgGas.and.convPercent>=resLinesTransfer .and. (.not.lgResLinesFirst) &
                                            & .and. (.not.nIterateMC==1))  then
-                                         grid(iG)%fEscapeResPhotons(grid(iG)%active(i,j,k), :) = 0e0
-                                         grid(iG)%resLinePackets(grid(iG)%active(i,j,k)) = 0e0
+                                         grid(iG)%fEscapeResPhotons(grid(iG)%active(i,j,k), :) = 0.
+                                         grid(iG)%resLinePackets(grid(iG)%active(i,j,k)) = 0.
                                       end if
 
                                       if (lgGas) then
                                          ! zero out PDF arrays
-                                         grid(iG)%recPDF(grid(iG)%active(i,j,k), 1:nbins) = 0e0
-                                         if (lgDebug) grid(iG)%linePDF(grid(iG)%active(i,j,k), 1:nLines) = 0e0
-                                         grid(iG)%totalLines(grid(iG)%active(i,j,k)) = 0e0
+                                         grid(iG)%recPDF(grid(iG)%active(i,j,k), 1:nbins) = 0.
+                                         if (lgDebug) grid(iG)%linePDF(grid(iG)%active(i,j,k), 1:nLines) = 0.
+                                         grid(iG)%totalLines(grid(iG)%active(i,j,k)) = 0.
                                       end if
 
                                       if (lgDust .and. .not.lgGas) then
                                          ! zero out dust PDF arrays
-                                         grid(iG)%dustPDF(grid(iG)%active(i,j,k), 1:nbins) = 0e0
+                                         grid(iG)%dustPDF(grid(iG)%active(i,j,k), 1:nbins) = 0.
                                       end if
 
                                       call emissionDriver(grid,i,j,k,iG)
@@ -373,7 +373,7 @@ module iteration_mod
 
                                    if (lgDust .and. .not.lgGas) then
                                       ! zero out dust PDF arrays
-                                      grid(iG)%dustPDF(grid(iG)%active(i,j,k), 1:nbins) = 0e0
+                                      grid(iG)%dustPDF(grid(iG)%active(i,j,k), 1:nbins) = 0.
                                    end if
 
                                    call emissionDriver(grid,i,j,k,iG)
@@ -385,20 +385,20 @@ module iteration_mod
 
                                 if (lgGas.and.convPercent>=resLinesTransfer .and. (.not.lgResLinesFirst) &
                                      & .and. (.not.nIterateMC==1))  then
-                                   grid(iG)%fEscapeResPhotons(grid(iG)%active(i,j,k), :) = 0e0
-                                   grid(iG)%resLinePackets(grid(iG)%active(i,j,k)) = 0e0
+                                   grid(iG)%fEscapeResPhotons(grid(iG)%active(i,j,k), :) = 0.
+                                   grid(iG)%resLinePackets(grid(iG)%active(i,j,k)) = 0.
                                 end if
 
                                 if (lgGas) then
                                    ! zero out PDF arrays
-                                   grid(iG)%recPDF(grid(iG)%active(i,j,k), 1:nbins) = 0e0
-                                   if (lgDebug) grid(iG)%linePDF(grid(iG)%active(i,j,k), 1:nLines) = 0e0
-                                   grid(iG)%totalLines(grid(iG)%active(i,j,k)) = 0e0
+                                   grid(iG)%recPDF(grid(iG)%active(i,j,k), 1:nbins) = 0.
+                                   if (lgDebug) grid(iG)%linePDF(grid(iG)%active(i,j,k), 1:nLines) = 0.
+                                   grid(iG)%totalLines(grid(iG)%active(i,j,k)) = 0.
                                 end if
 
                                 if (lgDust .and. .not.lgGas) then
                                    ! zero out dust PDF arrays
-                                   grid(iG)%dustPDF(grid(iG)%active(i,j,k), 1:nbins) = 0e0
+                                   grid(iG)%dustPDF(grid(iG)%active(i,j,k), 1:nbins) = 0.
                                 end if
 
                              end if
@@ -425,7 +425,7 @@ module iteration_mod
                             & dustPDFTemp ", iG
                        stop
                     end if
-                    dustPDFTemp = 0e0
+                    dustPDFTemp = 0.
                  end if
 
                  if (lgGas) then
@@ -466,9 +466,9 @@ module iteration_mod
                        end if
                     end if
 
-                    recPDFTemp = 0e0
-                    totalLinesTemp = 0e0
-                    if (lgFluorescence) totalEmissionTemp=0e0
+                    recPDFTemp = 0.
+                    totalLinesTemp = 0.
+                    if (lgFluorescence) totalEmissionTemp=0.
 
                  end if
 
@@ -480,7 +480,7 @@ module iteration_mod
                             & opacityTemp "
                        stop
                     end if
-                    linePDFTemp = 0e0
+                    linePDFTemp = 0.
                  end if
 
                  size =  (grid(iG)%nCells+1)*nbins
@@ -576,7 +576,7 @@ module iteration_mod
                             & memory:fEscapeResPhotonsTemp"
                        stop
                     end if
-                    fEscapeResPhotonsTemp = 0e0
+                    fEscapeResPhotonsTemp = 0.
 
                     if (allocated(resLinePacketsTemp)) deallocate(resLinePacketsTemp)
                     allocate(resLinePacketsTemp(0:grid(iG)%nCells), stat &
@@ -586,7 +586,7 @@ module iteration_mod
                             & memory:resLinePacketsTemp"
                        stop
                     end if
-                    resLinePacketsTemp = 0e0
+                    resLinePacketsTemp = 0.
 
                     size = (grid(iG)%nCells+1)*nResLines
 
@@ -618,11 +618,11 @@ module iteration_mod
 
            do iG = 1, nGrids
 
-              grid(iG)%Jste(0:grid(iG)%nCells, 1:nbins)    = 0e0
+              grid(iG)%Jste(0:grid(iG)%nCells, 1:nbins)    = 0.
               if (lgDebug) then
 
-                 grid(iG)%Jdif(0:grid(iG)%nCells, 1:nbins) = 0e0
-                 grid(iG)%linePackets(0:grid(iG)%nCells, 1:nLines) = 0e0
+                 grid(iG)%Jdif(0:grid(iG)%nCells, 1:nbins) = 0.
+                 grid(iG)%linePackets(0:grid(iG)%nCells, 1:nLines) = 0.
 
               end if
            end do
@@ -645,7 +645,7 @@ module iteration_mod
                     print*, "! iterateMC: can't allocate grid memory: escapedPackets", iG
                     stop
                  end if
-                 grid(iG)%escapedPackets(0:grid(iG)%nCells, 0:nbins, 0:nAngleBins)=0e0
+                 grid(iG)%escapedPackets(0:grid(iG)%nCells, 0:nbins, 0:nAngleBins)=0.
 
                  if (lgSeparateSED) then
                     allocate (grid(iG)%escapedPacketsComponents(0:grid(iG)%nCells, &
@@ -655,12 +655,12 @@ module iteration_mod
                        stop
                     end if
                     grid(iG)%escapedPacketsComponents(0:grid(iG)%nCells, &
-                         & 0:nbins, 0:nAngleBins,0:nFluo+1)=0e0
+                         & 0:nbins, 0:nAngleBins,0:nFluo+1)=0.
                  endif
               end do
 
-              viewPointTheta = 0e0
-              viewPointPhi   = 0e0
+              viewPointTheta = 0.
+              viewPointPhi   = 0.
 
               do i = 1, nAngleBins
                  viewPointTheta(i) = fluorescenceVP(1,i)
@@ -707,14 +707,14 @@ module iteration_mod
 
            end if
 
-           totalEscaped = 0e0
+           totalEscaped = 0.
 
-           totalEscaped = 0e0
+           totalEscaped = 0.
            do iG = 1, nGrids
-              grid(iG)%escapedPackets(0:grid(iG)%nCells, 0:nbins, 0:nAngleBins) = 0e0
+              grid(iG)%escapedPackets(0:grid(iG)%nCells, 0:nbins, 0:nAngleBins) = 0.
               if (lgSeparateSED) then
                  grid(iG)%escapedPacketsComponents(0:grid(iG)%nCells, &
-                         & 0:nbins, 0:nAngleBins,0:nFluo+1) = 0e0
+                         & 0:nbins, 0:nAngleBins,0:nFluo+1) = 0.
               endif
            end do
 
@@ -726,7 +726,7 @@ module iteration_mod
               rest = mod(nPhotons(iStar), numtasks)
 
               do iG = 1, nGrids
-                 grid(iG)%escapedPackets(0:grid(iG)%nCells, 0:nbins,0:nAngleBins) = 0e0
+                 grid(iG)%escapedPackets(0:grid(iG)%nCells, 0:nbins,0:nAngleBins) = 0.
               end do
 
               if (lgPlaneIonization) then
@@ -840,7 +840,7 @@ module iteration_mod
                  stop
               end if
 
-              escapedPacketsTemp  = 0e0
+              escapedPacketsTemp  = 0.
 
               if (lgSeparateSED) then
                  allocate(escapedPacketsComponentsTemp(0:grid(iG)%nCells, &
@@ -849,7 +849,7 @@ module iteration_mod
                     print*, "! iterateMC: can't allocate grid memory: escapedPacketsComponentsTemp", iG
                     stop
                  end if
-                 escapedPacketsComponentsTemp  = 0e0
+                 escapedPacketsComponentsTemp  = 0.
               endif
 
               if (allocated(JSteTemp)) deallocate(JSteTemp)
@@ -858,7 +858,7 @@ module iteration_mod
                  print*, "! iterateMC: can't allocate array memory: JsteTemp ", iG
                  stop
               end if
-              JSteTemp           = 0e0
+              JSteTemp           = 0.
 
               if (lgDebug) then
                  allocate(JDifTemp(0:grid(iG)%nCells, nbins), stat = err)
@@ -872,8 +872,8 @@ module iteration_mod
                     stop
                  end if
 
-                 JDifTemp           = 0e0
-                 linePacketsTemp    = 0e0
+                 JDifTemp           = 0.
+                 linePacketsTemp    = 0.
               end if
 
               size =  (grid(iG)%nCells+1)*(1+nbins)*(nAngleBins+1)
@@ -1082,14 +1082,14 @@ module iteration_mod
                          & NeTemp ", iG
                     stop
                  end if
-                 NeTemp           = 0e0
+                 NeTemp           = 0.
                  allocate(TeTemp(0:grid(iG)%nCells), stat = err)
                  if (err /= 0) then
                     print*, "! iterateMC: can't allocate array memory:&
                          & TeTemp ", iG
                     stop
                  end if
-                 TeTemp           = 0e0
+                 TeTemp           = 0.
                  allocate(ionDenTemp(0:grid(iG)%nCells, &
                       & nElementsUsed, nStages), stat = err)
                  if (err /= 0) then
@@ -1097,7 +1097,7 @@ module iteration_mod
                          &ionDenTemp ", iG
                     stop
                  end if
-                 ionDenTemp       = 0e0
+                 ionDenTemp       = 0.
 
               end if
 
@@ -1108,17 +1108,17 @@ module iteration_mod
                          &TdustTemp ", iG
                     stop
                  end if
-                 TdustTemp = 0e0
+                 TdustTemp = 0.
               end if
 
               grid(iG)%lgConverged(0:grid(iG)%nCells) = 0
               grid(iG)%lgBlack(0:grid(iG)%nCells)     = 0
-              grid(iG)%noHit       = 0e0
-              grid(iG)%noIonBal    = 0e0
-              grid(iG)%noTeBal     = 0e0
-              noHitPercent(iG)     = 0e0
-              noIonBalPercent(iG)  = 0e0
-              noTeBalPercent(iG)   = 0e0
+              grid(iG)%noHit       = 0.
+              grid(iG)%noIonBal    = 0.
+              grid(iG)%noTeBal     = 0.
+              noHitPercent(iG)     = 0.
+              noIonBalPercent(iG)  = 0.
+              noTeBalPercent(iG)   = 0.
               lgConvergedTemp      = 0
               lgBlackTemp          = 0
 
@@ -1196,7 +1196,7 @@ module iteration_mod
                  size =  (grid(iG)%nCells+1)
 
                  allocate(aradtemp(0:grid(iG)%nCells))
-                 aradtemp = 0e0
+                 aradtemp = 0.
 
                  call mpi_allreduce(grid(iG)%arad, aradtemp, size, &
                       & mpi_real, mpi_sum, mpi_comm_world, ierr)
@@ -1223,7 +1223,7 @@ module iteration_mod
                             &budgetTemp "
                        stop
                     end if
-                    budgetTemp=0e0
+                    budgetTemp=0.
 
                     size = (nAbcomponents+1)*(nResLines+1)
 
@@ -1280,13 +1280,13 @@ module iteration_mod
            ! decide over final convergence of the model
 
            ! reinitialize convPercent and totCells
-           totPercent  = 0e0
+           totPercent  = 0.
 
            ! calculate the percentage of converged cells
            do iG = 1, nGrids
 
-              totCells    = 0e0
-              convPercent = 0e0
+              totCells    = 0.
+              convPercent = 0.
 
               if (ig>1 .or. (.not.lg2D)) then
                  yTop = grid(iG)%ny
@@ -1319,7 +1319,7 @@ module iteration_mod
                 grid(iG)%noTeBal          = 0
               endif
 
-              totPercent = totPercent + convPercent*grid(iG)%nCells/100e0
+              totPercent = totPercent + convPercent*grid(iG)%nCells/100.
 
               if (taskid == 0) then
                  if (nIterateMC == 1) then
@@ -1361,7 +1361,7 @@ module iteration_mod
                     write(21,*) "Dust Budgets: "
                     do icomp = 0, nAbComponents
                        write(21,*) " Component ", icomp
-                       totheatdust = 0e0
+                       totheatdust = 0.
                        do icontrib =0, nResLines
                           totheatdust = totheatdust+dustHeatingBudget(icomp,icontrib)
                        end do
@@ -1376,7 +1376,7 @@ module iteration_mod
 
            end do
 
-           if (lgDust .and. convPercent>=resLinesTransfer .and. lgGas) dustHeatingBudget = 0e0
+           if (lgDust .and. convPercent>=resLinesTransfer .and. lgGas) dustHeatingBudget = 0.
 
            totCells = 0
            do iG =1,nGrids

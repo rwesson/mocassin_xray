@@ -146,7 +146,7 @@ module xSec_mod
             if (logGammaHI(itk,i)>0.) then
                logGammaHI(itk,i) = log10(logGammaHI(itk,i))
             else
-               logGammaHI(itk,i) = 0e0
+               logGammaHI(itk,i) = 0.
             end if
          end do
       end do
@@ -165,7 +165,7 @@ module xSec_mod
             if (logGammaHeI(itk,i)>0.) then
                logGammaHeI(itk,i) = log10(logGammaHeI(itk,i))
             else
-               logGammaHeI(itk,i) = 0e0
+               logGammaHeI(itk,i) = 0.
             end if
          end do
       end do
@@ -184,7 +184,7 @@ module xSec_mod
             if (logGammaHeII(itk,i)>0.) then
                logGammaHeII(itk,i) = log10(logGammaHeII(itk,i))
             else
-               logGammaHeII(itk,i) = 0e0
+               logGammaHeII(itk,i) = 0.
             end if
          end do
       end do
@@ -231,7 +231,7 @@ module xSec_mod
 
 
         ! zero out arrays
-        xSecArrayTemp = 0e0
+        xSecArrayTemp = 0.
 
         ! initialize top of stack pointer, xSecTop
         xSecTop = 0
@@ -384,9 +384,9 @@ module xSec_mod
                  print*, "! initXSecArray: Cannot allocate grid array"
                  stop
               end if
-              comXSecC=0e0
-              comXSecH=0e0
-              xSecRecoil=0e0
+              comXSecC=0.
+              comXSecH=0.
+              xSecRecoil=0.
 
               ! thomson scattering up to 20.6Ryd xrayP
               thom = 6.65e-25
@@ -968,7 +968,7 @@ module xSec_mod
            print*, "! makeDustXsec: error allocation memory for absOpacSpecies array"
            stop
         end if
-        absOpacSpecies=0e0
+        absOpacSpecies=0.
 
         ! allocate abundances array for dust
         allocate (grainAbun(1:nSpecies), stat=err)
@@ -976,20 +976,20 @@ module xSec_mod
            print*, "! makeDustXsec: error allocation memory for grainAbun array"
            stop
         end if
-        grainAbun=0e0
+        grainAbun=0.
 
         allocate(rho(1:nSpecies), stat = err)
         if (err /= 0) then
            print*, "! makeDustXsec: can't allocate rho memory"
            stop
         end if
-        rho=0e0
+        rho=0.
         allocate(grainVn(1:nSpecies), stat = err)
         if (err /= 0) then
            print*, "! makeDustXsec: can't allocate grainVn memory"
            stop
         end if
-        grainVn=0e0
+        grainVn=0.
         allocate(MsurfAtom(1:nSpecies), stat = err)
         if (err /= 0) then
            print*, "! makeDustXsec: can't allocate surfAtom memory"
@@ -1008,7 +1008,7 @@ module xSec_mod
            print*, "! makeDustXsec: error allocation memory for TdustSublime array"
            stop
         end if
-        TdustSublime=0e0
+        TdustSublime=0.
 
         open (unit=11, file=dustFile(2), iostat = ios, status = 'old', &
              &position = 'rewind', action="read")
@@ -1023,21 +1023,21 @@ module xSec_mod
            print*, "! makeDustXsec: error allocation memory for grainRadius array"
            stop
         end if
-        grainRadius=0e0
+        grainRadius=0.
         allocate (da(1:nSizes), stat=err)
         if (err/=0) then
            print*, "! makeDustXsec: error allocation memory for da array"
            stop
         end if
-        da=0e0
+        da=0.
 
         allocate (grainWeight(1:nSizes), stat=err)
         if (err/=0) then
            print*, "! makeDustXsec: error allocation memory for grainWeight array"
            stop
         end if
-        grainWeight=0e0
-        normWeight =0e0
+        grainWeight=0.
+        normWeight =0.
 
         allocate (dustScaXSecP(0:nSpecies,1:nSizes), stat=err)
         if (err/=0) then
@@ -1063,7 +1063,7 @@ module xSec_mod
            end do
            da(nSizes) = grainRadius(nSizes)-grainRadius(nSizes-1)
         end if
-        normWeight=  0e0
+        normWeight=  0.
         do ai = 1, nSizes
            normWeight = normWeight+grainWeight(ai)*da(ai)
         end do
@@ -1154,10 +1154,10 @@ module xSec_mod
               end if
 
               ! initialise arrays
-              tmp1 = 0e0
-              tmp2 = 0e0
-              tmp3 = 0e0
-              wav = 0e0
+              tmp1 = 0.
+              tmp2 = 0.
+              tmp3 = 0.
+              wav = 0.
 
               if (nSpec == 1) then
                  ! allocate the pointers' memory
@@ -1181,10 +1181,10 @@ module xSec_mod
                     print*, "! makeDustXsec: error allocation memory for CTabs array"
                     stop
                  end if
-                 Cabs = 0e0
-                 Csca = 0e0
-                 CTabs = 0e0
-                 CTsca = 0e0
+                 Cabs = 0.
+                 Csca = 0.
+                 CTabs = 0.
+                 CTsca = 0.
               end if
 
               allocate (Ere(1:nWav), stat=err)
@@ -1197,8 +1197,8 @@ module xSec_mod
                  print*, "! makeDustXsec: error allocation memory for Eim array"
                  stop
               end if
-              Ere = 0e0
-              Eim = 0e0
+              Ere = 0.
+              Eim = 0.
 
 
               read(20, *) dustFileType
@@ -1236,8 +1236,8 @@ module xSec_mod
                  print*, "! makeDustXsec: error allocation memory for Eim array - 2"
                  stop
               end if
-              Ere = 0e0
-              Eim = 0e0
+              Ere = 0.
+              Eim = 0.
 
               ! map onto mocassin grid
               call linearMap(tmp1, wav, nwav, Ere, nuArray, nbins)
@@ -1332,18 +1332,18 @@ module xSec_mod
               end if
 
               ! initialise arrays
-              QaTemp = 0e0
-              QsTemp = 0e0
-              gTemp = 0e0
-              temp1nbins = 0e0
-              temp2nbins = 0e0
-              temp3nbins = 0e0
-              tmp11 = 0e0
-              tmp22 = 0e0
-              tmp33 = 0e0
-              tmpWav = 0e0
-              wav = 0e0
-              agrain = 0e0
+              QaTemp = 0.
+              QsTemp = 0.
+              gTemp = 0.
+              temp1nbins = 0.
+              temp2nbins = 0.
+              temp3nbins = 0.
+              tmp11 = 0.
+              tmp22 = 0.
+              tmp33 = 0.
+              tmpWav = 0.
+              wav = 0.
+              agrain = 0.
 
               if (nSpec == 1) then
                  ! allocate the pointers' memory
@@ -1383,16 +1383,16 @@ module xSec_mod
                        print*, "! makeDustXsec: error allocation memory for CTpr array"
                        stop
                     end if
-                    Cpr = 0e0
-                    CTpr = 0e0
+                    Cpr = 0.
+                    CTpr = 0.
                  end if
 
 
-                 gCos = 0e0
-                 Cabs = 0e0
-                 Csca = 0e0
-                 CTabs = 0e0
-                 CTsca = 0e0
+                 gCos = 0.
+                 Cabs = 0.
+                 Csca = 0.
+                 CTabs = 0.
+                 CTsca = 0.
               end if
 
               do i = 1, nRadii
@@ -1626,7 +1626,7 @@ module xSec_mod
               if (absRefIndex*sizeParam<1000.) then
 
                  ! if size parameter > 100 use 100 (geometrical optics)
-                 if (sizeParam > 100.) sizeParam=100e0
+                 if (sizeParam > 100.) sizeParam=100.
 
                  ! now calculate the efficiencies
                  call BHmie(sizeParam,refIndex,Qabs(ai,i),Qsca(ai,i),Qback(ai,i))
@@ -1653,7 +1653,7 @@ module xSec_mod
                  stop
               end if
 
-              if (.not.lgDustScattering) Qsca(ai,i)=0e0
+              if (.not.lgDustScattering) Qsca(ai,i)=0.
 
            end do
 
@@ -1686,12 +1686,12 @@ module xSec_mod
         epsrem1 = (epsre/(epsre**2+epsim**2))
         epsimm1 = -(epsre/(epsre**2+epsim**2))
 
-        qa = 0e0
-        qs = 0e0
+        qa = 0.
+        qs = 0.
 
         do i = 1, nang
 
-           theta0 = i*Pi/180e0
+           theta0 = i*Pi/180.
 
            p20 = 0.5*(sin(theta0)**2 - epsre + ( (2*epsim)**2 + (epsre-sin(theta0)**2) )**0.5)
 
@@ -1889,9 +1889,9 @@ module xSec_mod
       allocate(KNsigmaArray(nbins,nangles))
       allocate(PcompArray(nbins,nangles))
 
-      KNsigmaT=0e0
-      KNsigmaArray=0e0
-      PcompArray=0e0
+      KNsigmaT=0.
+      KNsigmaArray=0.
+      PcompArray=0.
 
       do i = 1, nbins
          do j = 1, nangles
@@ -1900,16 +1900,16 @@ module xSec_mod
             PcompArray(i,j) = P
             KNsigmaArray(i,j) = KNsigma(P,real(j))
             KNsigmaT(i) = KNsigmaT(i) + KNsigmaArray(i,j)*&
-                 &2.*Pi*Sin(j*Pi/180.)*Pi/180e0
+                 &2.*Pi*Sin(j*Pi/180.)*Pi/180.
          end do
       end do
 
       ! now calculate PDFs
       do i = 1, nbins
-         KNsigmaArray(i,1) = KNsigmaArray(i,1)*2.*Pi*Sin(Pi/180.)*Pi/180e0
+         KNsigmaArray(i,1) = KNsigmaArray(i,1)*2.*Pi*Sin(Pi/180.)*Pi/180.
          do j = 2, nangles
             KNsigmaArray(i,j) = KNsigmaArray(i,j-1)+KNsigmaArray(i,j)*&
-                 &2.*Pi*Sin(j*Pi/180.)*Pi/180e0
+                 &2.*Pi*Sin(j*Pi/180.)*Pi/180.
          end do
          KNsigmaArray(i,:) = KNsigmaArray(i,:)/KNsigmaT(i)
          KNsigmaArray(i,nangles) = 1.
@@ -1930,7 +1930,7 @@ module xSec_mod
       ! const = m_e*c^2 * erg2ryd = 37557.99001
       const = 37557.66267
 
-      thetarad = theta*Pi/180e0
+      thetarad = theta*Pi/180.
 
       Pcomp = 1./(1. + (E/const)*(1.-cos(thetarad)))
 
@@ -1952,7 +1952,7 @@ module xSec_mod
       ! const = 0.5 r_e^2
       const = 3.970393838e-26
 
-      thetarad = theta*Pi/180e0
+      thetarad = theta*Pi/180.
 
       KNsigma = const*(P-(P**2)*(sin(thetarad)**2)+P**3)
 

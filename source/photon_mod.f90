@@ -12,9 +12,9 @@ module photon_mod
 
     ! common variables
 
-    real :: Qphot = 0e0
-    real :: QfluoBins(14) = 0e0
-    real :: QFluo(14) = 0e0
+    real :: Qphot = 0.
+    real :: QfluoBins(14) = 0.
+    real :: QFluo(14) = 0.
     real, dimension(14) :: fluorescenceTot
 
 
@@ -102,16 +102,16 @@ module photon_mod
 
         if (allocated(seed)) deallocate(seed)
 
-        Qphot = 0e0
-        QfluoBins = 0e0
-        QFluo = 0e0
+        Qphot = 0.
+        QfluoBins = 0.
+        QFluo = 0.
 
-        fluorescenceTot = 0e0
+        fluorescenceTot = 0.
 
 
         if (taskid ==0 .and. lgPlaneIonization .and. nIterateMC==1) then
            allocate(JnuStart(grid(1)%nx, grid(1)%nz, nbins))
-           JnuStart = 0e0
+           JnuStart = 0.
         end if
 
         trapped = 0
@@ -764,7 +764,7 @@ module photon_mod
             ! check if photon packen is line or continuum photon
             if ( lgLine ) then
                 ! line photon
-                initPhotonPacket%nu       = 0e0
+                initPhotonPacket%nu       = 0.
                 initPhotonPacket%lgLine   = .true.
             else
                 ! continuum photon
@@ -802,7 +802,7 @@ module photon_mod
                end if
 
                ! y-direction
-               initPhotonPacket%position%y = 0e0
+               initPhotonPacket%position%y = 0.
                initPhotonPacket%yP(igpi) = 1
 
                ! z-direction
@@ -828,9 +828,9 @@ module photon_mod
                if (initPhotonPacket%zP(igpi)<1) initPhotonPacket%zP(igpi)=1
 
                ! direction is parallel to y-axis direction
-               initPhotonPacket%direction%x = 0e0
+               initPhotonPacket%direction%x = 0.
                initPhotonPacket%direction%y = 1.
-               initPhotonPacket%direction%z = 0e0
+               initPhotonPacket%direction%z = 0.
 
                if (initPhotonPacket%xP(igpi) >  grid(gP)%xAxis(grid(gP)%nx) .or. &
                     & initPhotonPacket%zP(igpi) >  grid(gP)%zAxis(grid(gP)%nz)) then
@@ -1068,13 +1068,13 @@ module photon_mod
                    yloc = starPosition(iStar)%y
                    zloc = starPosition(iStar)%z
 
-                   dSx=0e0
-                   dSy=0e0
-                   dSz=0e0
+                   dSx=0.
+                   dSy=0.
+                   dSz=0.
 !print*, xloc, yloc, zloc
 
-!newPhotonPacket%direction%x = 0e0
-!newPhotonPacket%direction%y = 0e0
+!newPhotonPacket%direction%x = 0.
+!newPhotonPacket%direction%y = 0.
 !newPhotonPacket%direction%z = -1.
 
 !print*, newPhotonPacket%direction%x, newPhotonPacket%direction%y, newPhotonPacket%direction%z
@@ -1090,14 +1090,14 @@ module photon_mod
 
                       if( newPhotonPacket%direction%x > 0.) then
                          if (xloc > grid(1)%xAxis(grid(1)%nx)) then
-                            dSx = 0e0
+                            dSx = 0.
                          else if (xloc < grid(1)%xAxis(1)) then
                             dSx = ( xloc-grid(1)%xAxis(1))/&
                                  &newPhotonPacket%direction%x
                          end if
                       else if (newPhotonPacket%direction%x < 0.) then
                          if (xloc < grid(1)%xAxis(1)) then
-                            dSx = 0e0
+                            dSx = 0.
                          elseif (xloc > grid(1)%xAxis(grid(1)%nx)) then
                             dSx = ( xloc-grid(1)%xAxis(grid(1)%nx))/&
                                  &newPhotonPacket%direction%x
@@ -1118,14 +1118,14 @@ module photon_mod
 
                       if( newPhotonPacket%direction%y > 0.) then
                          if (yloc > grid(1)%yAxis(grid(1)%ny)) then
-                            dSy = 0e0
+                            dSy = 0.
                          else if (yloc < grid(1)%yAxis(1)) then
                             dSy = ( yloc-grid(1)%yAxis(1))/&
                                  &newPhotonPacket%direction%y
                          end if
                       else if (newPhotonPacket%direction%y < 0.) then
                          if (yloc < grid(1)%yAxis(1)) then
-                            dSy = 0e0
+                            dSy = 0.
                          elseif (yloc > grid(1)%yAxis(grid(1)%ny)) then
                             dSy = ( yloc-grid(1)%yAxis(grid(1)%ny))/&
                                  &newPhotonPacket%direction%y
@@ -1146,14 +1146,14 @@ module photon_mod
 
                       if( newPhotonPacket%direction%z > 0.) then
                          if (zloc > grid(1)%zAxis(grid(1)%nz)) then
-                            dSz = 0e0
+                            dSz = 0.
                          else if (zloc < grid(1)%zAxis(1)) then
                             dSz = ( zloc-grid(1)%zAxis(1))/&
                                  &newPhotonPacket%direction%z
                          end if
                       else if (newPhotonPacket%direction%z < 0.) then
                          if (zloc < grid(1)%zAxis(1)) then
-                            dSz = 0e0
+                            dSz = 0.
                          elseif (zloc > grid(1)%zAxis(grid(1)%nz)) then
                             dSz = ( zloc-grid(1)%zAxis(grid(1)%nz))/&
                                  &newPhotonPacket%direction%z
@@ -1167,9 +1167,9 @@ module photon_mod
                    dSx=abs(dSx)
                    dSy=abs(dSy)
                    dSz=abs(dSz)
-                   dS=0e0
-                   dSbis=0e0
-                   dSbisbis=0e0
+                   dS=0.
+                   dSbis=0.
+                   dSbisbis=0.
 
                    if (dSx /= 0.) then
                       dS = dSx
@@ -1825,9 +1825,9 @@ module photon_mod
           gP = enPacket%iG
 
           ! initialise distance from walls
-          dSx = 0e0
-          dSy = 0e0
-          dSz = 0e0
+          dSx = 0.
+          dSy = 0.
+          dSz = 0.
 
           if (lg1D) then
              radius = 1.e10*sqrt((rVec%x/1.e10)*(rVec%x/1.e10) + &
@@ -1843,7 +1843,7 @@ module photon_mod
 
 
           ! initialize optical depth
-          absTau = 0e0
+          absTau = 0.
 
           ! get a random number
           call random_number(random)
@@ -2471,7 +2471,7 @@ module photon_mod
                       vHat%z = enPacket%direction%z
 
                       ! initialize optical depth
-                      absTau = 0e0
+                      absTau = 0.
 
                       ! get a random number
                       call random_number(random)
@@ -2493,7 +2493,7 @@ module photon_mod
                            & (grid(gp)%opacity(grid(gp)%active(xp,yp,zp),&
                            &enPacket%nuP))
                    else
-                      probSca = 0e0
+                      probSca = 0.
                    end if
 
                    call random_number(random)
@@ -2540,7 +2540,7 @@ module photon_mod
                       vHat%z = enPacket%direction%z
 
                       ! initialize optical depth
-                      absTau = 0e0
+                      absTau = 0.
 
                       ! get a random number
                       call random_number(random)
@@ -2646,7 +2646,7 @@ module photon_mod
                                   stop
                                end if
 
-                               deltaEUsed = deltaEUsed/20e0
+                               deltaEUsed = deltaEUsed/20.
                                if (deltaEUsed< 0.) then
                                   print*, "! pathSegment: deltaEUsed < 0! - 1"
                                   stop
@@ -2662,7 +2662,7 @@ module photon_mod
                                        &  rVecin= rVecloc, &
                                        &xpin=xploc, ypin=yploc, zpin=zploc, gpin=gploc, ifl = ifluoloc)
                                end do
-                               deltaEUsed = deltaEUsed*20e0
+                               deltaEUsed = deltaEUsed*20.
 
                                deltaEUsed = deltaEOld-deltaEUsed
 
@@ -4117,8 +4117,8 @@ module photon_mod
 
       radField = deltaE
 
-      photoRateFluoFrac = 0e0
-      deltaE = 0e0
+      photoRateFluoFrac = 0.
+      deltaE = 0.
 
       icell = grid(igin)%active(xpin,ypin,zpin)
       if (icell <= 0) then
@@ -4139,7 +4139,7 @@ module photon_mod
 
             phXsec = xSecArray(nuPin+xSecP-nu1P)
             if (phXsec < 1.e-35) then
-               phXsec = 0e0
+               phXsec = 0.
             end if
 
             if (nuPin<highnuP .and. nuPin>nu1P ) then
@@ -4173,7 +4173,7 @@ module photon_mod
 
                photoRateFluoFrac = radField*photoRateFluoFrac
             else
-               photoRateFluoFrac = 0e0
+               photoRateFluoFrac = 0.
             end if
 
             deltaE = deltaE+photoRateFluoFrac*&
@@ -4199,7 +4199,7 @@ module photon_mod
 
             phXsec = xSecArray(nuPin+xSecP-nu1P)
             if (phXsec < 1.e-35) then
-               phXsec = 0e0
+               phXsec = 0.
             end if
             photoRateFluoFrac = phXsec*grid(igin)%elemAbun(grid(igin)%&
                  & abFileIndex(xPin,yPin,zPin),elP)*grid(igin)%Hden(icell)*&
@@ -4228,7 +4228,7 @@ module photon_mod
 
             phXsec = xSecArray(nuPin+xSecP-nu1P)
             if (phXsec < 1.e-35) then
-               phXsec = 0e0
+               phXsec = 0.
             end if
             photoRateFluoFrac = phXsec*grid(igin)%elemAbun(grid(igin)%&
                  & abFileIndex(xPin,yPin,zPin),elP)*grid(igin)%Hden(icell)*&
@@ -4257,7 +4257,7 @@ module photon_mod
 
             phXsec = xSecArray(nuPin+xSecP-nu1P)
             if (phXsec < 1.e-35) then
-               phXsec = 0e0
+               phXsec = 0.
             end if
             photoRateFluoFrac = phXsec*grid(igin)%elemAbun(grid(igin)%&
                  & abFileIndex(xPin,yPin,zPin),elP)*grid(igin)%Hden(icell)*&
@@ -4286,7 +4286,7 @@ module photon_mod
 
             phXsec = xSecArray(nuPin+xSecP-nu1P)
             if (phXsec < 1.e-35) then
-               phXsec = 0e0
+               phXsec = 0.
             end if
             photoRateFluoFrac = phXsec*grid(igin)%elemAbun(grid(igin)%&
                  & abFileIndex(xPin,yPin,zPin),elP)*grid(igin)%Hden(icell)*&
@@ -4315,7 +4315,7 @@ module photon_mod
 
             phXsec = xSecArray(nuPin+xSecP-nu1P)
             if (phXsec < 1.e-35) then
-               phXsec = 0e0
+               phXsec = 0.
             end if
             photoRateFluoFrac = phXsec*grid(igin)%elemAbun(grid(igin)%&
                  & abFileIndex(xPin,yPin,zPin),elP)*grid(igin)%Hden(icell)*&
@@ -4344,7 +4344,7 @@ module photon_mod
 
             phXsec = xSecArray(nuPin+xSecP-nu1P)
             if (phXsec < 1.e-35) then
-               phXsec = 0e0
+               phXsec = 0.
             end if
             photoRateFluoFrac = phXsec*grid(igin)%elemAbun(grid(igin)%&
                  & abFileIndex(xPin,yPin,zPin),elP)*grid(igin)%Hden(icell)*&
@@ -4373,7 +4373,7 @@ module photon_mod
 
             phXsec = xSecArray(nuPin+xSecP-nu1P)
             if (phXsec < 1.e-35) then
-               phXsec = 0e0
+               phXsec = 0.
             end if
             photoRateFluoFrac = phXsec*grid(igin)%elemAbun(grid(igin)%&
                  & abFileIndex(xPin,yPin,zPin),elP)*grid(igin)%Hden(icell)*&
@@ -4402,7 +4402,7 @@ module photon_mod
 
             phXsec = xSecArray(nuPin+xSecP-nu1P)
             if (phXsec < 1.e-35) then
-               phXsec = 0e0
+               phXsec = 0.
             end if
             photoRateFluoFrac = phXsec*grid(igin)%elemAbun(grid(igin)%&
                  & abFileIndex(xPin,yPin,zPin),elP)*grid(igin)%Hden(icell)*&
@@ -4431,7 +4431,7 @@ module photon_mod
 
             phXsec = xSecArray(nuPin+xSecP-nu1P)
             if (phXsec < 1.e-35) then
-               phXsec = 0e0
+               phXsec = 0.
             end if
             photoRateFluoFrac = phXsec*grid(igin)%elemAbun(grid(igin)%&
                  & abFileIndex(xPin,yPin,zPin),elP)*grid(igin)%Hden(icell)*&
@@ -4460,7 +4460,7 @@ module photon_mod
 
             phXsec = xSecArray(nuPin+xSecP-nu1P)
             if (phXsec < 1.e-35) then
-               phXsec = 0e0
+               phXsec = 0.
             end if
             photoRateFluoFrac = phXsec*grid(igin)%elemAbun(grid(igin)%&
                  & abFileIndex(xPin,yPin,zPin),elP)*grid(igin)%Hden(icell)*&
@@ -4489,7 +4489,7 @@ module photon_mod
 
             phXsec = xSecArray(nuPin+xSecP-nu1P)
             if (phXsec < 1.e-35) then
-               phXsec = 0e0
+               phXsec = 0.
             end if
             photoRateFluoFrac = phXsec*grid(igin)%elemAbun(grid(igin)%&
                  & abFileIndex(xPin,yPin,zPin),elP)*grid(igin)%Hden(icell)*&
@@ -4518,7 +4518,7 @@ module photon_mod
 
             phXsec = xSecArray(nuPin+xSecP-nu1P)
             if (phXsec < 1.e-35) then
-               phXsec = 0e0
+               phXsec = 0.
             end if
             photoRateFluoFrac = phXsec*grid(igin)%elemAbun(grid(igin)%&
                  & abFileIndex(xPin,yPin,zPin),elP)*grid(igin)%Hden(icell)*&
@@ -4547,7 +4547,7 @@ module photon_mod
 
             phXsec = xSecArray(nuPin+xSecP-nu1P)
             if (phXsec < 1.e-35) then
-               phXsec = 0e0
+               phXsec = 0.
             end if
             photoRateFluoFrac = phXsec*grid(igin)%elemAbun(grid(igin)%&
                  & abFileIndex(xPin,yPin,zPin),elP)*grid(igin)%Hden(icell)*&
@@ -4678,7 +4678,7 @@ module photon_mod
             ! check if photon packen is line or continuum photon
             if ( lgLine ) then
                 ! line photon
-                initFluorescencePacket%nu       = 0e0
+                initFluorescencePacket%nu       = 0.
                 initFluorescencePacket%lgLine   = .true.
             else
                 ! continuum photon
@@ -4717,7 +4717,7 @@ module photon_mod
                end if
 
                ! y-direction
-               initFluorescencePacket%position%y = 0e0
+               initFluorescencePacket%position%y = 0.
                initFluorescencePacket%yP(igpi) = 1
 
                ! z-direction
@@ -4743,9 +4743,9 @@ module photon_mod
                if (initFluorescencePacket%zP(igpi)<1) initFluorescencePacket%zP(igpi)=1
 
                ! direction is parallel to y-axis direction
-               initFluorescencePacket%direction%x = 0e0
+               initFluorescencePacket%direction%x = 0.
                initFluorescencePacket%direction%y = 1.
-               initFluorescencePacket%direction%z = 0e0
+               initFluorescencePacket%direction%z = 0.
 
                if (initFluorescencePacket%xP(igpi) >  grid(gP)%xAxis(grid(gP)%nx) .or. &
                     & initFluorescencePacket%zP(igpi) >  grid(gP)%zAxis(grid(gP)%nz)) then
@@ -4987,9 +4987,9 @@ module photon_mod
              gP = enPacket%iG
 
              ! initialise distance from walls
-             dSx = 0e0
-             dSy = 0e0
-             dSz = 0e0
+             dSx = 0.
+             dSy = 0.
+             dSz = 0.
 
              if (lg1D) then
                 radius = 1.e10*sqrt((rVec%x/1.e10)*(rVec%x/1.e10) + &
@@ -5003,7 +5003,7 @@ module photon_mod
              end if
 
              ! initialize optical depth
-             absTau = 0e0
+             absTau = 0.
 
              ! get a random number
              call random_number(random)
@@ -5561,7 +5561,7 @@ module photon_mod
                       vHat%z = enPacket%direction%z
 
                       ! initialize optical depth
-                      absTau = 0e0
+                      absTau = 0.
 
                       ! get a random number
                       call random_number(random)
@@ -6785,7 +6785,7 @@ module photon_mod
 !print*, 'compton :'
    ! calculate new direction
    call getNu2(KNsigmaArray(fPacket%nuP,1:180),newThetaP)
-   newTheta = real(newThetaP)*Pi/180e0
+   newTheta = real(newThetaP)*Pi/180.
 
 !print*, newTheta
    ! calculate u,v,w (Harries & Howarth, 1997)

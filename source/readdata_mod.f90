@@ -13,26 +13,26 @@ contains
 
     ! initialise all the arrays that we are reading in
 
-        y_dat = 0e0
-        Ay_dat = 0e0
-        HIRecLineData = 0e0
-        HeIILymanData = 0e0
-        HeIILymanNuData = 0e0
-        HeIIRecLinedata = 0e0
+        y_dat = 0.
+        Ay_dat = 0.
+        HIRecLineData = 0.
+        HeIILymanData = 0.
+        HeIILymanNuData = 0.
+        HeIIRecLinedata = 0.
         direc_coeffs%elem = 0
         direc_coeffs%n = 0
-        direc_coeffs%a = 0e0
-        direc_coeffs%b = 0e0
-        direc_coeffs%c = 0e0
-        direc_coeffs%d = 0e0
-        direc_coeffs%f = 0e0
+        direc_coeffs%a = 0.
+        direc_coeffs%b = 0.
+        direc_coeffs%c = 0.
+        direc_coeffs%d = 0.
+        direc_coeffs%f = 0.
         direc_coeffs%g = 0
         aldropequi_coeffs%elem = 0
         aldropequi_coeffs%n = 0
         aldropequi_coeffs%a = 0
         aldropequi_coeffs%b = 0
-        aldropequi_coeffs%t0 = 0e0
-        aldropequi_coeffs%t1 = 0e0
+        aldropequi_coeffs%t0 = 0.
+        aldropequi_coeffs%t1 = 0.
 
     ! read in rates from data/HeI2phot.dat
 

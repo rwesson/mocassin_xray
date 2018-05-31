@@ -124,7 +124,7 @@ module update_mod
         end if
 
 
-        ionJ = 0e0
+        ionJ = 0.
         do i = lymanP, nbins
            ionJ = ionJ+grid%Jste(cellP,i)
         end do
@@ -166,11 +166,11 @@ module update_mod
 
            ! zero out T-iteration components
            nIterateT      = 0
-           thResidual     = 0e0
-           thResidualHigh = 0e0
-           thResidualLow  = 0e0
-           Thigh          = 0e0
-           Tlow           = 0e0
+           thResidual     = 0.
+           thResidualHigh = 0.
+           thResidualLow  = 0.
+           Thigh          = 0.
+           Tlow           = 0.
 
            err=0
 
@@ -180,7 +180,7 @@ module update_mod
                  print*, "! updateCell:cannot allocate grid memory,grainpot"
                  stop
               end if
-              grainPot=0e0
+              grainPot=0.
               allocate (grainPotP(1:nSPecies, 1:nsizes))
               if (err /= 0) then
                  print*, "! updateCell:cannot allocate grid memory,grainpotp"
@@ -192,13 +192,13 @@ module update_mod
                  print*, "! updateCell:cannot allocate grid memory,photoelHeat_d"
                  stop
               end if
-              photoelHeat_d=0e0
+              photoelHeat_d=0.
               allocate ( gasDustColl_d(1:nSPecies, 1:nsizes))
               if (err /= 0) then
                  print*, "! updateCell:cannot allocate grid memory"
                  stop
               end if
-              gasDustColl_d=0e0
+              gasDustColl_d=0.
            end if
 
 
@@ -295,8 +295,8 @@ module update_mod
                do isp = 1, nSpecies
                   do ai = 1, nsizes
                      nIterateGC     = 0
-                     grainEmi       = 0e0
-                     grainRec       = 0e0
+                     grainEmi       = 0.
+                     grainRec       = 0.
 
                      call setGrainPotential(isp,ai,lgGCBConv)
 
@@ -365,13 +365,13 @@ module update_mod
 
                             if ( thResidual < 0 ) then
 
-                                TeUsed = Thigh - 100e0
-                                 Thigh  = 0e0
+                                TeUsed = Thigh - 100.
+                                 Thigh  = 0.
 
                             else
 
-                                TeUsed = Tlow+100e0
-                                Tlow   = 0e0
+                                TeUsed = Tlow+100.
+                                Tlow   = 0.
 
                             end if
                         end if
@@ -475,7 +475,7 @@ module update_mod
 
           if (nIterateGC==1) then
              dVg=0.05
-             grainPot(isp,ai) = 0e0
+             grainPot(isp,ai) = 0.
              grainPotOld = grainPot(isp,ai)
              lgGCBConv = .true.
              grainEmiOld = getGrainEmission(grainPot(isp,ai), isp, ai)
@@ -542,7 +542,7 @@ module update_mod
           integer, intent(in) :: isp, ai
           integer :: ifreq, ip
 
-          getGrainEmission=0e0
+          getGrainEmission=0.
 
 
           ! get the threshold
@@ -598,8 +598,8 @@ module update_mod
 
           integer :: istage
 
-          getGrainRecombination = 0e0
-          eta = 0e0
+          getGrainRecombination = 0.
+          eta = 0.
           kT =6.336e-6*TeUsed
           eightkT_pi = (1.1045e-15)*TeUsed/Pi
 
@@ -672,8 +672,8 @@ module update_mod
           !  and heating of gas
           ! Baldwin et al. 1991 eqn 25-27
 
-          photoelHeat_d=0e0
-          photoelHeat_g=0e0
+          photoelHeat_d=0.
+          photoelHeat_g=0.
           do ns = 1, nSpecies
              do na = 1, nSizes
 
@@ -746,8 +746,8 @@ module update_mod
           ss = (/1,1,2,2,3,3,3,3,3,3,4,4,5,5,5,5,5,5,&
                &6,6,6,6,6,6,6,6,6,6,7,7/)
 
-          gasDustColl_g = 0e0
-          gasDustColl_d = 0e0
+          gasDustColl_g = 0.
+          gasDustColl_d = 0.
 
           kT =6.336e-6*TeUsed ! ryd
           eightkT_pi = (1.1045e-15)*TeUsed/Pi
@@ -881,10 +881,10 @@ module update_mod
             real                   :: heatDif       ! tot heat gain due to diffuse phot
             real                   :: log10Te       ! log10(Te)
             real                   :: Np            ! proton density
-            real                   :: Te4           ! Te/10000e0
+            real                   :: Te4           ! Te/10000.
 
-            coolFF  = 0e0
-            coolRec = 0e0
+            coolFF  = 0.
+            coolRec = 0.
 
             do i = 1, nElements
                if (lgElementOn(i) .and. nstages > i) then
@@ -998,18 +998,18 @@ module update_mod
 !print*, 'th12/TeUsed '
              else
 
-                coolColl = 0e0
+                coolColl = 0.
 
              end if
 
             if (lgTraceHeating.and.taskid==0) then
                write(57,*) 'Coll exc H: ',coolColl, NeUsed
-               fcool = 0e0
+               fcool = 0.
             end if
 
 
              ! cooling due to collisional ionisation of heavy metals
-            coolcollh=0e0
+            coolcollh=0.
              do elem =1, nElements
                 if (lgElementOn(elem)) then
                    do ion = 1, min(elem,nstages-1)
@@ -1021,7 +1021,7 @@ module update_mod
 
             if (lgTraceHeating.and.taskid==0) then
                write(57,*) 'Coll ionisation of heavies: ',coolCollH
-               fcool = 0e0
+               fcool = 0.
             end if
 
 
@@ -1030,7 +1030,7 @@ module update_mod
              ! get the emissivities of the forb lines
              call forLines()
 !print*,'a'
-!             coolCEL = 0e0
+!             coolCEL = 0.
 
              ! sum all contributions from the heavies to coolColl
              do elem = 3, nElements
@@ -1045,7 +1045,7 @@ module update_mod
                                coolColl = coolColl + forbiddenLines(elem,ion,j,k)
 !                               coolCEL = coolCEL + forbiddenLines(elem,ion,j,k)
                             else
-                               forbiddenLines(elem,ion,j,k) = 0e0
+                               forbiddenLines(elem,ion,j,k) = 0.
                             end if
 
                             if (lgTraceHeating.and.taskid==0) then
@@ -1060,7 +1060,7 @@ module update_mod
 
             if (lgTraceHeating.and.taskid==0) then
                write(57,*) 'CELs cool: ',fcool
-               fcool = 0e0
+               fcool = 0.
             end if
 
 
@@ -1088,7 +1088,7 @@ module update_mod
 
 !            if (lgTraceHeating.and.taskid==0) then
 !               write(57,*) 'rec lines: ',fcool
-!               fcool = 0e0
+!               fcool = 0.
 !            end if
 
 !            if (coolCEL < coolRL) dc = 2
@@ -1114,13 +1114,13 @@ module update_mod
              ! heating due to photoionization
 
              ! re-initialize heatSte and heatDif
-             heatSte = 0e0
-             if (lgDebug) heatDif = 0e0
+             heatSte = 0.
+             if (lgDebug) heatDif = 0.
 !print*, 'heatste -photoionisation-'
              do elem = 1, nElements  ! begin element loop
 
                  do ion = 1, min(elem, nStages-1) ! begin ion loop
- !                   heationste = 0e0
+ !                   heationste = 0.
                     if(.not.lgElementOn(elem)) exit
                     do nShell = 1, nShells(elem, ion)
 !print*, elem, ion, nshell
@@ -1190,7 +1190,7 @@ module update_mod
           integer        :: elem, ion ! counters
 
           ! re-initialize forbiddenLines
-          forbiddenLines = 0e0
+          forbiddenLines = 0.
 
           do elem = 3, nElements
              do ion = 1, min(elem+1, nstages)
@@ -1252,9 +1252,9 @@ module update_mod
             logical                :: lgNegative
 
             ! initialize variables
-            correction  = 0e0
+            correction  = 0.
             ionProd = 1.
-            ionRatio = 0e0
+            ionRatio = 0.
             denominator = 1.
 
             ! take into account collisional ionization of H
@@ -1276,8 +1276,8 @@ module update_mod
                   if (.not.lgElementOn(elem)) exit
 
                   if (elem>1) then
-                     collIonH=0e0
-                     comptonRecoilIonH = 0e0
+                     collIonH=0.
+                     comptonRecoilIonH = 0.
                   end if
 
                   ionRatio(elem,ion) =  (photoIon(1,1,elem,ion)+collIonH*NeUsed+comptonRecoilIonH)/&
@@ -1372,8 +1372,8 @@ module update_mod
                   do j = 1, maxIterateX
 
                      lgConvEl = .true.
-                     out = 0e0
-                     in = 0e0
+                     out = 0.
+                     in = 0.
 
 
                      do ion = 1, min(elem, nstages-1)
@@ -1490,7 +1490,7 @@ module update_mod
             end do
 
             ! calculate new Ne
-            NeUsed = 0e0
+            NeUsed = 0.
             do elem = 1, nElements
                do ion = 2, min(elem+1, nstages)
                   if (lgElementOn(elem)) then
@@ -1562,7 +1562,7 @@ module update_mod
             real, save             :: HeIIOld       ! X(He+) from last iteration
             real, parameter        :: limit = 0.01  ! convergence limit
 
-            real                   :: t4            ! TeUsed/10000e0
+            real                   :: t4            ! TeUsed/10000.
 
             real                   :: correction    ! used in lgNeInput = .t.
 
@@ -1579,8 +1579,8 @@ module update_mod
 
 
             ! initialize variables
-            correction  = 0e0
-            ionRatio    = 0e0
+            correction  = 0.
+            ionRatio    = 0.
             ionProd     = 1.
             denominator = 1.
             lgConv      = .true.
@@ -1609,8 +1609,8 @@ module update_mod
 
 
 
-            chex          = 0e0
-            deltaE_k      = 0e0
+            chex          = 0.
+            deltaE_k      = 0.
 
             chex(2,1,:)  = (/7.47e-6, 2.06, 9.93,-3.89/)! He0
             chex(2,2,:)  = (/1.e-5  , 0.  , 0.  , 0./)  ! He+
@@ -1671,7 +1671,7 @@ module update_mod
             chex(:,:,1) = chex(:,:,1)*1.e-9
 
 
-            t4 = TeUsed/10000e0
+            t4 = TeUsed/10000.
 
 
             ! calculate the X(i+1)/X(i) ratio
@@ -1681,13 +1681,13 @@ module update_mod
 !print*, 'aa ', chex(elem,ion,4), t4, chex(elem,ion,4)*t4
 
                     if (TeUsed < 6000. .or. TeUsed>5.e4) then
-                       chex(elem,ion,1) = 0e0
+                       chex(elem,ion,1) = 0.
                     else
                        chex(elem,ion,1) = chex(elem,ion,1)*(t4**chex(elem,ion,2))*&
                             & (1.+chex(elem,ion,3)*exp(chex(elem,ion,4)*t4))
                     end if
 
-                    if (chex(elem,ion,1) < 0. ) chex(elem,ion,1) = 0e0
+                    if (chex(elem,ion,1) < 0. ) chex(elem,ion,1) = 0.
 
 
                     ! find the number of electron in this ion
@@ -1705,10 +1705,10 @@ module update_mod
                             & elementXref(1),1))*grid%Hden(cellP)*&
                             & 2. * exp(-deltaE_k(elem,ion)/TeUsed)/(real(g0)/real(g1))
                     else
-                       revRate = 0e0
+                       revRate = 0.
                     end if
 
-                    if ( (elem>1) .or. (ion>1) ) collIonH = 0e0
+                    if ( (elem>1) .or. (ion>1) ) collIonH = 0.
 
                     ! calculate the X(i+1)/X(i) ratio
 
@@ -1786,8 +1786,8 @@ module update_mod
               do elem = 3, nElements
                  if (lgElementOn(elem)) then
 
-                    out = 0e0
-                    in = 0e0
+                    out = 0.
+                    in = 0.
 
                     do ion = 1, min(elem, nstages-1)
                        out(ion) = out(ion)+collIon(1,elem,ion)*NeUsed
@@ -1893,7 +1893,7 @@ module update_mod
 
 
                ! calculate new Ne
-               NeUsed = 0e0
+               NeUsed = 0.
                do elem = 1, nElements
                   do ion = 2, min(elem+1, nstages)
                      if (lgElementOn(elem)) then
@@ -1966,7 +1966,7 @@ module update_mod
             real                   :: deltaHeI      ! delta(X(He0))
             real                   :: deltaHeII     ! delta(X(HeII))
             real                   :: expFact       ! exponential factor
-            real                   :: t4            ! TeUsed/10000e0
+            real                   :: t4            ! TeUsed/10000.
             real, save             :: HIOld         ! X(H0) from last iteration
             real, save             :: HeIOld        ! X(He0) from last iteration
             real, save             :: HeIIOld       ! X(He+) from last iteration
@@ -1996,8 +1996,8 @@ module update_mod
 
 
             ! initialize variables
-            correction  = 0e0
-            ionRatio    = 0e0
+            correction  = 0.
+            ionRatio    = 0.
             ionProd     = 1.
             denominator = 1.
             lgConv      = .true.
@@ -2027,8 +2027,8 @@ module update_mod
 
 
 
-            chex          = 0e0
-            deltaE_k      = 0e0
+            chex          = 0.
+            deltaE_k      = 0.
 
             chex(2,1,:)  = (/7.47e-6, 2.06, 9.93,-3.89/)! He0
             chex(2,2,:)  = (/1.e-5  , 0.  , 0.  , 0./)  ! He+
@@ -2089,7 +2089,7 @@ module update_mod
             chex(:,:,1) = chex(:,:,1)*1.e-9
 
 
-            t4 = TeUsed/10000e0
+            t4 = TeUsed/10000.
 
 
             ! calculate the X(i+1)/X(i) ratio
@@ -2102,8 +2102,8 @@ module update_mod
                     chex(elem,ion,1) = chex(elem,ion,1)*(t4**chex(elem,ion,2))*&
                          & (1.+chex(elem,ion,3)*exp(chex(elem,ion,4)*t4))
 
-                    if (chex(elem,ion,1) < 0. ) chex(elem,ion,1) = 0e0
-                    if (TeUsed < 6000. .or. TeUsed>5.e4) chex(elem,ion,1) = 0e0
+                    if (chex(elem,ion,1) < 0. ) chex(elem,ion,1) = 0.
+                    if (TeUsed < 6000. .or. TeUsed>5.e4) chex(elem,ion,1) = 0.
 
                     ! find the number of electron in this ion
                     nElec = elem - ion +1
@@ -2121,10 +2121,10 @@ module update_mod
                             & elementXref(1),1))*grid%Hden(cellP)*&
                             & 2. * exp(-deltaE_k(elem,ion)/TeUsed)/(real(g0)/real(g1))
                     else
-                       revRate = 0e0
+                       revRate = 0.
                     end if
 
-                    if ( (elem>1) .or. (ion>1) ) collIon = 0e0
+                    if ( (elem>1) .or. (ion>1) ) collIon = 0.
 
                     ! calculate the X(i+1)/X(i) ratio
 
@@ -2196,7 +2196,7 @@ module update_mod
             end do
 
             ! calculate new Ne
-            NeUsed = 0e0
+            NeUsed = 0.
             do elem = 1, nElements
                 do ion = 2, min(elem+1, nstages)
                     if (lgElementOn(elem)) then
@@ -2266,8 +2266,8 @@ module update_mod
             integer :: nelectrons
 
             ! zero out alphaTot and contributors
-            alphaTot = 0e0
-            diRec    = 0e0
+            alphaTot = 0.
+            diRec    = 0.
 
             call dielectronic(diRec)
 
@@ -2402,7 +2402,7 @@ module update_mod
          integer, intent(in) :: elem, nel
          integer :: idr
 
-         DRbadnell = 0e0
+         DRbadnell = 0.
          do idr = 1, 9
             if ((DRbE(idr,elem,nel)/TeUsed) < 87.) &
                  & DRbadnell = DRbadnell+DRbC(idr,elem,nel)*exp(-DRbE(idr,elem,nel)/TeUsed)
@@ -3173,20 +3173,20 @@ module update_mod
 
             real, dimension(nElements, nstages) :: aldroPequi! high T dielec rec coeff by A&P73
 
-            real                 :: t         ! t = TeUsed/10000e0
+            real                 :: t         ! t = TeUsed/10000.
             real                 :: alpha
 
-            aldroPequi = 0e0
+            aldroPequi = 0.
 
 ! Change this! CHECK WHAT THE REAL RANGE IS!!!!
             if (TeUsed>1000.) then
-               t = TeUsed/10000e0
+               t = TeUsed/10000.
             else
                t = 0.1
             end if
 
-            alpha = 0e0
-            aldroPequi=0e0
+            alpha = 0.
+            aldroPequi=0.
 
             do i = 1, size(direc_coeffs)
                ion = direc_coeffs(i)%elem + 1 - direc_coeffs(i)%n
@@ -3236,7 +3236,7 @@ module update_mod
 !                 & (grid%yAxis(yP)/1.e10)*(grid%yAxis(yP)/1.e10)+&
 !                 & (grid%zAxis(zP)/1.e10)*(grid%zAxis(zP)/1.e10))
 
-            grid%arad(cellP) = 0e0
+            grid%arad(cellP) = 0.
 
             do ai = 1, nSizes
                do nS = 1, nSpecies
@@ -3282,7 +3282,7 @@ module update_mod
             end if
 
             ! zero out dust temperature arrays
-            grid%Tdust(:,:,cellP) = 0e0
+            grid%Tdust(:,:,cellP) = 0.
 
 
             ! calculate absorption integrals for each species
@@ -3290,8 +3290,8 @@ module update_mod
 
                do ai = 1, nSizes
 
-                  dustAbsIntegral=0e0
-                  if (lgTraceHeating.and.taskid==0) dabs=0e0
+                  dustAbsIntegral=0.
+                  if (lgTraceHeating.and.taskid==0) dabs=0.
 
                   do i = 1, nbins
                      dustAbsIntegral = dustAbsIntegral+xSecArray(dustAbsXsecP(nS,ai)+i-1)*radField(i)
@@ -3385,10 +3385,10 @@ module update_mod
             integer             :: iL      ! line counter
             integer             :: imul    ! multiplet counter
 
-            resLineHeating = 0e0
+            resLineHeating = 0.
             do iL = 1, nResLines
 
-               Gline = 0e0
+               Gline = 0.
                do imul = 1, resLine(iL)%nmul
                   if (resLine(iL)%elem==1) then
 
@@ -3474,7 +3474,7 @@ module update_mod
             real    :: te, u
             integer :: elem,ion, elec
 
-            collIon = 0e0
+            collIon = 0.
 
             te=TeUsed*8.617385e-05
             do elem = 1, nElements
@@ -3523,10 +3523,10 @@ module update_mod
 
             nPhotoSte =1.e-20
             nPhotoDif =1.e-20
-            heatIonSte=0e0
-            heatIonDif=0e0
+            heatIonSte=0.
+            heatIonDif=0.
 
-            xe = 0e0
+            xe = 0.
             do elem = 1, nelements
                if (lgElementOn(elem)) then
                   xe = xe + ionDenUsed(elementXref(elem),1)*elemAbunUsed(elem)*HdenUsed
@@ -3537,7 +3537,7 @@ module update_mod
             if (xe > 0.95) then
                heatef = 1.
             else
-               ! Xu and McCray 1991, Ap.J. 375, 190e0
+               ! Xu and McCray 1991, Ap.J. 375, 190.
                !  everything goes to asymptote that is not present in Shull and
                !  Van Steenberg
                xe = max(xe, 1.e-4)
@@ -3588,7 +3588,7 @@ module update_mod
                            end if
 
                            if ((phXSec < 1.e-35) ) then
-                              phXSec = 0e0
+                              phXSec = 0.
                            end if
 
                            if ( grid%JSte(cellP,j) >0.) then
@@ -3642,8 +3642,8 @@ module update_mod
             ! the set of charge exchange coeffs is not complete; the following might need
             ! to be changed when a more complete set is available
 
-            chex          = 0e0
-            deltaE_k      = 0e0
+            chex          = 0.
+            deltaE_k      = 0.
 
             chex(2,1,:)  = (/7.47e-6, 2.06, 9.93,-3.89/)! He0
             chex(2,2,:)  = (/1.e-5  , 0.  , 0.  , 0./)  ! He+
@@ -3703,7 +3703,7 @@ module update_mod
 
             chex(:,:,1) = chex(:,:,1)*1.e-9
 
-            t4 = TeUsed/10000e0
+            t4 = TeUsed/10000.
 
             do elem = 1, nElements
                do ion = 1, min(elem, nstages-1)
@@ -3711,13 +3711,13 @@ module update_mod
 
 !print*, 'iil ', chex(elem,ion,4)*t4, t4
                   if (TeUsed < 6000. .or. TeUsed>5.e4) then
-                     chex(elem,ion,1) = 0e0
+                     chex(elem,ion,1) = 0.
                   else
                      chex(elem,ion,1) = chex(elem,ion,1)*(t4**chex(elem,ion,2))*&
                           & (1.+chex(elem,ion,3)*exp(chex(elem,ion,4)*t4))
                   end if
 
-                  if (chex(elem,ion,1) < 0. ) chex(elem,ion,1) = 0e0
+                  if (chex(elem,ion,1) < 0. ) chex(elem,ion,1) = 0.
 
                   ! find the number of electron in this ion
                   nElec = elem - ion +1
@@ -3735,7 +3735,7 @@ module update_mod
                           & elementXref(1),1))*grid%Hden(cellP)*&
                           & 2. * exp(-deltaE_k(elem,ion)/TeUsed)/(real(g0)/real(g1))
                   else
-                     revRate = 0e0
+                     revRate = 0.
                   end if
 !print*, elem, ion, outshell, photoIon(1, outShell,elem, ion), revRate
 
@@ -3757,15 +3757,15 @@ module update_mod
             integer :: i
 
 
-            comptonCool = 0e0
-            comptonHeat = 0e0
-            comptonRecoilHeat = 0e0
-            comptonRecoilHeatH = 0e0
-            comptonRecoilHeatHe = 0e0
-            comptonRecoilIonH = 0e0
+            comptonCool = 0.
+            comptonHeat = 0.
+            comptonRecoilHeat = 0.
+            comptonRecoilHeatH = 0.
+            comptonRecoilHeatHe = 0.
+            comptonRecoilIonH = 0.
 
-            s1=0e0
-            s2=0e0
+            s1=0.
+            s2=0.
             do i=1,nbins
 
                radfield = grid%Jste(cellP,i)
@@ -3822,14 +3822,14 @@ module update_mod
             integer :: i
 
 
-            comptonCool = 0e0
-            comptonHeat = 0e0
-            comptonRecoilHeat = 0e0
-            comptonRecoilHeatH = 0e0
-            comptonRecoilHeatHe = 0e0
-            comptonRecoilIonH = 0e0
+            comptonCool = 0.
+            comptonHeat = 0.
+            comptonRecoilHeat = 0.
+            comptonRecoilHeatH = 0.
+            comptonRecoilHeatHe = 0.
+            comptonRecoilIonH = 0.
 
-            heatin = 0e0
+            heatin = 0.
 
             do i=1,nbins
 
@@ -3899,8 +3899,8 @@ module update_mod
 
             integer             :: iup, ilow, IPnuP, highNuP, xSecP
 
-            heat  = 0e0
-            gamma = 0e0
+            heat  = 0.
+            gamma = 0.
 
             iup = min(nu2P, nbins)
 
@@ -3918,7 +3918,7 @@ module update_mod
 
                   phXsec = xSecArray(i+xSecP-IPnuP)
                   if (phXsec < 1.e-35) then
-                     phXsec = 0e0
+                     phXsec = 0.
                   end if
                   gamma = gamma + radField(i)*phXsec/(hcRyd*nuArray(i))
                   heat = heat + radField(i)*phXsec
@@ -3938,8 +3938,8 @@ module update_mod
 
 !print*, gamma, heat, radField(IPnuP)*phXsec*(hcRyd*nuArray(IPnuP)-augerE)/(hcRyd*nuArray(IPnuP))
             ! higher energy end - secondary ionisation may occur -
-            heatHigh  = 0e0
-            gammaHigh = 0e0
+            heatHigh  = 0.
+            gammaHigh = 0.
 !print*, 'secion', xsecArray(secionP)
             ilow = max(IPnuP+1, secIonP)
             do i = ilow, iup
@@ -3979,7 +3979,7 @@ module update_mod
 !            real                       :: hydrolinesloc(1:30,1:13,2:15,1:8)
             real                       :: x,y1,y2
 
-            T4 = TeUsed / 10000e0
+            T4 = TeUsed / 10000.
             ix = xP
             iy = yP
             iz = zP

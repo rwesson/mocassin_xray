@@ -46,7 +46,7 @@ module output_mod
         real, allocatable     :: forbVol(:,:,:,:,:)  ! analytical forbidden lines volume emissivity
         real, allocatable     :: TeVol(:,:,:)      ! mean Temperature for a given ion
 
-        real                         :: denIon=0e0
+        real                         :: denIon=0.
 
         real, allocatable           :: cMap(:)           ! local c-value
         real, allocatable           :: flam(:)           ! f(lambda) value from file
@@ -98,13 +98,13 @@ module output_mod
               print*, "! output mod: can't allocate array resLinesVol memory"
               stop
            end if
-           resLinesVol = 0e0
+           resLinesVol = 0.
            allocate(resLinesVolCorr(0:nAbComponents, 1:nResLines), stat=err)
            if (err /= 0) then
               print*, "! output mod: can't allocate array resLinesVolCorr memory"
               stop
            end if
-           resLinesVolCorr = 0e0
+           resLinesVolCorr = 0.
         end if
 
         allocate(hydroVol(0:nAbComponents, 1:nElements,2:15, 1:8), stat=err)
@@ -171,35 +171,35 @@ module output_mod
               print*, "! output mod: can't allocate array HbetaVol memory"
               stop
            end if
-           HbetaLuminosity = 0e0
-           lineLuminosity  = 0e0
+           HbetaLuminosity = 0.
+           lineLuminosity  = 0.
         end if
 
 
-        denominatorIon  = 0e0
-        denominatorTe   = 0e0
-        g               = 0e0
-        HbetaVol        = 0e0
-        hydroVol           = 0e0
-        HeIVol         = 0e0
-        elemAbundanceUsed = 0e0
-        ionDenUsed      = 0e0
-        ionDenVol       = 0e0
-        LtotAn          = 0e0
-        LtotMC          = 0e0
-        wav             = 0e0
-        forbVol         = 0e0
-        recLinesLambda  = 0e0
-        recLambdaOII    = 0e0
-        recLambdaMgII   = 0e0
-        recLambdaNeII   = 0e0
-        recLambdaCII    = 0e0
-        recLambdan33II  = 0e0
-        recLambdan34II  = 0e0
-        recLinesFlux    = 0e0
-        sumAn           = 0e0
-        sumMC           = 0e0
-        TeVol           = 0e0
+        denominatorIon  = 0.
+        denominatorTe   = 0.
+        g               = 0.
+        HbetaVol        = 0.
+        hydroVol           = 0.
+        HeIVol         = 0.
+        elemAbundanceUsed = 0.
+        ionDenUsed      = 0.
+        ionDenVol       = 0.
+        LtotAn          = 0.
+        LtotMC          = 0.
+        wav             = 0.
+        forbVol         = 0.
+        recLinesLambda  = 0.
+        recLambdaOII    = 0.
+        recLambdaMgII   = 0.
+        recLambdaNeII   = 0.
+        recLambdaCII    = 0.
+        recLambdan33II  = 0.
+        recLambdan34II  = 0.
+        recLinesFlux    = 0.
+        sumAn           = 0.
+        sumMC           = 0.
+        TeVol           = 0.
         totLinePackets  = 0
         totEscapedPackets=0
 
@@ -217,7 +217,7 @@ module output_mod
               stop
            end if
 
-           cMap=0e0
+           cMap=0.
 
            open(unit=19, status='old', position='rewind', file=extMap,  action="read",iostat=ios)
            if (ios /= 0) then
@@ -253,7 +253,7 @@ module output_mod
               stop
            end if
 
-           flam = 0e0
+           flam = 0.
 
            do i = 1, l
               read(20, *) flam(i)
@@ -314,7 +314,7 @@ module output_mod
                        if (lgDebug) linePacketsUsed = grid(iG)%linePackets(grid(iG)%active(i,j,k), :)
                        NeUsed          = grid(iG)%Ne(grid(iG)%active(i,j,k))
                        TeUsed          = grid(iG)%Te(grid(iG)%active(i,j,k))
-                       Te10000         = TeUsed/10000e0
+                       Te10000         = TeUsed/10000.
                        log10Te         = log10(TeUsed)
                        log10Ne         = log10(NeUsed)
                        sqrTeUsed = sqrt(TeUsed)
@@ -495,8 +495,8 @@ module output_mod
                              denIon = ionDenUsed(elementXref(8),3)*&
                                   & grid(iG)%elemAbun(abFileUsed,8)*HdenUsed
 
-                             recFlux = 0e0
-                             recLinesLambda = 0e0
+                             recFlux = 0.
+                             recLinesLambda = 0.
                              ! rec lines for OII
                              call roii(recLinesLambda, recFlux,TeUsed, NeUsed)
 
@@ -516,8 +516,8 @@ module output_mod
                           end if
 
                           if (lgElementOn(12)) then
-                             recFlux = 0e0
-                             recLinesLambda = 0e0
+                             recFlux = 0.
+                             recLinesLambda = 0.
                              ! rec lines for MgII 4481
                              call rmgii(recFlux, recLinesLambda, TeUsed)
 
@@ -535,8 +535,8 @@ module output_mod
                           end if
 
                           if (lgElementOn(10)) then
-                             recFlux = 0e0
-                             recLinesLambda = 0e0
+                             recFlux = 0.
+                             recLinesLambda = 0.
                              ! rec lines for NeII
                              call rneii(recLinesLambda, recFlux, TeUsed)
 
@@ -554,8 +554,8 @@ module output_mod
                           end if
 
                           if (lgElementOn(6)) then
-                             recFlux = 0e0
-                             recLinesLambda = 0e0
+                             recFlux = 0.
+                             recLinesLambda = 0.
                              ! rec lines for CII
                              call rcii(recLinesLambda, recFlux, TeUsed)
 
@@ -573,8 +573,8 @@ module output_mod
                           end if
 
                           if (lgElementOn(7)) then
-                             recFlux = 0e0
-                             recLinesLambda = 0e0
+                             recFlux = 0.
+                             recLinesLambda = 0.
                              denIon = ionDenUsed(elementXref(7),3)*&
                                   & grid(iG)%elemAbun(abFileUsed,7)*HdenUsed
 
@@ -594,8 +594,8 @@ module output_mod
                              recLambdaN33II = recLinesLambda
 
 
-                             recFlux = 0e0
-                             recLinesLambda = 0e0
+                             recFlux = 0.
+                             recLinesLambda = 0.
 
                              ! rec lines for NII 3d-4f
                              call rnii4f(recLinesLambda, recFlux, TeUsed)
@@ -686,8 +686,8 @@ module output_mod
         do iAb = 0, nAbComponents
 
            ! reinitialize sumAm and sumMC
-           sumAn = 0e0
-           sumMC = 0e0
+           sumAn = 0.
+           sumMC = 0.
 
            do elem = 1, nElements
               do ion = 1, min(elem+1, nstages)
@@ -702,7 +702,7 @@ module output_mod
                  if (.not.lgElementOn(elem)) exit
 
                  if (denominatorTe(iAb,elem,ion) <= 0.) then
-                    TeVol(iAb,elem,ion) = 0e0
+                    TeVol(iAb,elem,ion) = 0.
                  else
                     TeVol(iAb,elem,ion) = TeVol(iAb,elem,ion) / denominatorTe(iAb,elem,ion)
                  end if
@@ -710,7 +710,7 @@ module output_mod
                  ! lexington benchmark
 
 !                 if (denominatorIon(iAb,elem,ion) <= 0.) then
-!                    ionDenVol(iAb,elem,ion) = 0e0
+!                    ionDenVol(iAb,elem,ion) = 0.
 !                 else
 !                    ionDenVol(iAb,elem,ion) = ionDenVol(iAb,elem,ion) / denominatorIon(iAb,elem,ion)
 !                 end if
@@ -718,7 +718,7 @@ module output_mod
                  ! Harrington 1982
 
                  if (denominatorIon(iAb,elem) <= 0.) then
-                    ionDenVol(iAb,elem,ion) = 0e0
+                    ionDenVol(iAb,elem,ion) = 0.
                  else
                     ionDenVol(iAb,elem,ion) = ionDenVol(iAb,elem,ion) / denominatorIon(iAb,elem)
                  end if
@@ -1193,13 +1193,13 @@ module output_mod
         ! polar direction
 
         ! define initial position
-        aVec%x = 0e0
-        aVec%y = 0e0
-        aVec%z = 0e0
+        aVec%x = 0.
+        aVec%y = 0.
+        aVec%z = 0.
 
         ! define direction
-        uHat%x = 0e0
-        uHat%y = 0e0
+        uHat%x = 0.
+        uHat%y = 0.
         uHat%z = 1.
 
         ! allocate space for temporary optical depth arrays
@@ -1218,8 +1218,8 @@ module output_mod
 
 
         ! initialize arrays with zero
-        absTau = 0e0
-        lambda = 0e0
+        absTau = 0.
+        lambda = 0.
         nTau   = 0
 
         ! find the optical depth
@@ -1236,8 +1236,8 @@ module output_mod
         end do
 
         ! initialize arrays with zero
-        absTau = 0e0
-        lambda = 0e0
+        absTau = 0.
+        lambda = 0.
 
         ! find the optical depth
         call integratePathTau(grid, aVec, uHat, 1.8, nTau, absTau, lambda)
@@ -1248,8 +1248,8 @@ module output_mod
         end do
 
         ! initialize arrays with zero
-        absTau = 0e0
-        lambda = 0e0
+        absTau = 0.
+        lambda = 0.
 
         ! find the optical depth
         call integratePathTau(grid, aVec, uHat, 4., nTau, absTau, lambda)
@@ -1262,19 +1262,19 @@ module output_mod
         ! equatorial direction (along y axis)
 
         ! define initial position
-        aVec%x = 0e0
-        aVec%y = 0e0
-        aVec%z = 0e0
+        aVec%x = 0.
+        aVec%y = 0.
+        aVec%z = 0.
 
         ! define direction
-        uHat%x = 0e0
+        uHat%x = 0.
         uHat%y = 1.
-        uHat%z = 0e0
+        uHat%z = 0.
 
 
         ! initialize arrays with zero
-        absTau = 0e0
-        lambda = 0e0
+        absTau = 0.
+        lambda = 0.
 
         ! find the optical depth
         call integratePathTau(grid, aVec, uHat, 1., nTau, absTau, lambda)
@@ -1287,8 +1287,8 @@ module output_mod
         end do
 
         ! initialize arrays with zero
-        absTau = 0e0
-        lambda = 0e0
+        absTau = 0.
+        lambda = 0.
 
         ! find the optical depth
         call integratePathTau(grid, aVec, uHat, 1.8, nTau, absTau, lambda)
@@ -1299,8 +1299,8 @@ module output_mod
         end do
 
         ! initialize arrays with zero
-        absTau = 0e0
-        lambda = 0e0
+        absTau = 0.
+        lambda = 0.
 
         ! find the optical depth
         call integratePathTau(grid, aVec, uHat, 4., nTau, absTau, lambda)
@@ -1313,19 +1313,19 @@ module output_mod
         ! equatorial (x-axis)
 
         ! define initial position
-        aVec%x = 0e0
-        aVec%y = 0e0
-        aVec%z = 0e0
+        aVec%x = 0.
+        aVec%y = 0.
+        aVec%z = 0.
 
         ! define direction
         uHat%x = 1.
-        uHat%y = 0e0
-        uHat%z = 0e0
+        uHat%y = 0.
+        uHat%z = 0.
 
 
         ! initialize arrays with zero
-        absTau = 0e0
-        lambda = 0e0
+        absTau = 0.
+        lambda = 0.
 
         ! find the optical depth
         call integratePathTau(grid, aVec, uHat, 1., nTau, absTau, lambda)
@@ -1338,8 +1338,8 @@ module output_mod
         end do
 
         ! initialize arrays with zero
-        absTau = 0e0
-        lambda = 0e0
+        absTau = 0.
+        lambda = 0.
 
         ! find the optical depth
         call integratePathTau(grid, aVec, uHat, 1.8, nTau, absTau, lambda)
@@ -1350,8 +1350,8 @@ module output_mod
         end do
 
         ! initialize arrays with zero
-        absTau = 0e0
-        lambda = 0e0
+        absTau = 0.
+        lambda = 0.
 
         ! find the optical depth
         call integratePathTau(grid, aVec, uHat, 4., nTau, absTau, lambda)
@@ -1422,7 +1422,7 @@ module output_mod
          an(2)=0.232
          an(3)=0.228
          an(4)=0.222
-         te=tk/10000e0
+         te=tk/10000.
          ahb=6.68e-14*te**(-0.507)/(1.+1.221*te** 0.653)
          emhb=1.98648E-08/4861.33*ahb
          if(logne.le.2) then
@@ -1940,7 +1940,7 @@ module output_mod
         integer                     :: elem, ion ! counters
 
         ! re-initialize forbiddenLines
-        forbiddenLines = 0e0
+        forbiddenLines = 0.
 
         do elem = 3, nElements
            do ion = 1, min(elem+1, nstages)
@@ -1995,7 +1995,7 @@ module output_mod
         integer                    :: ilow,&      ! pointer to lower level
              &iup                                 ! pointer to upper level
 
-        T4 = TeUsed / 10000e0
+        T4 = TeUsed / 10000.
 
         ! find the nearest temp bin
         itemp = 1
@@ -2235,7 +2235,7 @@ module output_mod
 
         real                       :: aFit,bFit,zfit ! fit coeff
         real                       :: Hbeta(30)    ! Hbeta emission
-        real                       :: T4,T4z,NeZ  ! TeUsed/10000e0
+        real                       :: T4,T4z,NeZ  ! TeUsed/10000.
         real                       :: log10NeZ    !
         real                       :: log10TeZ    !
         real                       :: x1, x2
@@ -2248,7 +2248,7 @@ module output_mod
              &iup                                 ! pointer to upper level
         integer                    :: elUp
 
-        T4 = TeUsed / 10000e0
+        T4 = TeUsed / 10000.
 
         ! find the nearest temp bin
         itemp = 1
@@ -2458,7 +2458,7 @@ module output_mod
         end if
 
         ! data from Benjamin, Skillman and Smits ApJ514(1999)307 [e-25 ergs*cm^3/s]
-        T4 = TeUsed / 10000e0
+        T4 = TeUsed / 10000.
         if (T4 < 0.5) T4=0.5
         if (T4 > 2.0) T4=2.0
 
@@ -2753,17 +2753,17 @@ module output_mod
       close(73)
       open(unit=73, file='output/tau.out', status='unknown', position='rewind', iostat = ios, action="write")
 
-      aVec%x = 0e0
-      aVec%y = 0e0
-      aVec%z = 0e0
+      aVec%x = 0.
+      aVec%y = 0.
+      aVec%z = 0.
 
       uHat%x = 1.
-      uHat%y = 0e0
-      uHat%z = 0e0
+      uHat%y = 0.
+      uHat%z = 0.
 
       ! initialize arrays with zero
-      outTau = 0e0
-      lambda = 0e0
+      outTau = 0.
+      lambda = 0.
       nTau   = 0
 
       ! 0.55um = 0.165690899
@@ -2783,17 +2783,17 @@ module output_mod
 
       write(73,*) ' '
 
-      aVec%x = 0e0
-      aVec%y = 0e0
-      aVec%z = 0e0
+      aVec%x = 0.
+      aVec%y = 0.
+      aVec%z = 0.
 
       uHat%x = 1./sqrt(3.)
       uHat%y = 1./sqrt(3.)
       uHat%z = 1./sqrt(3.)
 
       ! initialize arrays with zero
-      outTau = 0e0
-      lambda = 0e0
+      outTau = 0.
+      lambda = 0.
       nTau   = 0
 
       ! find the optical depth
@@ -2809,13 +2809,13 @@ module output_mod
 
       write(73,*) ' '
 
-      uHat%x = 0e0
+      uHat%x = 0.
       uHat%y = 1.
-      uHat%z = 0e0
+      uHat%z = 0.
 
       ! initialize arrays with zero
-      outTau = 0e0
-      lambda = 0e0
+      outTau = 0.
+      lambda = 0.
       nTau   = 0
 
       ! find the optical depth
@@ -2832,13 +2832,13 @@ module output_mod
       write(73,*) ' '
 
 
-      uHat%x = 0e0
-      uHat%y = 0e0
+      uHat%x = 0.
+      uHat%y = 0.
       uHat%z = 1.
 
       ! initialize arrays with zero
-      outTau = 0e0
-      lambda = 0e0
+      outTau = 0.
+      lambda = 0.
       nTau   = 0
 
       ! find the optical depth
@@ -2889,7 +2889,7 @@ module output_mod
       end if
 
 
-      SED=0e0
+      SED=0.
 
       write(16,*) 'Spectral energy distribution at the surface of the nebula: '
       write(16,*) '  viewPoints = ', (viewPointTheta(i), viewPointPhi(i), ' , ', i = 1, nAngleBins)
@@ -2898,7 +2898,7 @@ module output_mod
 
       write(16,*) ' to obtain [E36 erg/sec/cm^2/str] divide column 3 by 4*Pi*D^2 or column 4 and higher by the emitting surface'
 
-      totalE=0e0
+      totalE=0.
 
       do iG = 1, nGrids
          do freq=1,nbins
@@ -3008,14 +3008,14 @@ module output_mod
       end if
 
 
-      SED=0e0
+      SED=0.
 
       write(16,*) 'Spectral energy distribution at the surface of the nebula: '
       write(16,*) '  viewPoints = ', (viewPointTheta(i), viewPointPhi(i), ' , ', i = 1, nAngleBins)
       write(16,*) '   nu [Ryd]        lambda [um]        nu*F(nu)            '
       write(16,*) '                                  [erg/sec/cm^2/str]              '
 
-      totalE=0e0
+      totalE=0.
 
       do iG = 1, nGrids
          do freq=1,nbins
@@ -3116,7 +3116,7 @@ module output_mod
                        & ix==iorigin .and. iy==jorigin .and.iz==korigin) ) then
 
                      do imu=0,nanglebins
-                        contI(imu)=0e0
+                        contI(imu)=0.
 !                        do freq = ifreq1, ifreq2
                         do freq = 1, nbins
                            contI(imu) = contI(imu)+&
@@ -3191,7 +3191,7 @@ module output_mod
       write(19,*) 'Frequency range [ryd]: ', freq1, freq2
       write(19,*) 'Frequency range [points]: ', ifreq1, ifreq2
 
-      totalI=0e0
+      totalI=0.
       do iG = 1, nGrids
 
          do ix = 1, grid(iG)%nx
@@ -3202,7 +3202,7 @@ module output_mod
                        & ix==iorigin .and. iy==jorigin .and.iz==korigin) ) then
 
                      do imu=0,nanglebins
-                        contI(imu)=0e0
+                        contI(imu)=0.
                         do freq = ifreq1, ifreq2
 !                        do freq = 1, nbins
                            contI(imu) = contI(imu)+&

@@ -80,7 +80,7 @@ module continuum_mod
             stop
         end if
 
-        inSpectrumProbDen = 0e0
+        inSpectrumProbDen = 0.
 
         ! find the Lyman limit
         call locate(nuArray, 1., lymanP)
@@ -94,11 +94,11 @@ module continuum_mod
         do iStar=star1, nStars
 
            ! initialise arrays
-           enArray           = 0e0
-           Hflux             = 0e0
-           inSpectrumErg     = 0e0
-           inSpectrumPhot    = 0e0
-           inSpectrumProbDen(iStar,:) = 0e0
+           enArray           = 0.
+           Hflux             = 0.
+           inSpectrumErg     = 0.
+           inSpectrumPhot    = 0.
+           inSpectrumProbDen(iStar,:) = 0.
 
            filein = contShape(iStar)
 
@@ -117,8 +117,8 @@ module continuum_mod
                  inSpectrumPhot(i) = inSpectrumErg(i)/ (nuArray(i)*hcRyd)
 
                  if (lgRadPress .and. i >= I1ryd) then
-                    inSpectrumErg(i) = 0e0
-                    inSpectrumPhot(i) = 0e0
+                    inSpectrumErg(i) = 0.
+                    inSpectrumPhot(i) = 0.
                  end if
 
               end do
@@ -272,10 +272,10 @@ module continuum_mod
                                & log10(Hflux(enP)) + log10(Hflux(enP+1)/Hflux(enP))*&
                                & log10(nuArray(i)/enArray(enP))/ &
                                & log10(enArray(enP+1)/enArray(enP)))
-                          if (.not. Hflux(enP)>1.e-20)  inSpectrumErg(i) = 0e0
+                          if (.not. Hflux(enP)>1.e-20)  inSpectrumErg(i) = 0.
                        else
                           if (.not. Hflux(enP)>1.e-20) then
-                             inSpectrumErg(i) = 0e0
+                             inSpectrumErg(i) = 0.
                           else
                              inSpectrumErg(i) = Hflux(enP)
                           end if
@@ -439,8 +439,8 @@ module continuum_mod
         integer :: i                      ! counter
         integer :: nu0AddP
 
-        inSpSumPhot = 0e0
-        inSpSumErg = 0e0
+        inSpSumPhot = 0.
+        inSpSumErg = 0.
 
 !        if (taskid==0) print*,'Ionising/illuminating spectrum:'
 
@@ -451,12 +451,12 @@ module continuum_mod
         end do
 
         ! calculate normalization constants
-        normConstantErg=0e0
+        normConstantErg=0.
         do i = 1, nbins
             normConstantErg   = normConstantErg  + inSpSumErg(i)*widFlx(i)
         end do
 
-        normConstantPhot=0e0
+        normConstantPhot=0.
         do i = lymanP, nbins
            normConstantPhot  = normConstantPhot + inSpSumPhot(i)*widFlx(i)
         end do
@@ -469,7 +469,7 @@ module continuum_mod
         end if
 
 
-        inSpectrumProbDen(iS,:)=0e0
+        inSpectrumProbDen(iS,:)=0.
         inSpectrumProbDen(iS,nu0AddP) = inSpSumErg(nu0AddP)*widFlx(nu0AddP)
         do i = nu0AddP+1, nbins
            inSpectrumProbDen(iS,i) = inSpectrumProbDen(iS,i-1) + &
@@ -477,7 +477,7 @@ module continuum_mod
         end do
         inSpectrumProbDen(iS,:) = inSpectrumProbDen(iS,:)/inSpectrumProbDen(iS,nbins)
 
-        maxp = 0e0
+        maxp = 0.
         do i = 1, nbins
            if (inSpectrumProbDen(iS,i)>maxp) maxp = inSpectrumProbDen(iS,i)
         end do
@@ -508,7 +508,7 @@ module continuum_mod
         end if
 
         if (lgGas) then
-           norm = 0e0
+           norm = 0.
            do igrid = 1, nGridsloc
               do ix = 1, grid(igrid)%nx
                  do iy = 1, grid(igrid)%ny
@@ -540,7 +540,7 @@ module continuum_mod
            end do
 
         else if (lgDust) then
-           norm = 0e0
+           norm = 0.
 
            do igrid = 1, nGridsloc
               do ix = 1, grid(igrid)%nx

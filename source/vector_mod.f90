@@ -247,7 +247,7 @@ contains
 
     r = modulus(vec)
     if ((vec%y == 0.) .and. (vec%x == 0)) then
-       phi = 0e0
+       phi = 0.
     else
        phi = atan2(vec%y, vec%x)
     endif

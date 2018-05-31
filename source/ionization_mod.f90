@@ -50,7 +50,7 @@ module ionization_mod
            end if
         end if
 
-        density=0e0
+        density=0.
 
         ! find the physical properties of this cell
         ionDenUsed = grid%ionDen(grid%active(ix, iy, iz), :,:)
@@ -60,7 +60,7 @@ module ionization_mod
         TeUsed = grid%Te(grid%active(ix, iy, iz))
         sqrTeUsed = sqrt(TeUsed)
 
-        density = 0e0
+        density = 0.
 
         ! find the ion number density [cm^-3] at this cell
         do n = 1, nElements
@@ -108,10 +108,10 @@ module ionization_mod
                 stop
             end if
 
-            contBoltz = 0e0
-            FFOpacity = 0e0
-            gauntFF = 0e0
-            gauntFFHeII = 0e0
+            contBoltz = 0.
+            FFOpacity = 0.
+            gauntFF = 0.
+            gauntFFHeII = 0.
             log10nuArray = log10(nuArray)
 
             firstLg = .false.
@@ -162,7 +162,7 @@ module ionization_mod
 
             ! zero out the remainder
             do i = max, nbins
-                contBoltz(i) = 0e0
+                contBoltz(i) = 0.
             end do
         end if
 
@@ -341,7 +341,7 @@ module ionization_mod
         integer :: n, i                                           ! counters
 
         ! sum the heavy metal free electron density
-        eDenFFSum = 0e0
+        eDenFFSum = 0.
         do n = 3, nElements
             do i = 1, min(n, nstages-1)
                 eDenFFSum = eDenFFSum + float(i*i)*density(n, i+1)
@@ -360,7 +360,7 @@ module ionization_mod
 
 
         ! (re) initialize opacity arrays
-        opacity = 0e0
+        opacity = 0.
 
         ! hydrogen helium and heavy element brems (free-free) opacity,
         ! assuming hydrogen ff gaunt factors

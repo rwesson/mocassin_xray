@@ -65,16 +65,16 @@ module set_input_mod
         maxIterateMC  = 30
         maxPhotons    = 0
         nbins         = 600
-        MdMgValue     = 0e0
+        MdMgValue     = 0.
         MdMgFile      = "none"
         nAngleBins    = 0
         nGrids        = 1
-        NdustValue     = 0e0
+        NdustValue     = 0.
         NdustFile      = "none"
         nstages        = 17
 
         ! qheat
-        Tmax           =700e0
+        Tmax           =700.
         nTbins         =300
         lgWritePss     =.false.
         minaQHeat     = 1.e-3
@@ -82,27 +82,27 @@ module set_input_mod
 
         fillingFactor = 1.
         contCube      = -1.
-        convIncPercent= 0e0
-        convWriteGrid = 0e0
-        nPhotIncrease = 0e0
+        convIncPercent= 0.
+        convWriteGrid = 0.
+        nPhotIncrease = 0.
 
-        densityLaw    = 0e0
+        densityLaw    = 0.
 
         multiPhotoSources = "none"
         densityFile   = "none"
         dustFile      = "none"
         gridList      = "none"
 
-        nu0           = 0e0
-        nu0Add        = 0e0
-        Ldiffuse      = 0e0
-        Tdiffuse      = 0e0
+        nu0           = 0.
+        nu0Add        = 0.
+        Ldiffuse      = 0.
+        Tdiffuse      = 0.
         shapeDiffuse  = "none"
-        Hdensity      = 0e0
+        Hdensity      = 0.
         H0Start       = 3.e-5
-        LPhot         = 0e0
+        LPhot         = 0.
         minConvergence= 95.
-        NeStart       = 0e0
+        NeStart       = 0.
         nuMax         = 15.
         nuMin         = 1.001e-5
         nuStepSize    = 0.075
@@ -111,8 +111,8 @@ module set_input_mod
         Rny           = -1.
         Rnz           = -1.
         R_in          = -1.
-        R_out         = 0e0
-        TeStart       = 10000e0
+        R_out         = 0.
+        TeStart       = 10000.
         XHILimit      = 0.05
 
         ! ask the user to input file name and check for errors
@@ -257,7 +257,7 @@ module set_input_mod
                lgPlaneIonization = .true.
                !print*, keyword, meanFieldin, nu0, nu0Add
                allocate(Lstar(1))
-               Lstar=0e0
+               Lstar=0.
             case ("autoPackets")
                backspace 10
                read(unit=10, fmt=*, iostat=ios) keyword, convIncPercent, nPhotIncrease, maxPhotons
@@ -323,7 +323,7 @@ module set_input_mod
                 else
                    spID(1) = 'rauch'
                 end if
-                tstep = 0e0
+                tstep = 0.
             case ("nebComposition")
                 backspace 10
                 read(unit=10, fmt=*, iostat=ios) keyword, cValue
@@ -387,13 +387,13 @@ module set_input_mod
             case ("LStar")
                 backspace 10
                 allocate(Lstar(0:1))
-                Lstar = 0e0
+                Lstar = 0.
                 read(unit=10, fmt=*, iostat=ios) keyword, LStar(1)
                 !print*, keyword, LStar(1)
             case ("LPhot")
                 backspace 10
                 if (.not. allocated(LStar)) allocate(Lstar(0:1))
-                Lstar = 0e0
+                Lstar = 0.
                 read(unit=10, fmt=*, iostat=ios) keyword, LPhot
                 !print*, keyword, LPhot
             case ("nuMax")
@@ -486,13 +486,13 @@ module set_input_mod
                   print*, '! readInput: allocation error for viewPointTheta pointer'
                   stop
                end if
-               viewPointTheta=0e0
+               viewPointTheta=0.
                allocate(viewPointPhi(1:nAngleBins), stat=err)
                if (err /= 0) then
                   print*, '! readInput: allocation error for viewPointPhi pointer'
                   stop
                end if
-               viewPointPhi=0e0
+               viewPointPhi=0.
                backspace 10
                read(unit=10, fmt=*, iostat=ios) keyword, nAngleBins, (viewPointTheta(j), viewPointPhi(j), j=1,nAngleBins)
                !if (taskid==0) print*, keyword, nAngleBins, (viewPointTheta(j), viewPointPhi(j), j = 1, nAngleBins)
@@ -546,9 +546,9 @@ module set_input_mod
 
            if (.not.allocated(starPosition)) then
               allocate (starPosition(1))
-              starPosition(1)%x=0e0
-              starPosition(1)%y=0e0
-              starPosition(1)%z=0e0
+              starPosition(1)%x=0.
+              starPosition(1)%y=0.
+              starPosition(1)%z=0.
               print* , '! readInput: [talk] ionising source positioned at 0.,0.,0.'
            end if
         end if
@@ -774,12 +774,12 @@ module set_input_mod
         allocate(nPhotons(nStars))
         allocate(starPosition(nStars))
 
-        TStellar=0e0
-        Lstar=0e0
+        TStellar=0.
+        Lstar=0.
         ContShape='none'
         ContShapeIn='none'
         spID='none'
-        tStep=0e0
+        tStep=0.
         nPhotons=0
 
         do i = 1, nStars
