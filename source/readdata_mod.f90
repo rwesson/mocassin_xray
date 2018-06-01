@@ -36,9 +36,9 @@ contains
 
     ! read in rates from data/HeI2phot.dat
 
-        open(unit = 93,  action="read", file = PREFIX//"/share/mocassin/data/HeI2phot.dat", status = "old", position = "rewind", iostat=ios)
+        open(unit = 93,  action="read", file = PREFIX//"/share/mocassinX/data/HeI2phot.dat", status = "old", position = "rewind", iostat=ios)
         if (ios /= 0) then
-            print*, "! readData: can't open file: ",PREFIX,"/share/mocassin/data/HeI2phot.dat"
+            print*, "! readData: can't open file: ",PREFIX,"/share/mocassinX/data/HeI2phot.dat"
             stop
         end if
         do i = 1, 41
@@ -49,7 +49,7 @@ contains
 
         ! dielectronic recombination coefficients
 
-        open (unit=18, file=PREFIX//'/share/mocassin/data/dielectronic.dat', status='old',position='rewind', iostat = ios, action="read")
+        open (unit=18, file=PREFIX//'/share/mocassinX/data/dielectronic.dat', status='old',position='rewind', iostat = ios, action="read")
         do i = 1, 25
            read(unit=18, fmt=*, iostat=ios) direc_coeffs(i)%elem, direc_coeffs(i)%n, direc_coeffs(i)%a, direc_coeffs(i)%b, direc_coeffs(i)%c, direc_coeffs(i)%d, direc_coeffs(i)%f, direc_coeffs(i)%g
            if (ios < 0) exit ! end of file reached
@@ -59,9 +59,9 @@ contains
         ! high temperature dielectronic recombination coefficients from
         ! Aldrovandi and Pequignot 1973
 
-        open (unit=17, file=PREFIX//'/share/mocassin/data/aldrovandi.dat', status='old',position='rewind', iostat = ios, action="read")
+        open (unit=17, file=PREFIX//'/share/mocassinX/data/aldrovandi.dat', status='old',position='rewind', iostat = ios, action="read")
         if (ios /= 0) then
-           print*, "! readData: can't open file ",PREFIX,"/share/mocassin/data/alrovandi.dat"
+           print*, "! readData: can't open file ",PREFIX,"/share/mocassinX/data/alrovandi.dat"
            stop
         end if
 
@@ -74,9 +74,9 @@ contains
 
         !hydrogenic
 
-        open(file=PREFIX//"/share/mocassin/data/hydroLinesFiles.dat", unit=19)
+        open(file=PREFIX//"/share/mocassinX/data/hydroLinesFiles.dat", unit=19)
         if (ios /= 0) then
-           print*, "! readData: can't open file ",PREFIX,"/share/mocassin/data/hydroLinesFiles.dat"
+           print*, "! readData: can't open file ",PREFIX,"/share/mocassinX/data/hydroLinesFiles.dat"
            stop
         end if
 
@@ -84,9 +84,9 @@ contains
            do j = 1, 12
               read(19,*) hydroLinesFile(i,j)
 
-              open(unit = 94,  action="read", file = PREFIX//"/share/mocassin/"//hydroLinesFile(i,j), status = "old", position = "rewind", iostat=ios)
+              open(unit = 94,  action="read", file = PREFIX//"/share/mocassinX/"//hydroLinesFile(i,j), status = "old", position = "rewind", iostat=ios)
               if (ios /= 0) then
-                 print*, "! RecLinesEmission: can't open file: ",PREFIX,"/share/mocassin/",hydroLinesFile(i,j)
+                 print*, "! RecLinesEmission: can't open file: ",PREFIX,"/share/mocassinX/",hydroLinesFile(i,j)
                  stop
               end if
 
@@ -104,9 +104,9 @@ contains
 
         close(19)
 
-        open(unit = 98,  action="read", file = PREFIX//"/share/mocassin/data/r2a0100old.dat", status = "old", position = "rewind", iostat=ios)
+        open(unit = 98,  action="read", file = PREFIX//"/share/mocassinX/data/r2a0100old.dat", status = "old", position = "rewind", iostat=ios)
         if (ios /= 0) then
-            print*, "! setDiffusePDF: can't open file: ",PREFIX,"/share/mocassin/data/r2a0100old.dat"
+            print*, "! setDiffusePDF: can't open file: ",PREFIX,"/share/mocassinX/data/r2a0100old.dat"
             stop
         end if
         do i = 1, NHeIILyman

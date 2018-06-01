@@ -3085,7 +3085,7 @@ module update_mod
             ! and the dielectronic recombination data
             if (lgFirst) then
                 close(17)
-                open (unit=17, file=PREFIX//'/share/mocassin/data/radrec.dat', status='old',position='rewind', iostat = ios, action="read")
+                open (unit=17, file=PREFIX//'/share/mocassinX/data/radrec.dat', status='old',position='rewind', iostat = ios, action="read")
 
                 do ion = 4, 30
                     if (ion /= 11) then

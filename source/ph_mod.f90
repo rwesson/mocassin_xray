@@ -37,21 +37,21 @@ module xSec_mod
       print*, 'in initGammaCont'
 
       close(21)
-      open(file=PREFIX//'/share/mocassin/data/gammaHI.dat', unit=21, status='old', iostat = err, action="read")
+      open(file=PREFIX//'/share/mocassinX/data/gammaHI.dat', unit=21, status='old', iostat = err, action="read")
       if (err /= 0) then
-         print*, "! initGammaCont: can't open file: ",PREFIX,"/share/mocassin/data/gammaHI"
+         print*, "! initGammaCont: can't open file: ",PREFIX,"/share/mocassinX/data/gammaHI"
          stop
       end if
       close(22)
-      open(file=PREFIX//'/share/mocassin/data/gammaHeI.dat', unit=22, status='old', iostat = err, action="read")
+      open(file=PREFIX//'/share/mocassinX/data/gammaHeI.dat', unit=22, status='old', iostat = err, action="read")
       if (err /= 0) then
-         print*, "! initGammaCont: can't open file: ",PREFIX,"/share/mocassin/data/gammaHeI"
+         print*, "! initGammaCont: can't open file: ",PREFIX,"/share/mocassinX/data/gammaHeI"
          stop
       end if
       close(23)
-      open(file=PREFIX//'/share/mocassin/data/gammaHeII.dat', unit=23, status='old', iostat = err, action="read")
+      open(file=PREFIX//'/share/mocassinX/data/gammaHeII.dat', unit=23, status='old', iostat = err, action="read")
       if (err /= 0) then
-         print*, "! initGammaCont: can't open file: ",PREFIX,"/share/mocassin/data/gammaHeII"
+         print*, "! initGammaCont: can't open file: ",PREFIX,"/share/mocassinX/data/gammaHeII"
          stop
       end if
 
@@ -536,19 +536,19 @@ module xSec_mod
 
          ! open data/ph1.dat file and check for errors in opening
          close(10)
-         open(unit = 10, file = PREFIX//"/share/mocassin/data/ph1.dat", status = "old",&
+         open(unit = 10, file = PREFIX//"/share/mocassinX/data/ph1.dat", status = "old",&
               &  position = "rewind", iostat = ios, action="read")
          if (ios /= 0) then
-            print*, "! phInit: can't open file: ",PREFIX,"/share/mocassin/data/ph1.dat"
+            print*, "! phInit: can't open file: ",PREFIX,"/share/mocassinX/data/ph1.dat"
             stop
          end if
 
          ! open data/ph2.dat file and check for errors in opening
          close(20)
-         open(unit = 20, file = PREFIX//"/share/mocassin/data/ph2.dat", status = "old",&
+         open(unit = 20, file = PREFIX//"/share/mocassinX/data/ph2.dat", status = "old",&
               &  position = "rewind", iostat = ios, action="read")
          if (ios /= 0) then
-            print*, "! phInit: can't open file: ",PREFIX,"/share/mocassin/data/ph2.dat"
+            print*, "! phInit: can't open file: ",PREFIX,"/share/mocassinX/data/ph2.dat"
             stop
          end if
 

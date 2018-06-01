@@ -33,7 +33,7 @@ VERSION := $(shell if [ -e debian/ ]; then dpkg-parsechangelog -S version; else 
 ifeq ($(FC),ifort)
   FFLAGS += -cpp -DPREFIX=\"$(PREFIX)\" -DVERSION=\"$(VERSION)\" -module source/
 else
-  FFLAGS += -cpp -Jsource/ -ffree-line-length-0 -lm -DPREFIX=\"$(PREFIX)\" -DVERSION=\"$(VERSION)\" -DCOMPILER=\"$(FC)\" -DCO=\"$(CO)\" -I/usr/local/include
+  FFLAGS += -cpp -Jsource/ -ffree-line-length-0 -lm -DPREFIX=\"$(PREFIX)\" -DVERSION=\"$(VERSION)\" -DCOMPILER=\"$(FC)\" -DCO=\"$(CO)\" -I/usr/include
 endif
 
 MANDIR=$(DESTDIR)$(PREFIX)/share/man/man1
@@ -55,51 +55,51 @@ endif
 
 .PHONY: all clean new install uninstall
 
-all: mocassin mocassinWarm mocassinOutput mocassinPlot mocassinFluorescence
+all: mocassinX mocassinXWarm mocassinXOutput mocassinXPlot mocassinXFluorescence
 
 new: clean all
 
 %.o: %.f90
 	$(FC) $(FFLAGS) $< -c -o $@
 
-mocassin: $(SOURCES) source/mocassin.o
+mocassinX: $(SOURCES) source/mocassinX.o
 	$(LD) $(LDFLAGS) $(FFLAGS) -o $@ $^
 
-mocassinWarm: $(SOURCES) source/mocassinWarm.o
+mocassinXWarm: $(SOURCES) source/mocassinXWarm.o
 	$(LD) $(LDFLAGS) $(FFLAGS) -o $@ $^
 
-mocassinOutput: $(SOURCES) source/mocassinOutput.o
+mocassinXOutput: $(SOURCES) source/mocassinXOutput.o
 	$(LD) $(LDFLAGS) $(FFLAGS) -o $@ $^
 
-mocassinPlot: $(SOURCES) source/mocassinPlot.o
+mocassinXPlot: $(SOURCES) source/mocassinXPlot.o
 	$(LD) $(LDFLAGS) $(FFLAGS) -o $@ $^
 
-mocassinFluorescence: $(SOURCES) source/mocassinFluorescence.o
+mocassinXFluorescence: $(SOURCES) source/mocassinXFluorescence.o
 	$(LD) $(LDFLAGS) $(FFLAGS) -o $@ $^
 
 clean:
-	/bin/rm -f source/*.o *~ source/*.mod mocassin mocassinWarm mocassinOutput mocassinPlot
+	/bin/rm -f source/*.o *~ source/*.mod mocassinX mocassinXWarm mocassinXOutput mocassinXPlot
 
-install: mocassin mocassinWarm mocassinOutput mocassinPlot
-	test -e $(DESTDIR)$(PREFIX)/share/mocassin || mkdir -p $(DESTDIR)$(PREFIX)/share/mocassin
+install: mocassinX mocassinXWarm mocassinXOutput mocassinXPlot
+	test -e $(DESTDIR)$(PREFIX)/share/mocassinX || mkdir -p $(DESTDIR)$(PREFIX)/share/mocassinX
 	test -e $(DESTDIR)$(PREFIX)/bin || mkdir -p $(DESTDIR)$(PREFIX)/bin
 	test -e $(MANDIR) || mkdir -p $(MANDIR)
-	cp -R data $(DESTDIR)$(PREFIX)/share/mocassin
-	cp -R dustData $(DESTDIR)$(PREFIX)/share/mocassin
-	cp -R benchmarks $(DESTDIR)$(PREFIX)/share/mocassin
-	cp -R examples $(DESTDIR)$(PREFIX)/share/mocassin
-#	install -m 644 man/mocassin.1 $(MANDIR)
-#	gzip -f $(MANDIR)/mocassin.1
-#	ln -s -f $(MANDIR)/mocassin.1.gz $(MANDIR)/mocassinWarm.1.gz
-#	ln -s -f $(MANDIR)/mocassin.1.gz $(MANDIR)/mocassinOutput.1.gz
-#	ln -s -f $(MANDIR)/mocassin.1.gz $(MANDIR)/mocassinPlot.1.gz
-	install mocassin $(DESTDIR)$(PREFIX)/bin
-	install mocassinWarm $(DESTDIR)$(PREFIX)/bin
-	install mocassinPlot $(DESTDIR)$(PREFIX)/bin
-	install mocassinOutput $(DESTDIR)$(PREFIX)/bin
-	install mocassinFluorescence $(DESTDIR)$(PREFIX)/bin
+	cp -R data $(DESTDIR)$(PREFIX)/share/mocassinX
+	cp -R dustData $(DESTDIR)$(PREFIX)/share/mocassinX
+	cp -R benchmarks $(DESTDIR)$(PREFIX)/share/mocassinX
+	cp -R examples $(DESTDIR)$(PREFIX)/share/mocassinX
+#	install -m 644 man/mocassinX.1 $(MANDIR)
+#	gzip -f $(MANDIR)/mocassinX.1
+#	ln -s -f $(MANDIR)/mocassinX.1.gz $(MANDIR)/mocassinXWarm.1.gz
+#	ln -s -f $(MANDIR)/mocassinX.1.gz $(MANDIR)/mocassinXOutput.1.gz
+#	ln -s -f $(MANDIR)/mocassinX.1.gz $(MANDIR)/mocassinXPlot.1.gz
+	install mocassinX $(DESTDIR)$(PREFIX)/bin
+	install mocassinXWarm $(DESTDIR)$(PREFIX)/bin
+	install mocassinXPlot $(DESTDIR)$(PREFIX)/bin
+	install mocassinXOutput $(DESTDIR)$(PREFIX)/bin
+	install mocassinXFluorescence $(DESTDIR)$(PREFIX)/bin
 
 uninstall:
-	rm -f $(DESTDIR)$(PREFIX)/bin/mocassin*
-	rm -f $(MANDIR)/mocassin*.1.gz
-	rm -rf $(DESTDIR)$(PREFIX)/share/mocassin
+	rm -f $(DESTDIR)$(PREFIX)/bin/mocassinX*
+	rm -f $(MANDIR)/mocassinX*.1.gz
+	rm -rf $(DESTDIR)$(PREFIX)/share/mocassinX

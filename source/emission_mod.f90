@@ -2571,9 +2571,9 @@ module emission_mod
     character(len=2)   :: label
     character(len=120) :: reader ! file reader
 
-    open(unit=19, action="read", file=PREFIX//"/share/mocassin/data/resLines.dat", status="old", position="rewind", iostat=ios)
+    open(unit=19, action="read", file=PREFIX//"/share/mocassinX/data/resLines.dat", status="old", position="rewind", iostat=ios)
     if (ios /= 0) then
-       print*, "! initResLines: can't open file: ",PREFIX,"/share/mocassin/data/resLines"
+       print*, "! initResLines: can't open file: ",PREFIX,"/share/mocassinX/data/resLines"
        stop
     end if
 
@@ -2586,7 +2586,7 @@ module emission_mod
        do j = 1, nmul
           read(unit=19,fmt=*, iostat=ios)
           if (ios/=0) then
-             print*, "! initResLines: error reading ",PREFIX,"/share/mocassin/data/resLines.dat file"
+             print*, "! initResLines: error reading ",PREFIX,"/share/mocassinX/data/resLines.dat file"
              stop
           end if
        end do

@@ -239,9 +239,9 @@ module output_mod
 
            close(19)
 
-           open(unit=20, status='old', position='rewind', file=PREFIX//'/share/mocassin/data/flambda.dat',  action="read",iostat=ios)
+           open(unit=20, status='old', position='rewind', file=PREFIX//'/share/mocassinX/data/flambda.dat',  action="read",iostat=ios)
            if (ios /= 0) then
-              print*, "! outputGas: can't open file for reading, ",PREFIX,"/share/mocassin/data/flambda.dat"
+              print*, "! outputGas: can't open file for reading, ",PREFIX,"/share/mocassinX/data/flambda.dat"
               stop
            end if
 
@@ -1406,7 +1406,7 @@ module output_mod
 
           integer       :: i,g2(500)
 
-          open(file=PREFIX//"/share/mocassin/data/Roii.dat",unit=41,status="old", action="read",position="rewind")
+          open(file=PREFIX//"/share/mocassinX/data/Roii.dat",unit=41,status="old", action="read",position="rewind")
           do i=1,415
              read(41,*) lamb(i),g2(i),&
                   &br(1,i),br(2,i),br(3,i)
@@ -1768,7 +1768,7 @@ module output_mod
          te=tk/10000.d0
          ahb=6.68e-14*te**(-0.507)/(1.+1.221*te** 0.653)
          emhb=1.98648E-08/4861.33*ahb
-         open(unit=50,file=PREFIX//'/share/mocassin/data/Rneii.dat',status='old', action="read",position='rewind')
+         open(unit=50,file=PREFIX//'/share/mocassinX/data/Rneii.dat',status='old', action="read",position='rewind')
          do i=1,426
           read(50,*) a,b,c,d,f,lamb(i),br
           aeff=1.e-14*a*te**(f)
@@ -1816,7 +1816,7 @@ module output_mod
          te=tk/10000.d0
          ahb=6.68e-14*te**(-0.507)/(1.+1.221*te** 0.653)
          emhb=1.98648E-08/4861.33*ahb
-         open(unit=51,file=PREFIX//'/share/mocassin/data/Rcii.dat',status='old', position='rewind',action="read")
+         open(unit=51,file=PREFIX//'/share/mocassinX/data/Rcii.dat',status='old', position='rewind',action="read")
          do i=1,159
           read(51,*) a,b,c,d,f,lamb(i),br
           aeff=1.e-14*a*te**(f)
@@ -1840,7 +1840,7 @@ module output_mod
           y=logden-4.
           ahb=6.68e-14*te**(-0.507)/(1.+1.221*te** 0.653)
           emhb=1.98648E-08/4861.33*ahb
-          open(unit=52,file=PREFIX//'/share/mocassin/data/Rnii.dat',status='old', action="read",position='rewind')
+          open(unit=52,file=PREFIX//'/share/mocassinX/data/Rnii.dat',status='old', action="read",position='rewind')
           do i=1,115
            read(52,*) a,b,c,d,f,u,v,lamb(i),br
            aeff=1.e-14*a*te**(f)
@@ -1867,8 +1867,8 @@ module output_mod
           te=tk/10000.d0
           ahb=6.68e-14*te**(-0.507)/(1.+1.221*te**0.653)
           emhb=1.98648E-08/4861.33*ahb
-          open(unit=61,file=PREFIX//"/share/mocassin/data/Rniiold.dat",status='old', action="read",position='rewind')
-          open(unit=62,file=PREFIX//"/share/mocassin/data/Rnii_aeff.dat",status='old', action="read",position='rewind')
+          open(unit=61,file=PREFIX//"/share/mocassinX/data/Rniiold.dat",status='old', action="read",position='rewind')
+          open(unit=62,file=PREFIX//"/share/mocassinX/data/Rnii_aeff.dat",status='old', action="read",position='rewind')
           do i=1,51
            read(62,*) a(i),b(i),c(i)
           end do
@@ -2514,9 +2514,9 @@ module output_mod
 
       common/hdatax/densx,tempx,ex,ntempx,ndensx,ntop,nll,nlu
       close(337)
-      open(unit =337, file = PREFIX//"/share/mocassin/data/e1bx.d", status = "old", position = "rewind", iostat=ios, action="read")
+      open(unit =337, file = PREFIX//"/share/mocassinX/data/e1bx.d", status = "old", position = "rewind", iostat=ios, action="read")
         if (ios /= 0) then
-             print*, "! hdatax: can't open ",PREFIX,"/share/mocassin/data/e1bx.d"
+             print*, "! hdatax: can't open ",PREFIX,"/share/mocassinX/data/e1bx.d"
              stop
         end if
 
