@@ -1337,7 +1337,6 @@ module emission_mod
         integer           :: elem, ion          ! counters
         integer           :: j2TsP              ! pointer to 2s triplet state in nuArray
         integer           :: i,iup,ilow,j       ! counters
-        integer           :: ios                ! I/O error status
         integer           :: nuP                ! frequency pointer in nuArray
         integer           :: nS, ai, freq, iT   ! dust counters
 

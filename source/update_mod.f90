@@ -3963,7 +3963,6 @@ module update_mod
 
             ! local variables
             integer                    :: itemp, iden, idenp, izp
-            integer                    :: ios         ! I/O error status
             integer                    :: i, denint   ! counters
             integer                    :: ilow,&      ! pointer to lower level
                  &iup                                 ! pointer to upper level
