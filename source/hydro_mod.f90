@@ -942,13 +942,14 @@ module elements_mod
        lgDataAvailable = .false.
 
        ! heavies collisional lines
+!todo: this file read operation should be replaced with a check that data was read in
        do elem = 3, nELements
           do ion = 1, min(elem+1, nstages)
 
              if(.not.lgElementOn(elem)) exit
 
              close(18)
-             open(file=dataFile(elem,ion), unit=18, action="read", status='old', position='rewind', iostat=ios)
+             open(file=PREFIX//"/share/mocassinX/"//dataFile(elem,ion), unit=18, action="read", status='old', position='rewind', iostat=ios)
 
              if (ios == 0) then
 
