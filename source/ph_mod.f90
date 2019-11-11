@@ -1094,11 +1094,10 @@ module xSec_mod
 
            read(10, *) extinctionFile, grainAbun(nSpec)
 
-           open (unit=20, file=extinctionFile, iostat = ios, &
+           open (unit=20, file=PREFIX//"/share/mocassinX/"//extinctionFile, iostat = ios, &
                 &status = 'old', position = 'rewind', action="read")
            if(ios/=0) then
-              print*, '! makeDustXSec: cannot open file for&
-                   & reading ', extinctionFile
+              print*, '! makeDustXSec: cannot open file for reading ', PREFIX,"/share/mocassinX/",extinctionFile
               stop
            end if
 
@@ -1107,8 +1106,7 @@ module xSec_mod
            select case (dustFileType)
            case ('nk')
               if (lgRadPress) then
-                 print*, '! makeDustXSec: please use Q-type files with &
-                      & radPress option'
+                 print*, '! makeDustXSec: please use Q-type files with radPress option'
                  stop
               end if
 
@@ -1124,32 +1122,27 @@ module xSec_mod
               rewind 20
 
               if (nSpec>1 .and. nWav/=nWavOld) then
-                 print*, '! makeDustXSec: [warning] extinction files &
-                      & do not have the same number of frequency points'
+                 print*, '! makeDustXSec: [warning] extinction files do not have the same number of frequency points'
               end if
 
               allocate (wav(1:nWav), stat=err)
               if (err/=0) then
-                 print*, "! makeDustXsec: error allocation &
-                      &memory for wav array"
+                 print*, "! makeDustXsec: error allocation memory for wav array"
                  stop
               end if
               allocate (tmp1(1:nWav), stat=err)
               if (err/=0) then
-                 print*, "! makeDustXsec: error allocation memory for &
-                      &tmp1 array"
+                 print*, "! makeDustXsec: error allocation memory for tmp1 array"
                  stop
               end if
               allocate (tmp2(1:nWav), stat=err)
               if (err/=0) then
-                 print*, "! makeDustXsec: error allocation memory for &
-                      &tmp2 array"
+                 print*, "! makeDustXsec: error allocation memory for tmp2 array"
                  stop
               end if
               allocate (tmp3(1:nWav), stat=err)
               if (err/=0) then
-                 print*, "! makeDustXsec: error allocation memory for &
-                      &tmp3 array"
+                 print*, "! makeDustXsec: error allocation memory for tmp3 array"
                  stop
               end if
 

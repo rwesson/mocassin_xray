@@ -1138,10 +1138,10 @@ module grid_mod
 
               do i = 1, nSpecies
                  read(13,*) extFile
-                 open(file=extFile,unit=14,  action="read", &
+                 open(file=PREFIX//"/share/mocassinX/"//extFile,unit=14,  action="read", &
                       & position="rewind",status="old", iostat = ios)
                  if (ios /= 0 ) then
-                    print*, "! setMotherGrid: can't open file ", extFile
+                    print*, "! setMotherGrid: can't open file ", PREFIX,"/share/mocassinX/",extFile
                     stop
                  end if
                  read(14,*) readChar
