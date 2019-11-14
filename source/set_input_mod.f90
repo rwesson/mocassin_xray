@@ -53,6 +53,7 @@ module set_input_mod
         lgDustScattering = .true.
         lgSymmetricXYZ= .false.
         lgOutputExists= .false.
+        lgVoronoi = .false.
 
         nPhotonsDiffuse = 0
         nStars        = 0
@@ -141,6 +142,14 @@ module set_input_mod
             if (ios < 0) exit ! end of file reached
 
             select case (keyword)
+            case ("Voronoi")
+               backspace 10
+               read(unit=10,fmt=*, iostat=ios) keyword, nCellsIn, boxXn, boxXp, boxYn, boxYp, boxZn, boxZp
+               print*, keyword, nCellsIn, boxXn, boxXp, boxYn, boxYp, boxZn, boxZp
+               lgVoronoi = .true.
+            case("massVoronoi")
+               lgMassVoronoi = .true.
+               print*, keyword, lgMassVoronoi
             case("radPress")
                lgRadPress = .true.
                !print*, keyword,lgRadPress
@@ -272,7 +281,7 @@ module set_input_mod
                 read(unit=10, fmt=*, iostat=ios) keyword
                 lg1D = .true.
                 !print*, keyword
-                print*, 'ERROR: oneD option is not currently avalable!!!!'
+                print*, 'ERROR: oneD option is not currently available!!!!'
                 stop
              case ("densityFile")
                  backspace 10
@@ -497,7 +506,7 @@ module set_input_mod
                read(unit=10, fmt=*, iostat=ios) keyword, nAngleBins, (viewPointTheta(j), viewPointPhi(j), j=1,nAngleBins)
                !if (taskid==0) print*, keyword, nAngleBins, (viewPointTheta(j), viewPointPhi(j), j = 1, nAngleBins)
             case default
-                print*, "! readInput: invalid keyword in model parameter input file", &
+                print*, "! readInput: unrecognised keyword in model parameter input file", &
 &                        in_file, keyword
                 stop
             end select
@@ -634,7 +643,7 @@ module set_input_mod
         else if (TStellar(1) == 0. .and. Tdiffuse==0. .and. contShape(1) == 'blackbody') then
             print*, "! readInput: TStellar missing from model parameter input file"
             stop
-        else if (R_in < 0.) then
+        else if (R_in < 0. .and. .not. lgVoronoi) then
             print*, "! readInput: Invalid Rin parameter in the input file", R_in
             stop
        else if (LPhot == 0. .and. .not.allocated(LStar) .and. .not.lgPlaneIonization &
@@ -786,6 +795,12 @@ module set_input_mod
            read(13,*) TStellar(i), Lstar(i), ContShape(i), starPosition(i)%x, starPosition(i)%y, starPosition(i)%z, &
                 & spID(i), tStep(i)
            contShapeIn(i) = contShape(i)
+           if (starPosition(i)%x <= 1. .and. starPosition(i)%x >= -1. .and. &
+                & starPosition(i)%y <= 1. .and. starPosition(i)%y >= -1. .and. &
+                & starPosition(i)%z <= 1. .and. starPosition(i)%z >= -1.) then
+              print*, "! setMultiPhotoSources: please enter position of illuminating sources in cm"
+              stop
+           endif
         end do
 
 
