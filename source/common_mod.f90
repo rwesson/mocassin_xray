@@ -55,6 +55,8 @@ module common_mod
     real            :: rbEdge(2,3,26)
     real            :: r2aEdge(3,18)
 
+    real            :: nCellsIn
+    integer         :: abFileUsed
 
     real               :: fluoCubeMineV, fluoCubeMaxeV ! limits of the fluorescence cube band
     real               :: fillingFactor    ! filling factor epsilon
@@ -280,6 +282,7 @@ module common_mod
     integer            :: elementXref(nElements) ! x reference index array for elements actually used
     integer            :: emittingGrid     ! grid emiting illuminating radiation [0 for all]
     integer, allocatable   :: starIndeces(:,:) ! (nstars, 3) 1=x; 2=y; 3=z, 4=gp
+    integer, allocatable   :: starIndecesV(:,:)! (nstars)
     integer            :: nstages          ! # of ionisation stages to be included
 
     integer             :: lymanP                  ! frequency pointer to Lyman limit
@@ -311,20 +314,34 @@ module common_mod
         integer :: ny                               ! size of cartesian grid in y
         integer :: nz                               ! size of cartesian grid in z
         integer :: nCells                           ! number of active cells
+        integer :: nCellsV                          ! number of active Voronoi cells
         integer :: motherP                          ! pointer to the motherGrid
 
         integer, allocatable :: resLinePackets(:)       ! extraPackets to be generated cell (cell)
-        integer, allocatable :: abFileIndex(:,:,:)      ! abundance file index axxay
+        integer, allocatable :: abFileIndex(:)          ! abundance file index axxay
         integer, allocatable :: lgConverged(:)          ! has the model converged at this grid cell?
         integer, allocatable :: lgBlack(:)              ! is this to remain a black cell?
 
-        integer, allocatable :: active(:,:,:)           ! point to active cell in 1d array;
-                                                    ! returns 0 for inactive cells
+        integer, allocatable :: active(:,:,:)           ! point to active cell in 1d array (cartesian);
+                                                        ! returns 0 for inactive cells
+        integer, allocatable :: activeR(:,:,:)          ! reverse point from active cell
+                                                        ! returns 0 for inactive cells
+        integer, allocatable :: activeV(:,:,:)          ! point to active cell in 1d array (Voronoi);
+                                                        ! returns 0 for inactive cells
+        integer, allocatable :: activeVR(:,:,:)         ! reverse point from active cell
+                                                        ! returns 0 for inactive cells
+
+        type(Vertex), allocatable :: voronoi(:)         ! pointer to voronoi cell array
 
         real    :: geoCorrX,geoCorrY,geoCorrZ       ! geometric correction
         real    :: noHit                            ! cells not sampled by rad field
         real    :: noIonBal                         ! Ion Balance not raeched
         real    :: noTeBal                          ! Te Balance not reached
+
+        real, allocatable :: volume(:,:,:)              ! volume of Cartisian cell (ix,iy,iz)
+        real, allocatable :: volumeV(:)                 ! volume of Voronoi cell (cell)
+        real, allocatable :: massV(:)                   ! mass of Voronoi cell (cell)
+        real, allocatable :: positionV(:,:)             ! position of Voronoi cell (cell, 1:3) where 1 = x, 2 = y, 3 = z
 
         real, allocatable :: arad(:)                    ! radiative accelerations - only used if lgRadPress = .t.
         real, allocatable :: absOpac(:,:)               ! dust absorption opacity
@@ -338,14 +355,14 @@ module common_mod
         real, allocatable :: NeOld(:)                   ! electron density [1/cm^3]
         real, allocatable :: TeOld(:)                   ! electron temperature [K]
         real, allocatable :: Tdust(:,:,:)               ! dust temperature (species,size,cell) [K]
-        real, allocatable :: ionDen(:,:,:)              ! fractional ion density (x,y,z,elem,stage)
+        real, allocatable :: ionDen(:,:,:)              ! fractional ion density (cell,elem,stage)
         real, allocatable :: Jste(:,:)                  ! MC estimator of stellar J (cell,nu)
         real, allocatable :: H(:,:)                     ! MC estimator of H (cell,nu)
         real, allocatable :: Jdif(:,:)                  ! MC estimator of diffuse J (cell,nu)
         real, allocatable :: JPEots(:,:)                ! OTS line contribution to photoelectric emission
         real, allocatable :: escapedPackets(:,:,:)      ! escaped packets (cell,nu, angle)
         real, allocatable :: escapedPacketsComponents(:,:,:,:) ! escaped packets (cell,nu, angle)
-        real, allocatable :: linePackets(:,:)           ! line packets (x,y,z,n)
+        real, allocatable :: linePackets(:,:)           ! line packets (cell,n)
         real, allocatable :: LFluorescence(:,:)         ! local fluorescence luminosity of cell [e36 erg/sec]
         real, allocatable :: LdiffuseLoc(:)             ! loc luminosity of diffuse source [e36 erg/sec]
         real, allocatable :: Ndust(:)                   ! number density for dust
@@ -446,7 +463,7 @@ module common_mod
     logical            :: lgNeutral        ! starting from neutral gas?
     logical            :: lgPlaneIonization! plane parallel ionization?
     logical            :: lgSymmetricXYZ   ! symmetric in x, y, and z?
-
+    logical            :: lgVoronoi = .false. ! Voronoi grid?
 
     logical, allocatable :: &
          & lgDataAvailable(:,:)! is the atomic data available for this species?
@@ -467,13 +484,16 @@ module common_mod
              & :: xP,yP,zP         ! grids position indeces 1= mother 2=sub
         integer, dimension(2) :: origin ! 1=ig, 2=icell
         integer       :: iG        ! grid index
+        integer       :: iVoronoi
+        integer       :: iboundary ! boundary type (0 = open, 1,2,3 = mirror)
 
         integer       :: SEDtype   ! 0 = direct stellar
                                    ! 1 = compton reflected
                                    ! 2, N = fluorescence
 
         real          :: nu
-
+        double precision :: SEscape
+        real          :: STot
         logical       :: lgStellar
         logical       :: lgLine
 
