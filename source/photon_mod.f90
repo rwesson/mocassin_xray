@@ -5,7 +5,7 @@ module photon_mod
     use common_mod
     use constants_mod
     use continuum_mod
-    use grid_mod
+    use voronoi_grid_mod
     use interpolation_mod
     use pathIntegration_mod
     use vector_mod
@@ -20,6 +20,7 @@ module photon_mod
 
     type(vector), parameter :: origin=vector(0.,0.,0.)  ! origin of the cartesian grid axes
 
+    integer                 :: inr = 0
     integer     , parameter :: safeLim = 10000          ! safety limit for the loops
     integer                        :: totalEscaped
 
@@ -97,6 +98,9 @@ module photon_mod
         call random_seed(get = seed)
 
         seed = seed + msec + taskid
+! to force the same random sequence de-comment the following 2 lines
+!        seed(1) = -2147482802
+!        seed(2) = -2147482966
 
         call random_seed(put = seed)
 
@@ -849,7 +853,7 @@ module photon_mod
 
                 do irepeat = 1, 1000000
                    ! get a random direction
-                   initPhotonPacket%direction = randomUnitVector()
+                   initPhotonPacket%direction = randomUnitVector(iphot)
                    if (initPhotonPacket%direction%x/=0. .and. &
                         & initPhotonPacket%direction%y/=0. .and. &
                         & initPhotonPacket%direction%z/=0.) exit
@@ -901,6 +905,8 @@ module photon_mod
              if (nuP <= 0) nuP = 1
 
              if (nuP<nbins) then
+!todo: check this, voronoi version has
+!                if (random>=(probDen(nuP+1)+probDen(nuP))/2.) nuP=nuP+1
                 nuP=nuP+1
              end if
 
@@ -2380,6 +2386,7 @@ module photon_mod
                    else
                       print*, '! pathSegment: insanity occurred and scattering/absorption &
                            & decision stage.'
+!todo: check, voronoi and original mocasin have extra output here (line 1706 in voronoi)
                       stop
                    end if
 
