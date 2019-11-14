@@ -313,5 +313,16 @@ contains
     randomUnitVector = vector(u,v,w)
   end function randomUnitVector
 
+  subroutine notrandom2(nr)
+    implicit none
+
+    real, intent(out) :: nr
+
+    inr2 = inr2+1
+    if (inr2 <=0) inr2 = 1
+    if (inr2 >= 100) inr2 = 1
+    nr = inr2/100.
+
+  end subroutine notrandom2
 
 end module vector_mod
