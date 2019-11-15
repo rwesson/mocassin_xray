@@ -73,21 +73,28 @@ module dust_mod
       absOpacTmp = 0.
       scaOpacTmp = 0.
 
-      if (lg2D) then
+      if (lg2D .and. .not. lgVoronoi) then
          yTop = 1
-      else
+      elseif (.not.lg2D .and. .not.lgVoronoi) then
          yTop = grid%ny
+      else
+         print *, "! dustDriver: insanity in the grid geometry 2D, Cartesian, Voronoi"
+         stop
       end if
 
-      do iP = taskid+1, grid%nx, numtasks
-         do jP = 1, yTop
+      if (lgVoronoi) then
+        do iP = taskid+1, grid%nCellsV, numtasks
+          call dustOpacity()
+        end do
+      else
+        do iP = taskid+1, grid%nx, numtasks
+          do jP = 1, yTop
             do kP = 1, grid%nz
-
                call dustOpacity()
-
             end do
-         end do
-      end do
+          end do
+        end do
+      end if
 
       size = (grid%nCells+1)*nbins
 
@@ -119,17 +126,23 @@ module dust_mod
       subroutine dustOpacity()
         implicit none
 
-        integer :: i ! counter
+        integer :: i, locCell ! counter
 
         ! check whether this cell is outside the nebula
-        if (grid%active(iP,jP,kP) <= 0) return
+        if (.not.lgVoronoi) then
+          if (grid%active(iP,jP,kP) <= 0) return
+          locCell = grid%active(iP,jP,kP)
+        else
+          if (grid%activeV(iP) <= 0) return
+          locCell = grid%activeV(iP)
+        end if
 
         ! calculate scaOpac array
         ! calculate absOpac array
         do i = 1, nbins
-           grid%scaOpac(grid%active(iP,jP,kP),i) = grid%Ndust(grid%active(iP,jP,kP))*&
+           grid%scaOpac(locCell,i) = grid%Ndust(locCell)*&
                 & xSecArray(dustScaXsecP(0,1)+i-1)
-           grid%absOpac(grid%active(iP,jP,kP),i) = grid%Ndust(grid%active(iP,jP,kP))*&
+           grid%absOpac(locCell,i) = grid%Ndust(locCell)*&
                 & xSecArray(dustAbsXsecP(0,1)+i-1)
         end do
 
