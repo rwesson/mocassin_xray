@@ -9,7 +9,7 @@ program MoCaSSiNwarm
     use common_mod
     use constants_mod
     use dust_mod
-    use grid_mod
+    use voronoi_grid_mod
     use iteration_mod
     use output_mod
     use set_input_mod
@@ -40,10 +40,27 @@ program MoCaSSiNwarm
         print*, " "
     end if
 
-    ! reset the 3D cartesian grid
-    call resetGrid(grid3D)
+    ! check if voronoi
+    close(77)
+    open(unit=77, file='output/grid3.out', action="read",position='rewind',  &
+         &          status='old', iostat = err)
+    if (err /= 0) then
+       print*, "! mocassinWarm: error opening file grid3.out"
+       stop
+    end if
 
-    call setStarPosition(grid3D(1)%xAxis,grid3D(1)%yAxis,grid3D(1)%zAxis,grid3D)
+    read(77,*) lgVoronoi
+
+    close(77)
+
+    if (.not. lgVoronoi) then
+      ! reset the 3D cartesian grid
+      call resetGrid(grid3D)
+      call setStarPosition(grid3D(1)%xAxis,grid3D(1)%yAxis,grid3D(1)%zAxis,grid3D)
+    else
+      call resetGridV(grid3D(1))
+      call setStarPositionV(grid3D(1))
+    end if
 
     ! initialize opacities x sections array
     call initXSecArray()
@@ -54,12 +71,14 @@ program MoCaSSiNwarm
     ! prepare atomica data stuff
     call makeElements()
 
-    if (taskid == 0) then
+    if (.not.lgVoronoi) then
+      if (taskid == 0) then
         print*, "Total number of grids (mother+sub-grids): ", nGrids
         print*, "Mother grid used:"
         print*, grid3D(1)%xAxis
         print*, grid3D(1)%yAxis
         print*, grid3D(1)%zAxis
+      end if
     end if
 
     ! if grains are included, calculate the dust opacity
