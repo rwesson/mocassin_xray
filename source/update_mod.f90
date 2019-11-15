@@ -12,7 +12,7 @@ module update_mod
 
     contains
 
-      subroutine updateCell(grid, xP, yP, zP)
+      subroutine updateCell(grid, cellP)
         implicit none
 
         real, parameter :: Y0 = 0.5, Y1 = 0.2          ! see Baldwin et al. 1991
@@ -62,13 +62,8 @@ module update_mod
         real, dimension(nElements, nstages) &
              & :: alphaTot     ! total recombination coeffs
 
-        integer, intent(in)            :: xP, yP, zP   ! cell indexes on the Cartesian axes
-
-
-
-
+        integer, intent(in)            :: cellP        ! cell indexes on the Cartesian axes
         integer ,allocatable           :: grainPotP(:,:)
-        integer                        :: cellP        ! points to this cell
         integer                        :: elem         ! element counter
         integer                        :: err          ! allocation error status
         integer                        :: ion          ! ionization stage counter
@@ -93,9 +88,9 @@ module update_mod
         logical                        :: lgVerbose=.false.
 
         ! check whether this cell is outside the nebula
-        if (grid%active(xP, yP, zP)<=0) return
-
-        cellP = grid%active(xP, yP, zP)
+! routine only called for active cells now
+!        if (grid%active(xP, yP, zP)<=0) return
+!        cellP = grid%active(xP, yP, zP)
 
         ! initialise lgBlack
         grid%lgBlack(cellP) = 0
@@ -135,7 +130,7 @@ module update_mod
 
            grid%lgBlack(cellP) = 1
 
-           if (lgTalk) print*, "! updateCell [talk]: no photon hits, returning...", xP,yP,zP
+           if (lgTalk) print*, "! updateCell [talk]: no photon hits, returning...", cellP
 
            if (lgDust) TdustTemp(:,:,cellP)       = grid%Tdust(:,:,cellP)
 
@@ -147,6 +142,7 @@ module update_mod
            end if
 
            grid%noHit = grid%noHit+1.
+           grid%lgBlack(cellP) = 1
 
            return
         end if
@@ -159,7 +155,7 @@ module update_mod
            NeUsed     = grid%Ne(cellP)
            HdenUsed   = grid%Hden(cellP)
            ionDenUsed = grid%ionDen(cellP, :, :)
-           elemAbunUsed = grid%elemAbun(grid%abFileIndex(xp,yp,zp),:)
+           elemAbunUsed = grid%elemAbun(grid%abFileIndex(cellP),:)
 
            ! save present value of H0 abundance in XOldHI
            XOldHI = grid%ionDen(cellP,elementXref(1),1)
@@ -211,12 +207,13 @@ module update_mod
          ! this was added to help implementing MPI comunication
          if (lgDust) TdustTemp(:,:,cellP)          = grid%Tdust(:,:,cellP)
 
-         if (lgNeInput .and. lgTalk) then
-            print*, '! updateCell: [talk] cell:', xP,yP,zP, " NeInput: ", &
-                 &grid%NeInput(cellP), " NeUsed: ", &
-                 &grid%Ne(cellP),  " N_gas: ", &
-                 &grid%Hden(cellP)
-         end if
+!todo: why commented out in voronoi version?
+!         if (lgNeInput .and. lgTalk) then
+!            print*, '! updateCell: [talk] cell:', xP,yP,zP, " NeInput: ", &
+!                 &grid%NeInput(cellP), " NeUsed: ", &
+!                 &grid%Ne(cellP),  " N_gas: ", &
+!                 &grid%Hden(cellP)
+!         end if
 
 
       else
@@ -242,11 +239,12 @@ module update_mod
             grid%lgConverged(cellP) = 0
          end if
 
-         if (lgTalk) &
-              & print*, "updateCell: [talk] cell", xP,yP,zP, "; converged?",&
-              & grid%lgConverged(cellP), "; mean dust T: ", &
-              & grid%Tdust(0,0,cellP), "; &
-              & mean dust T old: ", XOldHI,"; dT(dust): ", deltaXHI
+! todo: why commented out in voronoi?
+!         if (lgTalk) &
+!              & print*, "updateCell: [talk] cell", xP,yP,zP, "; converged?",&
+!              & grid%lgConverged(cellP), "; mean dust T: ", &
+!              & grid%Tdust(0,0,cellP), "; &
+!              & mean dust T old: ", XOldHI,"; dT(dust): ", deltaXHI
 
          ! this was added to help implementing MPI comunication
          TdustTemp(:,:,cellP)          = grid%Tdust(:,:,cellP)
@@ -407,8 +405,9 @@ module update_mod
                     end if
 
 
-                    if (lgVerbose) print*, "! iterateT: [warning] no convergence after ", &
-                         & nIterateT, " steps. (cell, T)", cellP,xP,yP,zP,TeUsed
+!commented out in voronoi
+!                    if (lgVerbose) print*, "! iterateT: [warning] no convergence after ", &
+!                         & nIterateT, " steps. (cell, T)", cellP,xP,yP,zP,TeUsed
 
                     grid%noTeBal = grid%noTeBal+1.
 
@@ -421,8 +420,9 @@ module update_mod
 
                 ! the T-iteration has converged
 
-                if (lgTalk) print*, "! iterateT: [talk] convergence achieved after ",&
-                     & nIterateT, " steps. (cell, T)", xP,yP,zP,TeUsed, grid%abFileIndex(xP,yP,zP)
+! commented out in voronoi
+!                if (lgTalk) print*, "! iterateT: [talk] convergence achieved after ",&
+!                     & nIterateT, " steps. (cell, T)", xP,yP,zP,TeUsed, grid%abFileIndex(cellP)
 
             end if ! end convergence condition
 
@@ -631,7 +631,7 @@ module update_mod
                 do istage = 2, min(elem+1,nstages)
                    ! get cpDen
                    cpDen = grid%ionDen(cellP,elementXref(elem),istage)*&
-                        & grid%elemAbun(grid%abFileIndex(xP,yP,zP),elem)*&
+                        & grid%elemAbun(grid%abFileIndex(cellP),elem)*&
                         & grid%Hden(cellP)
                    mcp = (aWeight(elem)*amu)
                    vmean = sqrt(eightkT_pi/mcp)
@@ -796,7 +796,7 @@ module update_mod
 
                             gasDustColl_d(ns,na) = gasDustColl_d(ns,na)+&
                                  & ionDenUsed(elementXref(elem),istage)*&
-                                 & grid%elemAbun(grid%abFileIndex(xP,yP,zP),elem)*&
+                                 & grid%elemAbun(grid%abFileIndex(cellP),elem)*&
                                  & grid%Hden(cellP)*&
                                  & Pi*grainRadius(na)*grainRadius(na)*1.e-8*&
                                  & S*vmean*(2.*kT*Ryd2erg*xi-eta*&
@@ -806,7 +806,7 @@ module update_mod
                             gasDustColl_g = gasDustColl_g + &
                                  & ionDenUsed(elementXref(elem),istage)*&
                                  & grainWeight(na)*grainAbun(ns)*grid%Ndust(cellP)*&
-                                 & grid%elemAbun(grid%abFileIndex(xP,yP,zP),elem)*&
+                                 & grid%elemAbun(grid%abFileIndex(cellP),elem)*&
                                  & Pi*grainRadius(na)*grainRadius(na)*1.e-8*&
                                  & S*vmean*(2.*kT*Ryd2erg*xi-eta*2.*kBoltzmann*&
                                  & grid%Tdust(ns,na,cellP))
@@ -894,7 +894,7 @@ module update_mod
                      Te4     = TeUsed / (i*i*1.e4)
 
                      ! find the N(Xi+)
-                     Np = grid%ionDen(cellP,elementXref(i),i+1)*grid%elemAbun(grid%abFileIndex(xP,yP,zP),i)
+                     Np = grid%ionDen(cellP,elementXref(i),i+1)*grid%elemAbun(grid%abFileIndex(cellP),i)
 
                      ! cooling of gas due to FF radiation from H-like
                      ! fits to Hummer, MNRAS 268(1994) 109, Table 1. or  least square fitting to m=4
@@ -947,9 +947,8 @@ module update_mod
                      ! fits to Hummer and Storey, MNRAS 297(1998) 1073, Table 6. least square fitting to m=4
 
                      ! find N(X+)
-                     Np = grid%ionDen(cellP,elementXref(i),i)*grid%elemAbun(grid%abFileIndex(xP,yP,zP),i)
-
-!                     Np =  grid%ionDen(cellP,elementXref(2),2)*grid%elemAbun(grid%abFileIndex(xp, yP, zP),2)
+                     Np = grid%ionDen(cellP,elementXref(i),i)*grid%elemAbun(grid%abFileIndex(cellP),i)
+!                     Np =  grid%ionDen(cellP,elementXref(2),2)*grid%elemAbun(grid%abFileIndex(cellP),2)
 
                      betaFF =  (real(i)/2.)*( 1.070073e-11    -2.5730207e-13*log10Te + &
                           & 2.109134e-13*log10Te*log10Te )
@@ -1013,7 +1012,7 @@ module update_mod
              do elem =1, nElements
                 if (lgElementOn(elem)) then
                    do ion = 1, min(elem,nstages-1)
-                      coolCollH = coolCollH + grid%elemAbun(grid%abFileIndex(xP,yP,zP),elem)*&
+                      coolCollH = coolCollH + grid%elemAbun(grid%abFileIndex(cellP),elem)*&
                            &grid%ionDen(cellP,elementXref(elem),ion) *collIon(2,elem,ion)*NeUsed
                    end do
                 end if
@@ -1124,20 +1123,20 @@ module update_mod
                     if(.not.lgElementOn(elem)) exit
                     do nShell = 1, nShells(elem, ion)
 !print*, elem, ion, nshell
-!print*, photoIon(2,nshell,elem,ion), ionDenUsed(elementXref(elem),ion), grid%elemAbun(grid%abFileIndex(xP,yP,zP),elem)
+!print*, photoIon(2,nshell,elem,ion), ionDenUsed(elementXref(elem),ion), grid%elemAbun(grid%abFileIndex(cellP),elem)
                        heatSte = heatSte+photoIon(2,nshell,elem,ion)*ionDenUsed(elementXref(elem),ion)*&
-                                   & grid%elemAbun(grid%abFileIndex(xP,yP,zP),elem)
+                                   & grid%elemAbun(grid%abFileIndex(cellP),elem)
 
 
-!print*, elem, ion, photoIon(2,nshell,elem,ion), ionDenUsed(elementXref(elem),ion), grid%elemAbun(grid%abFileIndex(xP,yP,zP),elem)
+!print*, elem, ion, photoIon(2,nshell,elem,ion), ionDenUsed(elementXref(elem),ion), grid%elemAbun(grid%abFileIndex(cellP),elem)
 !                       heatSte    = heatSte + heatIonSte
                     end do ! end shell loop
 
 !                    heatIonSte = heatIonSte*ionDenUsed(elementXref(elem),ion)*&
-!                         & grid%elemAbun(grid%abFileIndex(xP,yP,zP),elem)
+!                         & grid%elemAbun(grid%abFileIndex(cellP),elem)
 !                     if (lgDebug) &
 !                          & heatIonDif = heatIonDif*ionDenUsed(elementXref(elem),ion)*&
-!                          &grid%elemAbun(grid%abFileIndex(xP,yP,zP),elem)
+!                          &grid%elemAbun(grid%abFileIndex(cellP),elem)
 !                    heatSte    = heatSte + heatIonSte
 
 !                     if (lgDebug) &
@@ -1210,7 +1209,7 @@ module update_mod
                    end if
 
                    forbiddenLines(elem, ion, :, :) = forbiddenLines(elem, ion, :, :)*&
-                        & grid%elemAbun(grid%abFileIndex(xP,yP,zP),elem)*&
+                        & grid%elemAbun(grid%abFileIndex(cellP),elem)*&
                         & ionDenUsed(elementXref(elem), ion)
 
                 end if
@@ -1282,10 +1281,10 @@ module update_mod
 
                   ionRatio(elem,ion) =  (photoIon(1,1,elem,ion)+collIonH*NeUsed+comptonRecoilIonH)/&
                        & (NeUsed*alphaTot(elem,ion)&
-                       & +chex(elem,ion,1)*grid%Hden(grid%active(xP,yp,zP)) * &
+                       & +chex(elem,ion,1)*grid%Hden(cellP) * &
                        & grid%ionDen(cellP,elementXref(1),1))
 !print*, elem, ion, photoIon(1,1,elem,ion), collionH, NeUsed, comptonRecoilIonH
-!print*, NeUsed, alphaTot(elem,ion), chex(elem,ion,1),grid%Hden(grid%active(xP,yp,zP)), grid%ionDen(cellP,elementXref(1),1)
+!print*, NeUsed, alphaTot(elem,ion), chex(elem,ion,1),grid%Hden(cellP), grid%ionDen(cellP,elementXref(1),1)
 !print*, ' '
 
 
@@ -1411,10 +1410,10 @@ module update_mod
                      end do
 
                      do ion = 1, min(elem, nstages-1)
-!print*, ion, alphaTot(elem,ion), chex(elem,ion,1), grid%Hden(grid%active(xP,yp,zP)),&
+!print*, ion, alphaTot(elem,ion), chex(elem,ion,1), grid%Hden(cellP),&
 !                             & grid%ionDen(cellP,elementXref(1),1)
                         in(ion) = dble(NeUsed*alphaTot(elem,ion)&
-                             & +chex(elem,ion,1)*grid%Hden(grid%active(xP,yp,zP)) * &
+                             & +chex(elem,ion,1)*grid%Hden(cellP) * &
                              & grid%ionDen(cellP,elementXref(1),1))
 
                      end do
@@ -1496,7 +1495,7 @@ module update_mod
                   if (lgElementOn(elem)) then
                      if( ionDenUsed(elementXref(elem),ion) >= 1.e-10) &
                           & NeUsed = NeUsed + (ion-1)*&
-                          &grid%elemAbun(grid%abFileIndex(xP,yP,zP),elem)*&
+                          &grid%elemAbun(grid%abFileIndex(cellP),elem)*&
                           &ionDenUsed(elementXref(elem), ion)
                   end if
                end do
@@ -1716,7 +1715,7 @@ module update_mod
                             ! ADDED *NeUsed
                             & collIonH*NeUsed+revRate)/&
                             & (NeUsed*alphaTot(elem,ion)&
-                            & +chex(elem,ion,1)*grid%Hden(grid%active(xP,yp,zP)) * &
+                            & +chex(elem,ion,1)*grid%Hden(cellP) * &
                             & grid%ionDen(cellP,elementXref(1),1))
 
                  end do
@@ -1823,7 +1822,7 @@ module update_mod
 
                     do ion = 1, min(elem, nstages-1)
                        in(ion) = dble(NeUsed*alphaTot(elem,ion)&
-                            & +chex(elem,ion,1)*grid%Hden(grid%active(xP,yp,zP)) * &
+                            & +chex(elem,ion,1)*grid%Hden(cellP) * &
                             & grid%ionDen(cellP,elementXref(1),1))
 
                     end do
@@ -1899,7 +1898,7 @@ module update_mod
                      if (lgElementOn(elem)) then
                         if( ionDenUsed(elementXref(elem),ion) >= 1.e-10) &
                              & NeUsed = NeUsed + (ion-1)*&
-                             &grid%elemAbun(grid%abFileIndex(xP,yP,zP),elem)*&
+                             &grid%elemAbun(grid%abFileIndex(cellP),elem)*&
                              &ionDenUsed(elementXref(elem), ion)
                      end if
 
@@ -1908,7 +1907,7 @@ module update_mod
 
                NeUsed = NeUsed * grid%Hden(cellP)
 
-               if (NeUsed==0. .and. lgVerbose) print*, '! ionBalance [warning]: cell ', xP,yP,zP, &
+               if (NeUsed==0. .and. lgVerbose) print*, '! ionBalance [warning]: cell ', cellP, &
                     &'; NeUsed = ',  NeUsed
 
                if (NeUsed == 0.) then
@@ -1943,8 +1942,8 @@ module update_mod
               else if (( (abs(deltaHI)>limit) .or. (abs(deltaHeI)>limit) .or. &
                    &(abs(deltaHeII)>limit) ) .and. (nIterateX == maxIterateX) ) then
 
-                 if (lgTalk)  print*, "! ionBalance: [warning] convergence not reached after ", &
-                      &maxIterateX, " steps. Finishing up..."
+!                 if (lgTalk)  print*, "! ionBalance: [warning] convergence not reached after ", &
+!                      &maxIterateX, " steps. Finishing up..."
 
                  lgConv = .false.
               end if
@@ -2131,7 +2130,7 @@ module update_mod
                        ionRatio(elem,ion) = (photoIon(1,outshell,elem,ion)+&
                             & collIon+revRate)/&
                             & (NeUsed*alphaTot(elem,ion)&
-                            & +chex(elem,ion,1)*grid%Hden(grid%active(xP,yp,zP)) * &
+                            & +chex(elem,ion,1)*grid%Hden(cellP) * &
                             & grid%ionDen(cellP,elementXref(1),1))
 
                  end do
@@ -2202,7 +2201,7 @@ module update_mod
                     if (lgElementOn(elem)) then
                       if( ionDenUsed(elementXref(elem),ion) >= 1.e-10) &
                            & NeUsed = NeUsed + (ion-1)*&
-                           &grid%elemAbun(grid%abFileIndex(xP,yP,zP),elem)*&
+                           &grid%elemAbun(grid%abFileIndex(cellP),elem)*&
                            &ionDenUsed(elementXref(elem), ion)
                     end if
 
@@ -3302,8 +3301,8 @@ module update_mod
 
                   if (lgGas .and. convPercent>=resLinesTransfer .and. (.not.lgResLinesFirst) .and. &
                        & (.not.nIterateMC==1) ) then
-                     dustHeatingBudget(grid%abFileIndex(xp,yp,zp),0) = &
-                          &dustHeatingBudget(grid%abFileIndex(xp,yp,zp),0)+&
+                     dustHeatingBudget(grid%abFileIndex(cellP),0) = &
+                          &dustHeatingBudget(grid%abFileIndex(cellP),0)+&
                           & dustAbsIntegral*grainWeight(ai)*grainAbun(nS)*grid%Ndust(cellP)
                      dustHeatingBudget(0,0) = dustHeatingBudget(0,0)+&
                           & dustAbsIntegral*grainWeight(ai)*grainAbun(nS)*grid%Ndust(cellP)
@@ -3399,7 +3398,7 @@ module update_mod
 !print*, 'f', TeUsed
 
                         Gline = Gline + 10**(-0.897*log10(TeUsed) + 5.05)*&
-                             & grid%elemAbun(grid%abFileIndex(xP,yP,zP),1)&
+                             & grid%elemAbun(grid%abFileIndex(cellP),1)&
                              & *1.e-25*ionDenUsed(elementXref(1),2)*&
                              & NeUsed
 
@@ -3454,8 +3453,8 @@ module update_mod
                ! Harrington Monk and Clegg 1988 (section 3.2)
                resLineHeating = resLineHeating + heat
 
-               dustHeatingBudget(grid%abFileIndex(xP,yP,zP),iL) = &
-                    & dustHeatingBudget(grid%abFileIndex(xP,yP,zP),iL) + &
+               dustHeatingBudget(grid%abFileIndex(cellP),iL) = &
+                    & dustHeatingBudget(grid%abFileIndex(cellP),iL) + &
                     & heat*grainWeight(sizeP)*grainAbun(speciesP)*grid%Ndust(cellP)
                dustHeatingBudget(0,iL) = dustHeatingBudget(0,iL) + &
                     & heat*grainWeight(sizeP)*grainAbun(speciesP)*grid%Ndust(cellP)
@@ -3808,9 +3807,9 @@ module update_mod
             comptonHeat = (6.65e-25*s1/8.184e-7)/(grid%Hden(cellP))
 
             comptonRecoilHeat=(comptonRecoilHeatH*grid%ionDen(cellP,elementXref(1),1)*&
-                        & grid%elemAbun(grid%abFileIndex(xP,yP,zP),1)+comptonRecoilHeatHe* &
+                        & grid%elemAbun(grid%abFileIndex(cellP),1)+comptonRecoilHeatHe* &
                         & (grid%ionDen(cellP,elementXref(2),1)*&
-                        & grid%elemAbun(grid%abFileIndex(xP,yP,zP),2))*2.)*Ryd2erg
+                        & grid%elemAbun(grid%abFileIndex(cellP),2))*2.)*Ryd2erg
 
           end subroutine compton
 
@@ -3877,9 +3876,9 @@ module update_mod
 
             end do
             comptonRecoilHeat=(comptonRecoilHeatH*grid%ionDen(cellP,elementXref(1),1)*&
-                        & grid%elemAbun(grid%abFileIndex(xP,yP,zP),1)+comptonRecoilHeatHe* &
+                        & grid%elemAbun(grid%abFileIndex(cellP),1)+comptonRecoilHeatHe* &
                         & (grid%ionDen(cellP,elementXref(2),1)*&
-                        & grid%elemAbun(grid%abFileIndex(xP,yP,zP),2))*2.)*Ryd2erg
+                        & grid%elemAbun(grid%abFileIndex(cellP),2))*2.)*Ryd2erg
 
             comptonCool = comptonCool*TeUsed
 
