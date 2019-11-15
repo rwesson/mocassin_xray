@@ -8,7 +8,7 @@
 program MoCaSSiNoutput
     use common_mod
     use constants_mod
-    use grid_mod
+    use voronoi_grid_mod
     use iteration_mod
     use output_mod
     use set_input_mod
@@ -42,11 +42,14 @@ program MoCaSSiNoutput
         print*, " "
     end if
 
-    ! reset the 3D cartesian grid
-    call resetGrid(grid3D)
-
-    call setStarPosition(grid3D(1)%xAxis,grid3D(1)%yAxis,grid3D(1)%zAxis,grid3D)
-
+    if (.not. lgVoronoi) then
+      ! reset the 3D cartesian grid
+      call resetGrid(grid3D)
+      call setStarPosition(grid3D(1)%xAxis,grid3D(1)%yAxis,grid3D(1)%zAxis,grid3D)
+    else
+      call resetGridV(grid3D(1))
+      call setStarPositionV(grid3D(1))
+    end if
 
     ! initialize opacities x sections array
     call initXSecArray()
