@@ -5,7 +5,7 @@ module emission_mod
     use constants_mod
     use common_mod
     use continuum_mod
-    use grid_mod
+    use voronoi_grid_mod
     use xSec_mod
     use elements_mod
 
@@ -28,7 +28,7 @@ module emission_mod
 
     ! this is the subroutine to drive the calculation
     ! of the emission spectrum at the given cell
-    subroutine emissionDriver(grids, ix, iy, iz, ig)
+    subroutine emissionDriver(grids, cellPloc, ig)
         implicit none
 
         real (kind=8) :: gammaHI(nbins)          ! HI fb+ff emission coefficient [e-40 erg*cm^3/s/Hz]
@@ -46,19 +46,22 @@ module emission_mod
         real (kind=8) :: emissionHeI(nbins)              ! HeI continuum emission coefficient
         real (kind=8) :: emissionHeII(nbins)             ! HeII continuum emission coefficient
 
-        type(grid_type), intent(inout) :: grids(*) ! the cartesian grid
+        type(grid_type), intent(inout) :: grids(*) ! the grid
+!        type(grid_type)                :: grid ! this line present in previous versions. todo: needed?
 
         real    :: dV                        ! volume element
 
-        integer, intent(in) :: ix, iy, iz, ig  ! pointers to this cell
+        integer, intent(in) :: cellPloc, ig  ! pointers to this cell
         integer :: err                       ! allocation error status
         integer :: i                         ! counters
         integer :: izp
 
         cellPUsed = grids(iG)%active(ix, iy, iz)
 
-        ! check whether this cell is outside the nebula
-        if (grids(iG)%active(ix, iy, iz)<=0) return
+        ! check whether this cell is active
+        if (cellPloc<=0) return
+
+        cellPUsed = cellPloc
 
         ! set the dust emission PDF
         if (lgDust .and. .not.lgGas) call setDustPDF()
@@ -67,14 +70,19 @@ module emission_mod
 
         ! find the physical properties of this cell
         ionDenUsed= grids(iG)%ionDen(cellPUsed, :, :)
-
-        abFileUsed= grids(iG)%abFileIndex(ix,iy,iz)
+        abFileUsed= grids(iG)%abFileIndex(cellPused)
         NeUsed    = grids(iG)%Ne(cellPUsed)
         TeUsed    = grids(iG)%Te(cellPUsed)
         sqrTeUsed = sqrt(TeUsed)
 
         log10Te = log10(TeUsed)
         log10Ne = log10(NeUsed)
+
+        ! check that the cell is ionised if not use neutral cell approx
+        if (NeUsed/grid%Hden(cellPUsed) < 1.e-3 .or. TeUsed < 500.) then
+           grid%totalLines(cellPUsed) = 1.
+           return
+        end if
 
         ! check the electron density is not too low
         if (NeUsed < 1.e-5) then
@@ -105,9 +113,9 @@ module emission_mod
         call twoPhoton()
 
         ! calculate the total emission coefficients for H and He
-        emissionHI = (gammaHI + twoPhotHI) * grids(iG)%elemAbun(grids(iG)%abFileIndex(ix,iy,iz),1) * ionDenUsed(elementXref(1),2)*NeUsed + gammaHeavies*NeUsed
-        emissionHeI = (gammaHeI + twoPhotHeI ) * grids(iG)%elemAbun(grids(iG)%abFileIndex(ix,iy,iz),2) * ionDenUsed(elementXref(2),2)*NeUsed
-        emissionHeII= (gammaHeII + twoPhotHeII ) * grids(iG)%elemAbun(grids(iG)%abFileIndex(ix,iy,iz),2) * ionDenUsed(elementXref(2),3)*NeUsed
+        emissionHI = (gammaHI + twoPhotHI) * grids(iG)%elemAbun(abFileUsed,1) * ionDenUsed(elementXref(1),2)*NeUsed + gammaHeavies*NeUsed
+        emissionHeI = (gammaHeI + twoPhotHeI ) * grids(iG)%elemAbun(abFileUsed,2) * ionDenUsed(elementXref(2),2)*NeUsed
+        emissionHeII= (gammaHeII + twoPhotHeII ) * grids(iG)%elemAbun(abFileUsed,2) * ionDenUsed(elementXref(2),3)*NeUsed
 
         where (emissionHI < 1.e-15 ) emissionHI = 0.
         where (emissionHeI < 1.e-15 ) emissionHeI = 0.
@@ -115,7 +123,11 @@ module emission_mod
 
         continuum = (emissionHI + emissionHeI + emissionHeII)
 
-        dV = getVolume(grids(iG),ix,iy,iz)
+        if (.not. lgVoronoi) then
+          dV = getVolume(grids(iG),ix,iy,iz)
+        else
+          dV = grid%voronoi(grid%activeRV(cellPUsed))%volume
+        end if
 
         ! add contribution of this cell to the integrated balmer jump
         BjumpTemp = BjumpTemp + ((emissionHI(BjumpP)&
@@ -124,7 +136,7 @@ module emission_mod
              & (emissionHI(BjumpP-1)+emissionHeI(BjumpP-1)&
              &+emissionHeII(BjumpP-1)) *&
              & cRyd*cRyd*nuArray(BjumpP-1)*nuArray(BjumpP-1)*1.e-8/c)&
-             & *grids(iG)%Hden(grids(iG)%active(ix,iy,iz))*dV
+             & *grids(iG)%Hden(cellPUsed)*dV
 
         ! calculate the emission due to HI and HeI recombination lines
         call RecLinesEmission()
@@ -137,14 +149,14 @@ module emission_mod
 
         ! set the resonance line escape probabilities
         if (lgGas.and.convPercent>=resLinesTransfer .and. (.not.lgResLinesFirst) &
-             & .and. (.not.nIterateMC==1)) then
-           call setResLineEscapeProb(grids,ig,ix,iy,iz)
+             & .and. (.not.lgVoronoi) .and. (.not.nIterateMC==1)) then
+           call setResLineEscapeProb(grids,ig,cellPused)
         end if
 
 
         ! set the extra packets due to dust absorption of resonance lines
         if (lgGas.and.convPercent>=resLinesTransfer .and. (.not.lgResLinesFirst) &
-             & .and. (.not.nIterateMC==1)) then
+             & .and. (.not.lgVoronoi) .and. (.not.nIterateMC==1)) then
            call initResLinePackets()
         end if
 
@@ -170,10 +182,10 @@ module emission_mod
                     ! fits to Storey and Hummer MNRAS 272(1995)41
                     lineIntensity = lineIntensity+10**(-0.897*log10(TeUsed) &
                          &+ 5.05)* &
-                         & grids(iG)%elemAbun(grids(iG)%abFileIndex(ix,iy,iz),1)*&
+                         & grids(iG)%elemAbun(abFileUsed,1)*&
                          &ionDenUsed(elementXref(1),2)*&
-                         &  NeUsed*grids(iG)%Hden(grids(iG)%active(ix,iy,iz))*dV*&
-                         & (1.-grids(iG)%fEscapeResPhotons(grids(iG)%active(ix,iy,iz), &
+                         &  NeUsed*grids(iG)%Hden(cellPUsed)*dV*&
+                         & (1.-grids(iG)%fEscapeResPhotons(cellPUsed, &
                          &iRes))
 
                  else
@@ -188,8 +200,8 @@ module emission_mod
 
                  lineIntensity = lineIntensity+hydrolines(resLine(iRes)%elem,&
                       &resLine(iRes)%mochigh(imul),resLine(iRes)%moclow(imul))*&
-                      &grids(iG)%Hden(grids(iG)%active(ix,iy,iz))*dV*&
-                      & (1.-grids(iG)%fEscapeResPhotons(grids(iG)%active(ix,iy,iz), iRes))
+                      &grids(iG)%Hden(cellPUsed)*dV*&
+                      & (1.-grids(iG)%fEscapeResPhotons(cellPUsed, iRes))
 
               else if (resLine(iRes)%elem>2 .and. resLine(iRes)%elem &
                    &/= resLine(iRes)%ion)  then
@@ -199,8 +211,8 @@ module emission_mod
                       & lineIntensity = lineIntensity+&
                       &forbiddenLines(resLine(iRes)%elem,resLine(iRes)%ion,&
                       &resLine(iRes)%moclow(imul),resLine(iRes)%mochigh(imul))*&
-                      & grids(iG)%Hden(grids(iG)%active(ix,iy,iz))*dV*&
-                      & (1.-grids(iG)%fEscapeResPhotons(grids(iG)%active(ix,iy,iz), iRes))
+                      & grids(iG)%Hden(cellPUsed)*dV*&
+                      & (1.-grids(iG)%fEscapeResPhotons(cellPUsed, iRes))
 
               else
 
@@ -219,7 +231,7 @@ module emission_mod
         ! be transfered from this location
         ! NOTE :1.e-16 from 1.e45 (from dV) * 1.e-36 (from Lstar)
         !* 1.e-25 (from local forlines)
-        grids(iG)%resLinePackets(grids(iG)%active(ix,iy,iz)) = &
+        grids(iG)%resLinePackets(cellPUsed) = &
              &nint(lineIntensity*1.e-16/(Lstar(1)/Nphotons(1)))
 
       end subroutine initResLinePackets
@@ -490,7 +502,7 @@ module emission_mod
                         gammaHeavies(i) = gammaHeavies(i) + &
                              &expFactor * phXSecM * (real(g0)/real(g1)) * &
                              &ionDenUsed(elementXref(elem), ion+1) * &
-                             &grids(iG)%elemAbun(grids(iG)%abFileIndex(ix,iy,iz),elem)
+                             &grids(iG)%elemAbun(abFileUsed,elem)
 
                     end if
                     end do
@@ -736,6 +748,13 @@ module emission_mod
              &iup                                 ! pointer to upper level
 
 
+        if (TeUsed .lt. 1000.) then
+          HIRecLines = 0.
+          HeIRecLines = 0.
+          HeIIRecLines = 0.
+          return
+        end if
+
         T4 = TeUsed / 10000.
 
         if (T4>hydroLinesTemps(12)) then
@@ -849,7 +868,7 @@ module emission_mod
               end if
 
               Hbeta(izp) = Hbeta(izp)*NeUsed*ionDenUsed(elementXref(izp),izp+1)*&
-                   &grids(iG)%elemAbun(grids(iG)%abFileIndex(ix,iy,iz),izp)
+                   &grids(iG)%elemAbun(abFileUsed,izp)
 
 
               hydroLines(izp,:,:) = hydroLines(izp,:,:)*Hbeta(izp)
@@ -912,7 +931,7 @@ module emission_mod
               Hbeta(izp) =  (real(izp**3)/8.)*10.**(Afit+Bfit*log10TeZ)
 
               Hbeta(izp) = Hbeta(izp)*NeUsed*ionDenUsed(elementXref(izp),izp+1)*&
-                   &grids(iG)%elemAbun(grids(iG)%abFileIndex(ix,iy,iz),izp)
+                   &grids(iG)%elemAbun(abFileUsed,izp)
 
 
               hydroLines(izp,:,:) = hydroLines(izp,:,:)*Hbeta(izp)
@@ -926,7 +945,7 @@ module emission_mod
         ! fits to Storey and Hummer MNRAS 272(1995)41
 !        Lalpha = 10**(-0.897*log10Te + 5.05)
 !        hydroLines(1,15, 8) = hydroLines(1,15, 8) + &
-!             & grids(iG)%elemAbun(grids(iG)%abFileIndex(ix,iy,iz),1)*&
+!             & grids(iG)%elemAbun(abFileUsed,1)*&
 !             & ionDenUsed(elementXref(1),2)*&
 !             & NeUsed*Lalpha
 
@@ -936,15 +955,15 @@ module emission_mod
         if (T4 < 0.5) T4 = 0.5
         if (T4 < 2.0) T4 = 2.0
 
-        if (grids(iG)%Ne(grids(iG)%active(ix,iy,iz)) <= 100.) then
+        if (NeUsed <= 100.) then
            denint=0
-        elseif (grids(iG)%Ne(grids(iG)%active(ix,iy,iz)) > 100. .and. &
-           & grids(iG)%Ne(grids(iG)%active(ix,iy,iz)) <= 1.e4) then
+        elseif (NeUsed > 100. .and. &
+           & NeUsed <= 1.e4) then
            denint=1
-        elseif (grids(iG)%Ne(grids(iG)%active(ix,iy,iz)) > 1.e4 .and. &
-             & grids(iG)%Ne(grids(iG)%active(ix,iy,iz)) <= 1.e6) then
+        elseif (NeUsed > 1.e4 .and. &
+             & NeUsed <= 1.e6) then
             denint=2
-        elseif (grids(iG)%Ne(grids(iG)%active(ix,iy,iz)) > 1.e6) then
+        elseif (NeUsed > 1.e6) then
            denint=3
         end if
 
@@ -970,7 +989,7 @@ module emission_mod
                    & exp(HeIrecLineCoeff(i,3,3)/T4)
            end do
         end if
-        HeIRecLines=HeIRecLines*NeUsed*grids(iG)%elemAbun(grids(iG)%abFileIndex(ix,iy,iz),2)*&
+        HeIRecLines=HeIRecLines*NeUsed*grids(iG)%elemAbun(abFileUsed,2)*&
              &ionDenUsed(elementXref(2),2)
 
 
@@ -1102,7 +1121,7 @@ module emission_mod
 
               Hbeta(izp) = Hbeta(izp)*NeUsed*&
                    &ionDenUsed(elementXref(izp),izp+1)*&
-                   &grids(iG)%elemAbun(grids(iG)%abFileIndex(ix,iy,iz),izp)
+                   &grids(iG)%elemAbun(abFileUsed,izp)
               hydroLines(izp,:,:) = hydroLines(izp,:,:)*Hbeta(izp)
            end if
 
@@ -1185,7 +1204,7 @@ module emission_mod
               end if
 
               Hbeta(izp) = Hbeta(izp)*NeUsed*ionDenUsed(elementXref(izp),izp+1)*&
-                   &grids(iG)%elemAbun(grids(iG)%abFileIndex(ix,iy,iz),izp)
+                   &grids(iG)%elemAbun(abFileUsed,izp)
 
               hydroLines(izp,:,:) = hydroLines(izp,:,:)*Hbeta(izp)
 
@@ -1197,7 +1216,7 @@ module emission_mod
         ! fits to Storey and Hummer MNRAS 272(1995)41
 !        Lalpha = 10**(-0.897*log10Te + 5.05)
 !        hydroLines(1,15, 8) = hydroLines(1,15, 8) + &
-!             & grids(iG)%elemAbun(grids(iG)%abFileIndex(ix,iy,iz),1)*&
+!             & grids(iG)%elemAbun(abFileUsed,1)*&
 !             & ionDenUsed(elementXref(1),2)*&
 !             & NeUsed*Lalpha
 
@@ -1207,15 +1226,15 @@ module emission_mod
         if (T4 < 0.5) T4 = 0.5
         if (T4 < 2.0) T4 = 2.0
 
-        if (grids(iG)%Ne(grids(iG)%active(ix,iy,iz)) <= 100.) then
+        if (NeUsed <= 100.) then
            denint=0
-        elseif (grids(iG)%Ne(grids(iG)%active(ix,iy,iz)) > 100. .and. &
-             &grids(iG)%Ne(grids(iG)%active(ix,iy,iz)) <= 1.e4) then
+        elseif (NeUsed > 100. .and. &
+             &NeUsed <= 1.e4) then
            denint=1
-        elseif (grids(iG)%Ne(grids(iG)%active(ix,iy,iz)) > 1.e4 .and. &
-             &grids(iG)%Ne(grids(iG)%active(ix,iy,iz)) <= 1.e6) then
+        elseif (NeUsed > 1.e4 .and. &
+             &NeUsed <= 1.e6) then
             denint=2
-        elseif (grids(iG)%Ne(grids(iG)%active(ix,iy,iz)) > 1.e6) then
+        elseif (NeUsed > 1.e6) then
            denint=3
         end if
 
@@ -1232,23 +1251,35 @@ module emission_mod
               HeIRecLines(i) = x1+((x2-x1)*(NeUsed-100.**denint)/&
                    &(100.**(denint+1)-100.**(denint)))
 
+                if (.not. (HeIRecLines(i) >= 0. .and. HeIRecLines(i) <= 1.e30)) then
+                   print*, '! recLinesEmission: insanity in HeIRecLines calculation [i, denint, T4, NeUsed, x1,x2]', i, &
+                        & denint, T4, NeUsed, x1,x2
+                   print*, ' HeIRecLineCoeff(i,denint,:) ', HeIRecLineCoeff(i,denint,:)
+                   print*, ' HeIRecLineCoeff(i,denint+1,:) ', HeIRecLineCoeff(i,denint+1,:)
+                   stop
+                end if
+
            end do
        elseif(denint==0) then
            do i = 1, 34
-              HeIRecLines(i) = HeIrecLineCoeff(i,1,1)*&
-                   & (T4**(HeIrecLineCoeff(i,1,2)))*&
-                   &exp(HeIrecLineCoeff(i,1,3)/T4)
+           HeIRecLines(i) = HeIrecLineCoeff(i,1,1)*(T4**(HeIrecLineCoeff(i,1,2)))*exp(HeIrecLineCoeff(i,1,3)/T4)
+             if (.not.(HeIRecLines(i) >= 0. .and. HeIRecLines(i) <= 1.e30)) then
+               print*, '! recLinesEmission: insanity in HeIRecLines calculation [i, denint, T4, NeUsed]', i, denint, T4, NeUsed
+               print*, ' HeIRecLineCoeff(i,1,:) ', HeIRecLineCoeff(i,1,:)
+               stop
+             end if
            end do
-        elseif(denint==3) then
+         elseif(denint==3) then
            do i = 1, 34
-              HeIRecLines(i) = HeIrecLineCoeff(i,3,1)*&
-                   &(T4**(HeIrecLineCoeff(i,3,2)))*&
-                   &exp(HeIrecLineCoeff(i,3,3)/T4)
+             HeIRecLines(i) = HeIrecLineCoeff(i,3,1)*(T4**(HeIrecLineCoeff(i,3,2)))*exp(HeIrecLineCoeff(i,3,3)/T4)
+             if (.not.(HeIRecLines(i) >= 0. .and. HeIRecLines(i) <= 1.e30)) then
+               print*, '! recLinesEmission: insanity in HeIRecLines calculation [i, denint, T4, NeUsed]', i, denint, T4, NeUsed
+               print*, ' HeIRecLineCoeff(i,1,:) ', HeIRecLineCoeff(i,1,:)
+               stop
+             end if
            end do
-        end if
-        HeIRecLines=HeIRecLines*NeUsed*&
-             &grids(iG)%elemAbun(grids(iG)%abFileIndex(ix,iy,iz),2)*&
-             &ionDenUsed(elementXref(2),2)
+         end if
+         HeIRecLines=HeIRecLines*NeUsed*grids(iG)%elemAbun(abFileUsed,2)*ionDenUsed(elementXref(2),2)
 
 
     end subroutine RecLinesEmissionNew
@@ -1287,7 +1318,7 @@ module emission_mod
 
                  forbiddenLines(elem, ion, :, :) =&
                       &forbiddenLines(elem, ion, :, :)*&
-                      &grids(iG)%elemAbun(grids(iG)%abFileIndex(ix,iy,iz),elem)*&
+                      &grids(iG)%elemAbun(abFileUsed,elem)*&
                       & ionDenUsed(elementXref(elem), ion)
 
               end if
@@ -1373,6 +1404,13 @@ module emission_mod
 
            normHeII = normHeII + sumDiffuseHeII(i)
 
+           if (.not.(normHI>=0. .and.  normHeI>= 0. .and. normHeII>=0.)) then
+             print*, 'insanity in calculation of normHI, normHeI or normHeII'
+             print*, 'i, normHI, normHeI, normHEII,I(i),  emissionHeI(i), emissionHeII(i)'
+             print*, i, normHI, normHEI, normHeII, emissionHI(i),  emissionHeI(i), emissionHeI
+             stop
+           end if
+
         end do
 
 
@@ -1389,11 +1427,16 @@ module emission_mod
         ! NOTE: multiply by 1.e11 to make units of [e-25 erg/cm^3/s] as e-14 from
         ! rec coeff (see above).
         correction = alpha2tS * &
-             & NeUsed*grids(iG)%elemAbun(grids(iG)%abFileIndex(ix,iy,iz),2)*&
+             & NeUsed*grids(iG)%elemAbun(abFileUsed,2)*&
              &ionDenUsed(elementXref(2),2)*1.45673*hcRyd*1e11
 
         sumDiffuseHeI(j2TsP) = sumDiffuseHeI(j2TsP) + correction
         normHeI = normHeI + correction
+        if (.not. correction >= 0.) then
+          print*, 'insanity in correction'
+          print*, correction
+          stop
+        end if
 
         ! Add contribution of HeII lines able to ionize HI and HeII
 
@@ -1406,7 +1449,7 @@ module emission_mod
         ! calculate Lyman alpha first
         HeIILyman(4) = 10.**(-0.792*log10(TeUsed)+6.01)
         HeIILyman(4) = HeIILyman(4)*NeUsed*ionDenUsed(elementXref(2),3)*&
-             &grids(iG)%elemAbun(grids(iG)%abFileIndex(ix,iy,iz),2)
+             &grids(iG)%elemAbun(abFileUsed,2)
 
         ! calculate emission due to HeII Lyman lines [e-25 ergs/s/cm^3]
         do i = 1, NHeIILyman-1
@@ -1419,8 +1462,12 @@ module emission_mod
             call locate(NuArray, HeIILymanNu(i), NuP)
             ! add contribution to HeII partial sums ...
             sumDiffuseHeII(NuP) = sumDiffuseHeII(NuP) + HeIILyman(i)
-            ! ... and to HeII normilazation constant
+            ! ... and to HeII normalization constant
             normHeII = normHeII + HeIILyman(i)
+            if (.not. HeIILyman(i) >= 0.) then
+              print*, 'insanity in HeIILyman(i), i', HeIILyman(i), i
+              stop
+            end if
         end do
 
         ! calculate dust emission
@@ -1444,7 +1491,7 @@ module emission_mod
 
                        if (lgWritePss .and. taskid==0) then
                           write(89, *) '              ix iy iz cellp nSpecies aRadius Teq'
-                          write(89, *)  ix, iy, iz, cellpUsed, ns, grainRadius(ai), tg
+                          write(89, *)  cellpUsed, ns, grainRadius(ai), tg
                           write(89, *) '              i Tspike(i) Pspike(i)'
                           do iT = 1, nTbins
                              write(89, *) it, Tspike(it), Pspike(it)
@@ -1491,11 +1538,16 @@ module emission_mod
 
         ! Total normalization constant
         normalize = normHI + normHeI + normHeII
+        if (.not.normalize >= 0. ) then
+          print*, 'insanity in calculation of continuum normalize, normalize, normHI, normHeI, normHeII', normalize, &
+          & normHI, normHeI, normHeII
+          stop
+        end if
 
         if (lgDust) normalize = normalize+normDust
 
         ! Sum  up energy in recombination lines
-
+!todo: voronoi code contains checks for negative line fluxes
         normRec = 0.
         ! hydrogenic rec lines
         do izp = 1, 30
@@ -1536,6 +1588,12 @@ module emission_mod
 
         grids(iG)%totalLines(cellPUsed) = normRec + normFor
 
+        if (.not.grid%totalLines(cellPUsed) > 0.) then
+          print*, '! insanity in totallines, normRec, normFor'
+          print*, grid%totalLines(cellPUsed), normRec, normFor
+          stop
+        end if
+
         if (lgDust) then
 
            do i = 1, nbins
@@ -1569,7 +1627,7 @@ module emission_mod
 
         grids(iG)%recPDF(cellPUsed, nbins) = 1.
 
-
+! todo: this block is not in the voronoi code:
         ! calculate the PDF for recombination and forbidden lines
         if (lgDebug) then
            i = 1
@@ -1580,7 +1638,7 @@ module emission_mod
                     if (i == 1) then
 
                        grids(iG)%linePDF(cellPUsed, i) = hydroLines(izp,iup, ilow) / &
-                            & grids(iG)%totalLines(grids(iG)%active(ix,iy,iz))
+                            & grids(iG)%totalLines(cellPUsed)
 
 
 
@@ -1616,7 +1674,7 @@ module emission_mod
                           if (forbiddenLines(elem, ion, iup, ilow)> 1.e-35) then
                              grids(iG)%linePDF(cellPUsed, i) = grids(iG)%linePDF(grids(iG)%active(ix, iy&
                                   &, iz), i-1) + forbiddenLines(elem, ion, iup, ilow)&
-                                  & / grids(iG)%totalLines(grids(iG)%active(ix,iy,iz))
+                                  & / grids(iG)%totalLines(cellPUsed)
                           end if
                           if (grids(iG)%linePDF(cellPUsed, i) > 1. ) grids(iG)%linePDF(cellPUsed, i) = 1.
                           i = i+1
@@ -1630,17 +1688,25 @@ module emission_mod
            grids(iG)%linePDF(cellPUsed, nLines) = 1.
 
            ! calculate the probability of Hbeta
-           HbetaProb = hydroLines(1,4,2) / (grids(iG)%totalLines(grids(iG)%active(ix,iy,iz))+normalize)
+           HbetaProb = hydroLines(1,4,2) / (grids(iG)%totalLines(cellPUsed)+normalize)
 
         end if ! debug condition
 
         ! now compute the fraction of non-ionizing photons
 
-        normalize = normalize + grids(iG)%totalLines(grids(iG)%active(ix,iy,iz))
+        normalize = normalize + grids(iG)%totalLines(cellPUsed)
 
-        if (lgFluorescence) grids(iG)%totalEmission(grids(iG)%active(ix,iy,iz)) = normalize
+        if (normalize > 0.) then
+          grid%totalLines(cellPUsed) = grid%totalLines(cellPUsed) / normalize
+        else
+          print*, '! setDiffusePDF: insanity in the calculation of totalllines - &
+               & normalize <= 0.!!', cellPUsed, grid%totalLines(cellPUsed), normalize
+          stop
+        end if
 
-        grids(iG)%totalLines(grids(iG)%active(ix,iy,iz)) = grids(iG)%totalLines(grids(iG)%active(ix,iy,iz)) / normalize
+        if (lgFluorescence) grids(iG)%totalEmission(cellPUsed) = normalize
+
+        grids(iG)%totalLines(cellPUsed) = grids(iG)%totalLines(cellPUsed) / normalize
 
     end subroutine setDiffusePDF
 
@@ -1660,7 +1726,7 @@ module emission_mod
 
       cShapeLoc = 'blackbody'
 
-      grids(iG)%dustPDF(grids(iG)%active(ix,iy,iz),:)=0.
+      grids(iG)%dustPDF(cellPUsed,:)=0.
       do n = 1, nSpecies
          do ai = 1, nSizes
 
@@ -2748,7 +2814,7 @@ module emission_mod
 
   end subroutine initResLines
 
-  subroutine setResLineEscapeProb(grids, gPin, xPin,yPin,zPin)
+  subroutine setResLineEscapeProb(grids, gPin, cellPin)
     implicit none
 
     type(grid_type), intent(inout) :: grids(*) ! incoming grids
@@ -2769,8 +2835,9 @@ module emission_mod
     real :: k_dTest=0.5e-20, HdenTest=0.252, ionFracTest=0.5, TeTest=1.e4
 
 
-    integer, intent(in) :: xPin,yPin,zPin,gPin ! incoming cell pointers
+    integer, intent(in) :: cellPin,gPin ! incoming cell pointers
     integer             :: xp,yp,zp ! cell pointers
+    integer             :: xpin,ypin,zpin ! cell pointers
     integer             :: gPmother,xPmother,yPmother,zPmother
     integer             :: icount  ! counter
     integer             :: idir, jdir, kdir ! freq counter
@@ -2785,12 +2852,13 @@ module emission_mod
 
     lgTest = .false.
 
-    xp=xPin
-    yp=yPin
-    zp=zPin
-    gp=gPin
 
-    cellP = grids(gPin)%active(xP,yP,zP)
+    cellP = cellPin
+
+    xp=grids(gPin)%activeR(1, cellP)
+    yp=grids(gPin)%activeR(2, cellP)
+    zp=grids(gPin)%activeR(3, cellP)
+    gp=gPin
 
     if (cellP<=0) return
 
@@ -2821,7 +2889,7 @@ module emission_mod
        gp=gPin
 
        cellP = grids(gPin)%active(xP,yP,zP)
-       compoP = grids(gPin)%abFileIndex(xP,yP,zP)
+       compoP = grids(gPin)%abFileIndex(cellP)
 
        Pline=0.
 
@@ -2929,7 +2997,7 @@ module emission_mod
                    cellP = grids(gPin)%active(xP,yP,zP)
 
                    if (cellP > 0 ) then
-                      compoP = grids(gPin)%abFileIndex(xP,yP,zP)
+                      compoP = grids(gPin)%abFileIndex(xP,yP,zP)!todo: simplifiable?
                       if (xp == xpin .and. yp == ypin .and. zp == zpin .and. gP == gpin) then
                          gasdensity = gasdensity0
                          gastemperature=gastemperature0
