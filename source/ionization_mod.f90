@@ -23,10 +23,10 @@ module ionization_mod
     contains
 
     ! main routine to drive ionization solution for all species
-    subroutine ionizationDriver(grid, ix, iy, iz)
+    subroutine ionizationDriver(grid, iCellIn)
         implicit none
 
-        integer, intent(in) :: ix, iy, iz    ! pointers to cell in the x,y,z grid
+        integer, intent(in) :: iCellIn       ! pointers to cell in the x,y,z grid
 
         ! local variables
 
@@ -40,7 +40,7 @@ module ionization_mod
 
 
         ! check whether this cell is outside the nebula
-        if (grid%active(ix,iy,iz) <= 0) return
+        CellPUsed = iCellIn
 
         if (firstLg) then
            allocate(density(nElements, nStages), stat=err)
@@ -53,12 +53,13 @@ module ionization_mod
         density=0.
 
         ! find the physical properties of this cell
-        ionDenUsed = grid%ionDen(grid%active(ix, iy, iz), :,:)
-        log10Ne = log10(grid%Ne(grid%active(ix, iy, iz)))
-        log10Te = log10(grid%Te(grid%active(ix, iy, iz)))
-        NeUsed = grid%Ne(grid%active(ix, iy, iz))
-        TeUsed = grid%Te(grid%active(ix, iy, iz))
+        ionDenUsed = grid%ionDen(cellPUsed, :,:)
+        log10Ne = log10(grid%Ne(cellPUsed))
+        log10Te = log10(grid%Te(cellPUsed))
+        NeUsed = grid%Ne(cellPUsed)
+        TeUsed = grid%Te(cellPUsed)
         sqrTeUsed = sqrt(TeUsed)
+        abFileUsed = grid%abFileIndex(cellPUsed)
 
         density = 0.
 
@@ -68,15 +69,15 @@ module ionization_mod
 
                 ! check this element is present
                 if (.not.lgElementOn(n)) exit
-                if (grid%abFileIndex(ix,iy,iz)<=0) then
-                   print*, '! ionizationDriver: abundance file index has value: ', grid%abFileIndex(ix,iy,iz)
-                   print*, 'Cell: ', ix,iy,iz, grid%active(ix,iy,iz)
+                if (abFileUsed<=0) then
+                   print*, '! ionizationDriver: abundance file index has value: ', abFileUsed
+                   print*, 'Cell: ', ix,iy,iz, cellPUsed
                    print*, 'Abundance file index array: ', grid%abFileIndex
                    stop
                 end if
 
-                density(n, i) = ionDenUsed(elementXref(n), i)*grid%elemAbun(grid%abFileIndex(ix,iy,iz),n)*&
-                     & grid%Hden(grid%active(ix, iy, iz))
+                density(n, i) = ionDenUsed(elementXref(n), i)*grid%elemAbun(abFileUsed,n)*&
+                     & grid%Hden(cellPUsed)
            end do
         end do
 
@@ -125,7 +126,7 @@ module ionization_mod
          call eDenSum()
 
         ! reevaluate all opacities if new ionization
-        call addOpacity(grid%opacity(grid%active(ix, iy, iz), :))
+        call addOpacity(grid%opacity(cellPUsed, :))
 
 
     end subroutine ionizationDriver
