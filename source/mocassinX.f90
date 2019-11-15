@@ -1,11 +1,11 @@
-! Copyright (C) 2007 Barbara Ercolano
-! Harvard-Smithsonian
-! Center for Astrophysics
-! 60 Garden Street
-! Cambridge, MA, 02138
-! USA
-! bercolano@cfa.harvard.edu
-! be@star.ucl.ac.uk
+! Copyright (C) 2013 Barbara Ercolano
+! Department of Physics and Astronomy
+! Universitäts Sternwarte München
+! Scheinerstr 1
+! München, 81679
+! Deutschland
+!
+! ercolano@usm.lmu.de
 !
 ! This program is free software; you can redistribute it and/or
 ! modify it under the terms of the GNU General Public License
@@ -32,7 +32,7 @@ program MoCaSSiN
     use common_mod
     use constants_mod
     use dust_mod
-    use grid_mod
+    use voronoi_grid_mod
     use iteration_mod
     use output_mod
     use set_input_mod
@@ -70,11 +70,15 @@ program MoCaSSiN
         print*, " "
     end if
 
-    ! initialize the 3D cartesian grid
-
-    do iGrid = 1, nGrids
-       call initCartesianGrid(grid3D(iGrid), nxIn(iGrid), nyIn(iGrid), nzIn(iGrid))
-    end do
+    if (.not.lgVoronoi) then
+      ! initialize the 3D cartesian grid
+      do iGrid = 1, nGrids
+         call initCartesianGrid(grid3D(iGrid), nxIn(iGrid), nyIn(iGrid), nzIn(iGrid))
+      end do
+    else
+      grid3D(1)%nCellsV = nCellsIn
+      call initVoronoiGrid(Grid3D(1))  ! to be included when these routines are ready
+    end if
 
     ! initialize opacities x sections array
     call initXSecArray()
@@ -82,9 +86,13 @@ program MoCaSSiN
     ! set the ionzing continuum according to the contShape variable
     call setContinuum()
 
-    call fillGrid(grid3D(1:nGrids))
-
-    call setStarPosition(grid3D(1)%xAxis,grid3D(1)%yAxis,grid3D(1)%zAxis, grid3D(1:nGrids))
+    if (.not. lgVoronoi) then
+      call fillGrid(grid3D(1:nGrids))
+      call setStarPosition(grid3D(1)%xAxis,grid3D(1)%yAxis,grid3D(1)%zAxis, grid3D(1:nGrids))
+    else
+      call fillGridV(grid3D(1:nGrids))
+      call setStarPositionV(grid3D(1))
+    end if
 
     if (taskid==0) then
       do iGrid = 1, nGrids
@@ -114,6 +122,11 @@ program MoCaSSiN
 
     ! set local diffuse ionisation field
     if (Ldiffuse>0.) then
+       if (lgVoronoi) then
+          print*,"! mocassin: diffuse ionisation is not yet implemented with Voronoi grids - contact B Ercolano ercolano@usm.lmu.de"
+          stop
+       end if
+
        if (taskid==0) print*, '! mocassin: calling setLdiffuse'
        call setLdiffuse(grid3D(1:nGrids))
        test=0.
