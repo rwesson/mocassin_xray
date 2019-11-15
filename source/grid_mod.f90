@@ -31,6 +31,7 @@ module grid_mod
         real, allocatable    :: nuTemp(:)
 
         integer :: err, ios                         ! allocation error status
+        integer :: ix,iy,iz
         integer :: i, j, iCount, nuCount, elem, ion ! counters
         integer :: g0,g1
         integer :: nEdges
@@ -512,6 +513,8 @@ module grid_mod
             stop
         end if
 
+!todo: reimplement echo, allocate echo volume here
+
         ! allocate axes
 
         allocate(grid%xAxis(1:nx), stat = err)
@@ -532,12 +535,18 @@ module grid_mod
             stop
         end if
 
-        if (lgGas) then
-           allocate(grid%abFileIndex(1:nx,1:ny,1:nz), stat = err)
-           if (err /= 0) then
-              print*, "Can't allocate grid memory, abFileIndex "
-              stop
-           end if
+        allocate(grid%Volume(1:nx, 1:ny, 1:nz), stat= err)
+        if (err /= 0) then
+            print*, "Can't allocate grid memory, Volume"
+            stop
+        end if
+
+!        if (lgGas) then
+!           allocate(grid%abFileIndex(1:nx,1:ny,1:nz), stat = err)
+!           if (err /= 0) then
+!              print*, "Can't allocate grid memory, abFileIndex "
+!              stop
+!           end if
 
            grid%abFileIndex = 1
         end if
@@ -762,7 +771,7 @@ module grid_mod
 
            ! set the subGrids
            if (nGrids>1) call setSubGrids(grid(1:nGrids))
-
+!todo: scaling of gas and dust according to dustMass and gasMass keywords here
            totCells = 0
            totcellsloc=0
            if (emittingGrid>0) then
@@ -971,10 +980,11 @@ module grid_mod
         real, parameter :: amu = 1.66053e-24 ! [g]
 
         real, allocatable              :: HdenTemp(:,:,:) ! temporary Hden
+        integer, allocatable           :: activeRTemp(:,:) ! temporary Hden
         real, allocatable              :: NdustTemp(:,:,:) ! temporary dust number density array
         real, allocatable              :: twoDscaleJTemp(:)
 
-
+        integer, allocatable           :: abFileIndexTemp(:,:,:) ! temporary
         integer                        :: i,j,k        ! counters
         integer                        :: index        ! general index
         integer                        :: ios, err     ! I/O and allocation error status
@@ -983,6 +993,7 @@ module grid_mod
         integer                        :: nu0P         !
         integer                        :: nu0AddP      !
         integer                        :: yTop, xPmap  ! 2D indeces
+        integer                        :: tot
         type(grid_type), intent(inout) :: grid      ! the grid
 
         character(len=40)              :: readChar, extFile ! character string readers
@@ -994,6 +1005,15 @@ module grid_mod
 
         if (lgGas) then
 
+           tot=grid%nx*grid%ny*grid%nz
+!           print*, tot
+           allocate(activeRTemp(3,tot),stat=err)
+           if (err /= 0) then
+              print*, "! setMotherGrid: can't allocate grid memory,activeRTemp"
+              stop
+           end if
+           activeRTemp = 0.
+
            ! allocate space for HdenTemp
            allocate(HdenTemp(1:grid%nx, 1:grid%ny, 1:grid%nz), stat = err)
            if (err /= 0) then
@@ -1001,6 +1021,14 @@ module grid_mod
               stop
            end if
            HdenTemp = 0.
+
+           ! allocate space for abFileIndexTemp
+           allocate(abFileIndexTemp(1:grid%nx, 1:grid%ny, 1:grid%nz), stat = err)
+           if (err /= 0) then
+              print*, "! setMotherGrid: can't allocate grid memory"
+              stop
+           end if
+           abFileIndexTemp = 1.
 
            if (lgDfile) then
               open (unit= 77,  action="read", file=densityFile, status = "old", position = "rewind", &
@@ -1061,7 +1089,7 @@ module grid_mod
                          else
 
                             read(77, *) grid%xAxis(i), grid%yAxis(j), grid%zAxis(k), &
-                              & HdenTemp(i,j,k), grid%abFileIndex(i,j,k)
+                              & HdenTemp(i,j,k), abFileIndexTemp(i,j,k)
 
                          end if
 
@@ -1247,6 +1275,11 @@ module grid_mod
                       if (HdenTemp(i,j,k) > 0. .or. NdustTemp(i,j,k)>0.) then
                          grid%nCells = grid%nCells + 1
                          grid%active(i,j,k) = grid%nCells
+
+                         activeRTemp(1,grid%nCells) = i
+                         activeRTemp(2,grid%nCells) = j
+                         activeRTemp(3,grid%nCells) = k
+
                       else
                          grid%active(i,j,k) = 0
                          HdenTemp(i,j,k) = 0.
@@ -1256,6 +1289,11 @@ module grid_mod
                       if (NdustTemp(i,j,k)>0.) then
                          grid%nCells = grid%nCells + 1
                          grid%active(i,j,k) = grid%nCells
+
+                         activeRTemp(1,grid%nCells) = i
+                         activeRTemp(2,grid%nCells) = j
+                         activeRTemp(3,grid%nCells) = k
+
                       else
                          grid%active(i,j,k) = 0
                          NdustTemp(i,j,k) = 0.
@@ -1264,6 +1302,11 @@ module grid_mod
                       if (HdenTemp(i,j,k) > 0.) then
                          grid%nCells = grid%nCells + 1
                          grid%active(i,j,k) = grid%nCells
+
+                         activeRTemp(1,grid%nCells) = i
+                         activeRTemp(2,grid%nCells) = j
+                         activeRTemp(3,grid%nCells) = k
+
                       else
                          grid%active(i,j,k) = 0
                          HdenTemp(i,j,k) = 0.
@@ -1277,6 +1320,18 @@ module grid_mod
                 end do
              end do
           end do
+
+          allocate(grid%activeR(3,grid%nCells))
+          do i = 1, grid%nCells
+             grid%activeR(:,i) = activeRTemp(:,i)
+          end do
+
+!          do i = 1, grid%nCells
+!             print*, 'reverse active:'
+!             print* , i, grid%activeR(1,i), grid%activeR(2,i), grid%activeR(3,i)
+!          end do
+
+          deallocate(activeRTemp)
 
           allocate(TwoDscaleJtemp(grid%nCells))
           TwoDscaleJtemp = 1.
@@ -1296,6 +1351,9 @@ module grid_mod
                               & xPmap = xPmap+1
                       end if
                       grid%active(i,j,k) = grid%active(xPmap, 1, k)
+                      grid%activeR(1,grid%active(xPmap, 1, k)) = i
+                      grid%activeR(2,grid%active(xPmap, 1, k)) = j
+                      grid%activeR(3,grid%active(xPmap, 1, k)) = k
 
                       if (grid%active(xPmap,1,k)>0) &
                            & TwoDScaleJtemp(grid%active(xPmap,1,k)) = &
@@ -1334,6 +1392,12 @@ module grid_mod
              grid%JPEots=0
           end if
 
+!          allocate(grid%activeR(1:3, 1:grid%nCells), stat = err)
+!          if (err /= 0) then
+!             print*, "Can't allocate grid memory, active"
+!             stop
+!          end if
+
           if (lgGas) then
 
              allocate(grid%Hden(0:grid%nCells), stat = err)
@@ -1341,6 +1405,19 @@ module grid_mod
                 print*, "! setMotherGrid: can't allocate grid memory"
                 stop
              end if
+
+             allocate(grid%echoVol(0:grid%nCells), stat = err)
+             if (err /= 0) then
+                print*, "! setMotherGrid: can't allocate grid memory"
+                stop
+             end if
+
+             allocate(grid%abFileIndex(0:grid%nCells), stat = err)
+             if (err /= 0) then
+                print*, "! setMotherGrid: can't allocate grid memory"
+                stop
+             end if
+             grid%abFileIndex = 1
 
              allocate(grid%recPDF(0:grid%nCells, 1:nbins), stat = err)
              if (err /= 0) then
@@ -1553,10 +1630,11 @@ module grid_mod
           do i = 1, grid%nx
              do j = 1, yTop
                 do k = 1, grid%nz
-                   if (grid%active(i,j,k)>0) then
+                   if (grid%active(i,j,k)>0) then ! todo - simplify
 
                       if (lgGas) then
                          grid%Hden(grid%active(i,j,k)) = HdenTemp(i,j,k)
+                         grid%abFileIndex(grid%active(i,j,k)) = abFileIndexTemp(i,j,k)
                          grid%Te(grid%active(i,j,k)) = TeStart
                       end if
                       if (lgDust) grid%Ndust(grid%active(i,j,k)) = NdustTemp(i,j,k)
@@ -1625,6 +1703,7 @@ module grid_mod
 
              ! deallocate temp array
              if(allocated(HdenTemp)) deallocate(HdenTemp)
+             if(allocated(abFileIndexTemp)) deallocate(abFileIndexTemp)
 
           end if ! lgGas
 
@@ -1648,7 +1727,7 @@ module grid_mod
                     if (grid%active(i,j,k)>0) then
 
                        dV = getVolume(grid,i,j,k)
-
+!                      dV = grid%Volume(i,j,k)
                        if (lgGas) then
                           gasCell = 0.
                           do elem = 1, nElements
@@ -1830,6 +1909,7 @@ module grid_mod
            real                           :: totalVolume  ! total active volume
 
            real, allocatable              :: HdenTemp(:,:,:) ! temporary Hden
+           real, allocatable              :: abFileIndexTemp(:,:,:) ! temporary Hden
            real, allocatable              :: NdustTemp(:,:,:) ! temporary dust number density array
 
            integer                        :: edgeP        ! subgrid edge pointer on mothergrid
@@ -2053,7 +2133,7 @@ module grid_mod
                  NdustTemp = 0.
               end if
 
-              ! allocate space for HdenTemp
+              ! allocate space for HdenTemp and abFileIndexTemp
               if (lgGas) then
                  allocate(HdenTemp(1:grid(iG)%nx, 1:grid(iG)%ny, 1:grid(iG)%nz), stat = err)
                  if (err /= 0) then
@@ -2061,6 +2141,12 @@ module grid_mod
                     stop
                  end if
                  HdenTemp = 0.
+                 allocate(abFileIndexTemp(1:grid(iG)%nx, 1:grid(iG)%ny, 1:grid(iG)%nz), stat =
+                 if (err /= 0) then
+                    print*, "! setSubGrid: can't allocate sub grid memory: abFileIndexTemp", iG
+                    stop
+                 end if
+                 abFileIndexTemp = 1
               end if
 
               grid(iG)%active = 1
@@ -2091,9 +2177,9 @@ module grid_mod
 
                           if (lgGas .and. lgDust) then
                              read(72, *) x,y,z, HdenTemp(ix,iy,iz), &
-                                  &NdustTemp(ix,iy,iz),grid(iG)%abFileIndex(ix,iy,iz)
+                                  &NdustTemp(ix,iy,iz),abFileIndexTemp(ix,iy,iz)
                           else if (lgGas .and. .not. lgDust) then
-                             read(72, *) x,y,z, HdenTemp(ix,iy,iz),grid(iG)%abFileIndex(ix,iy,iz)
+                             read(72, *) x,y,z, HdenTemp(ix,iy,iz),abFileIndexTemp(ix,iy,iz)
                           else if (.not.lgGas .and. lgDust) then
                              print*, '! setSubGrids: gas must be present when the multichemistry option is used'
                              stop
@@ -2199,9 +2285,28 @@ module grid_mod
 
               ! allocate grid arrays
 
+              allocate(grid(iG)%activeR(1:3, 1:grid(iG)%nCells), stat = err)
+              if (err /= 0) then
+                 print*, "Can't allocate grid memory, active"
+                 stop
+              end if
+
               if (lgGas) then
 
                  allocate(grid(iG)%Hden(0:grid(iG)%nCells), stat = err)
+                 if (err /= 0) then
+                    print*, "! setSubGrid: can't allocate grid memory"
+                    stop
+                 end if
+
+                 allocate(grid(iG)%echoVol(0:grid(iG)%nCells), stat = err)
+                 if (err /= 0) then
+                    print*, "! setSubGrid: can't allocate grid memory"
+                    stop
+                 end if
+
+
+                 allocate(grid(iG)%abFileIndex(0:grid(iG)%nCells), stat = err)
                  if (err /= 0) then
                     print*, "! setSubGrid: can't allocate grid memory"
                     stop
@@ -2252,6 +2357,7 @@ module grid_mod
                  end if
 
                  grid(iG)%Hden = 0.
+                 grid(iG)%abFileIndex = 1
                  grid(iG)%Ne = 0.
                  grid(iG)%Te = 0.
                  grid(iG)%NeOld = 0.
@@ -2381,6 +2487,7 @@ module grid_mod
 
                           if (lgGas) then
                              grid(iG)%Hden(grid(iG)%active(ix,iy,iz)) = HdenTemp(ix,iy,iz)*denfac
+                             grid(iG)%abFileIndex(grid(iG)%active(ix,iy,iz)) = abFileIndexTemp(ix,iy,iz)
                              grid(iG)%Te(grid(iG)%active(ix,iy,iz)) = TeStart
                           end if
                           if (lgDust) grid(iG)%Ndust(grid(iG)%active(ix,iy,iz)) = &
@@ -2453,6 +2560,7 @@ module grid_mod
 
                  ! deallocate temp array
                  if(allocated(HdenTemp)) deallocate(HdenTemp)
+                 if(allocated(abFileIndexTemp)) deallocate(abFileIndexTemp)
 
               end if ! lgGas
 
@@ -2469,11 +2577,13 @@ module grid_mod
                     do iz = 1, grid(iG)%nz
                        if (grid(iG)%active(ix,iy,iz)>0) then
 
-                          dV = getVolume(grid(iG),ix,iy,iz)
+!                          dV = getVolume(grid(iG),ix,iy,iz)
+                          dV = grid(iG)%Volume(ix,iy,iz)
 
                           if (lgGas) then
                              gasCell = 0.
                              do elem = 1, nElements
+!todo: 2.02.70 has abFileIndex(ix,iy,iz); voronoi has abFileIndex(grid(iG)%active(ix,iy,iz)). could replace with cellP?
                                 gasCell = gasCell + &
                                      & grid(iG)%elemAbun(grid(iG)%abFileIndex(ix,iy,iz),elem)*&
                                      & aWeight(elem)*amu
@@ -2492,6 +2602,7 @@ module grid_mod
                                 MhMg=0.
                                 do elem = 1, nElements
                                    ! transform to MdMg
+! todo: replace abFileIndex(ix,iy,iz) with grid(iG)%active(ix,iy,iz), or cellP?
                                    MhMg = MhMg+grid(iG)%elemAbun(grid(iG)%abFileIndex(ix,iy,iz),elem)*&
                                         & aWeight(elem)
                                 end do
@@ -2714,7 +2825,7 @@ module grid_mod
                              if (lgGas) then
                                 if (lgMultiChemistry) then
                                    write(20, *) grid(iG)%Te(cellP), grid(iG)%Ne(cellP), &
-                                        & grid(iG)%Hden(cellP), grid(iG)%abFileIndex(i,j,k)
+                                        & grid(iG)%Hden(cellP), grid(iG)%abFileIndex(cellP)
                                 else
                                    write(20, *) grid(iG)%Te(cellP), grid(iG)%Ne(cellP), &
                                         & grid(iG)%Hden(cellP)
@@ -3281,10 +3392,21 @@ module grid_mod
             planeIonDistribution = 0
          end if
 
+         allocate(grid(iG)%activeR(1:3, 1:grid(iG)%nCells), stat = err)
+         if (err /= 0) then
+             print*, "Can't allocate grid memory, active"
+             stop
+         end if
 
          ! Allocate grid arrays
          if (lgGas) then
             allocate(grid(iG)%Hden(0:grid(iG)%nCells), stat = err)
+            if (err /= 0) then
+               print*, "! resetGrid: can't allocate grid memory"
+               stop
+            end if
+
+            allocate(grid(iG)%echoVol(0:grid(iG)%nCells), stat = err)
             if (err /= 0) then
                print*, "! resetGrid: can't allocate grid memory"
                stop
@@ -3503,6 +3625,9 @@ module grid_mod
 
             read(89,*) iac, jac, kac,  acreader, p0,p00
             grid(iG)%active( iac, jac, kac) = acreader
+            grid(iG)%activeR(1,cellP) = i
+            grid(iG)%activeR(2,cellP) = j
+            grid(iG)%activeR(3,cellP) = k
 
             cellP = acreader
             if (cellP<0) cellP = 0
@@ -3523,7 +3648,7 @@ module grid_mod
                   grid(iG)%Te(cellP)=p1
                   grid(iG)%Ne(cellP)=p2
                   grid(iG)%Hden(cellP)=p3
-                  grid(iG)%abFileIndex(iac,jac,kac)=i1
+                  grid(iG)%abFileIndex(cellP)=i1
 
                   do elem = 1, nElements
                      if (lgElementOn(elem)) then
@@ -3666,9 +3791,10 @@ module grid_mod
 
       do i = 1, nStars
 
-         starPosition(i)%x = starPosition(i)%x*xA(nxA)
-         starPosition(i)%y = starPosition(i)%y*yA(nyA)
-         starPosition(i)%z = starPosition(i)%z*zA(nzA)
+! commented out in voronoi version, replaced with assignments of variables to themselves, not done that here
+!         starPosition(i)%x = starPosition(i)%x*xA(nxA)
+!         starPosition(i)%y = starPosition(i)%y*yA(nyA)
+!         starPosition(i)%z = starPosition(i)%z*zA(nzA)
 
          call locate(xA, starPosition(i)%x, xP)
          if (xP<nxA .and. xP >0) then
