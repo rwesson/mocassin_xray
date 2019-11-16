@@ -6,6 +6,7 @@ module output_mod
     use constants_mod
     use emission_mod
     use photon_mod
+    use voronoi_photon_mod
 
     contains
 
@@ -81,7 +82,8 @@ module output_mod
         integer                     :: nTau, err, imul
         integer                     :: totLinePackets    ! total number of line packets
         integer                     :: totEscapedPackets ! total number of esc packets
-        integer                      :: iz
+        integer                     :: iCellCount
+        integer                     :: iz
 
         character(len=30), optional, intent(in) :: extMap
 
@@ -205,62 +207,67 @@ module output_mod
 
         if (present(extMap)) then
 
-           if (ngrids>1) then
-              print*, '! outputGas: no multiple grids are allowed with extinction maps (yet)'
-              print*, 'if this is needed please contact B. Ercolano'
-              stop
-           end if
+           if (lgVoronoi) then
+              print*, "! outputGas: no extinction maps implemented with Voronoi grids"
+           else
 
-           allocate(cMap(0:grid(iG)%nCells), stat=err)
-           if (err /= 0) then
-              print*, "! output mod: can't allocate array c memory"
-              stop
-           end if
+             if (ngrids>1) then
+                print*, '! outputGas: no multiple grids are allowed with extinction maps (yet)'
+                print*, 'if this is needed please contact B. Ercolano'
+                stop
+             end if
 
-           cMap=0.
+             allocate(cMap(0:grid(iG)%nCells), stat=err)
+             if (err /= 0) then
+                print*, "! output mod: can't allocate array c memory"
+                stop
+             end if
 
-           open(unit=19, status='old', position='rewind', file=extMap,  action="read",iostat=ios)
-           if (ios /= 0) then
-              print*, "! outputGas: can't open file for reading, ", extMap
-              stop
-           end if
+             cMap=0.
 
-           do i = 1, grid(1)%nx
-              do j = 1, grid(1)%ny
-                 do k = 1, grid(1)%nz
-                    if (grid(1)%active(i,j,k)>0) then
-                       read(19, *) l,l,l, cMap(grid(1)%active(i,j,k))
-                    else
-                       read(19, *)
-                    end if
-                 end do
-              end do
-           end do
+             open(unit=19, status='old', position='rewind', file=extMap,  action="read",iostat=ios)
+             if (ios /= 0) then
+                print*, "! outputGas: can't open file for reading, ", extMap
+                stop
+             end if
 
-           close(19)
+             do i = 1, grid(1)%nx
+                do j = 1, grid(1)%ny
+                   do k = 1, grid(1)%nz
+                      if (grid(1)%active(i,j,k)>0) then
+                         read(19, *) l,l,l, cMap(grid(1)%active(i,j,k))
+                      else
+                         read(19, *)
+                      end if
+                   end do
+                end do
+             end do
 
-           open(unit=20, status='old', position='rewind', file=PREFIX//'/share/mocassinX/data/flambda.dat',  action="read",iostat=ios)
-           if (ios /= 0) then
-              print*, "! outputGas: can't open file for reading, ",PREFIX,"/share/mocassinX/data/flambda.dat"
-              stop
-           end if
+             close(19)
 
-           read(20,*) l
+             open(unit=20, status='old', position='rewind', file=PREFIX//'/share/mocassinX/data/flambda.dat',  action="read",iostat=ios)
+             if (ios /= 0) then
+                print*, "! outputGas: can't open file for reading, ",PREFIX,"/share/mocassinX/data/flambda.dat"
+                stop
+             end if
 
-           allocate(flam(1:l), stat=err)
-           if (err /= 0) then
-              print*, "! output mod: can't allocate array flam memory"
-              stop
-           end if
+             read(20,*) l
 
-           flam = 0.
+             allocate(flam(1:l), stat=err)
+             if (err /= 0) then
+                print*, "! output mod: can't allocate array flam memory"
+                stop
+             end if
 
-           do i = 1, l
-              read(20, *) flam(i)
-           end do
+             flam = 0.
 
-           close(20)
+             do i = 1, l
+                read(20, *) flam(i)
+             end do
 
+             close(20)
+
+          end if
         end if
 
         ! read in data file for higher level H transitions
@@ -271,20 +278,42 @@ module output_mod
         ! sum over all cells
         do iG = 1, nGrids
 
+!           i = 0
+!           j = 0
+!           k = 0
+           do iCellCount = 1, grid(iG)%nCells
 
-           outer: do i = 1, grid(iG)%nx
-              do j = 1, grid(iG)%ny
-                 do k = 1, grid(iG)%nz
+              cellPUsed = iCellCount
+              if (.not.lgVoronoi) then
 
-                    ! temporary arrangement
-                    if (lg1D ) then
-                       if (grid(iG)%ionDen(grid(iG)%active(i,j,k),elementXref(1),1) > 0.95) then
-                          print*, 'R_out = ', grid(iG)%xAxis(i-1), ' (',i-1,')'
-                          exit outer
-                       end if
+                 if (lg2D) then
+                    yPloc = 1
+                 else
+                    yPloc = grid(iG)%ny
+                 end if
+
+!                 if (i > grid(iG)%nx) i = 0
+!                 if (j > yPloc) j = 0
+!                 if (k > grid(iG)%nz) k = 0
+
+                 i = grid(iG)%activeR(1, iCellCount)
+                 j = grid(iG)%activeR(2, iCellCount)
+                 k = grid(iG)%activeR(3, iCellCount)
+
+                 ! temporary arrangement
+                 if (lg1D ) then
+                    if (grid(iG)%ionDen(grid(iG)%active(i,j,k),elementXref(1),1) > 0.95) then
+                       print*, 'R_out = ', grid(iG)%xAxis(i-1), ' (',i-1,')'
+                       exit outer
                     end if
+                 end if
 
-                    ! slit condition
+                 ! slit condition
+
+                 if (lgVoronoi) then
+!                   print*, "! outputGas: [Warning] Slit keyword not implemented in Voronoi grids - lgInSlit always set to .t."
+                    lgInSlit = .true.
+                 else
                     if (dxSlit > 0. .and. dySlit > 0.) then
                        if ( (abs(grid(iG)%xAxis(i))<=dxSlit/2.) .and. &
                             (abs(grid(iG)%yAxis(i))<=dySlit/2.) ) then
@@ -296,17 +325,25 @@ module output_mod
                        lgInSlit = .true.
                     end if
 
+                    cellPUsed = iCellCount
 
                     ! do not use edge cells in plane parallel models
 !                    if (lgPlaneIonization .and. (i==1 .or. i==grid(iG)%nx .or. &
 !                         & k==1 .or. k==grid(iG)%nz)) lgInSlit = .false.
 
                     ! check this cell is in the ionized region
-                    if ((grid(iG)%active(i, j, k)>0)) then
-                       if (grid(iG)%lgBlack(grid(iG)%active(i,j,k))<1 .and. lgInSlit ) then
+                    if (lgInSlit ) then
+
+!                    if ((.not.grid(iG)%lgBlack(cellPUsed)<1) .and. lgInSlit ) then
+                    if (grid(iG)%lgBlack(cellPUsed)==1 ) then
+
+!                       print*, 'BLACK CELL: ', CellPUsed
+!                       print*, grid(iG)%ionDen(cellPUsed, 1, 2), grid(iG)%Ne(cellPUsed),  grid(iG)%Te(cellPUsed)
+
+                    elseif (grid(iG)%lgBlack(cellPUsed)==0 ) then
 
                        ! find the physical properties of this cell
-                       cellPUsed       = grid(iG)%active(i,j,k)
+!                       cellPUsed       = grid(iG)%active(i,j,k)
                        abFileUsed      = grid(iG)%abFileIndex(i,j,k)
                        elemAbundanceUsed(:) = grid(iG)%elemAbun(grid(iG)%abFileIndex(i,j,k), :)
                        HdenUsed        = grid(iG)%Hden(grid(iG)%active(i,j,k))
@@ -330,7 +367,7 @@ module output_mod
 
 
                        ! apply extinction correction according to extinction map
-                       if (present(extMap)) then
+                       if (present(extMap) .and. .not. lgVoronoi) then
 
                           if (ngrids>1) then
                              print*, '! outputGas: no multiple grids are allowed with extinction maps (yet)'
@@ -385,7 +422,11 @@ module output_mod
                        end if
 
                        dV = getVolume(grid(iG), i,j,k)
-
+! todo: original and voronoi have checks here for lg2D and lgSymmetricXYZ. needed?
+! todo: this next block might be out of sequence
+                       else
+                          dV = grid(iG)%voronoi(grid(iG)%activeRV(cellPUsed))%volume
+                       end if
 
                        ! Hbeta
                        if ( hydroLines(1,4,2)*HdenUsed*dV > 1.e-35) then
@@ -1997,6 +2038,7 @@ module output_mod
 
         T4 = TeUsed / 10000.
 
+!todo: voronoi version sets HI, HeI and HeII lines to zero if TeUsed <1000
         ! find the nearest temp bin
         itemp = 1
         do i = 1, 12
@@ -2738,6 +2780,12 @@ module output_mod
       ! find the run of the optical depths from the illuminated
       ! surface to the edge of the nebula
 
+!todo: is this true? for writeTauNu in voronoi, it is
+      if (lgVoronoi) then
+         print*, "! writeTauNu: [warning] routine not suitable for Voronoi grids - returning"
+         return
+      end if
+
       ! allocate space for temporary optical depth arrays
       allocate (outTau(1:maxTau), stat = err)
       if (err /= 0) then
@@ -3107,7 +3155,7 @@ module output_mod
 
 
       do iG = 1, nGrids
-
+        if (.not. lgVoronoi) then
          do ix = 1, grid(iG)%nx
             do iy = 1, grid(iG)%ny
                do iz = 1, grid(iG)%nz
@@ -3142,7 +3190,39 @@ module output_mod
 
                end do
             end do
-         end do
+
+          else
+
+            do ix = 1, grid(iG)%nCellsV
+
+               if ( grid(iG)%activeV(ix)>0 ) then
+
+                  do imu=0,nanglebins
+                     contI(imu)=0.
+                     !                        do freq = ifreq1, ifreq2
+                     do freq = 1, nbins
+                        contI(imu) = contI(imu)+&
+                             & grid(iG)%escapedPackets(grid(iG)%activeV(ix),freq,imu)
+                     end do
+
+                     if (imu>0) then
+                        if (viewPointTheta(imu)>0.) contI(imu) = contI(imu) / dTheta
+                        if (viewPointPhi(imu)>0.) contI(imu) = contI(imu) / dPhi
+                     else
+                        contI(imu) = contI(imu) / (4.*Pi)
+                     end if
+
+                  end do
+
+                  write(19,*) iG, ix, (contI(imu), imu=0,nanglebins)
+
+               else
+                  write(19,*) iG, ix, (0., imu=0,nanglebins)
+
+               end if
+
+            end do
+         end if
 
       end do
 
