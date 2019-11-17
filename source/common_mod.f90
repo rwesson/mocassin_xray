@@ -286,7 +286,7 @@ module common_mod
     integer            :: elementXref(nElements) ! x reference index array for elements actually used
     integer            :: emittingGrid     ! grid emiting illuminating radiation [0 for all]
     integer, allocatable   :: starIndeces(:,:) ! (nstars, 3) 1=x; 2=y; 3=z, 4=gp
-    integer, allocatable   :: starIndecesV(:,:)! (nstars)
+    integer, allocatable   :: starIndecesV(:)  ! (nstars)
     integer            :: nstages          ! # of ionisation stages to be included
 
     integer             :: lymanP                  ! frequency pointer to Lyman limit
