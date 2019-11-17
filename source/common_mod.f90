@@ -64,7 +64,6 @@ module common_mod
     real            :: r2aEdge(3,18)
 
     real            :: nCellsIn
-    integer         :: abFileUsed
 
     real               :: fluoCubeMineV, fluoCubeMaxeV ! limits of the fluorescence cube band
     real               :: fillingFactor    ! filling factor epsilon

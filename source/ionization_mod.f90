@@ -19,6 +19,7 @@ module ionization_mod
     real, save :: sqrTeUsed             ! sqr(Te) at this cell
     real, save :: eDenFFSum=0.          ! sum of heavy elements free electrons
 
+    integer :: abFileUsed
     integer :: cellPUsed
 
     contains
