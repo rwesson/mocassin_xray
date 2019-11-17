@@ -413,6 +413,9 @@ module common_mod
         real, allocatable :: elemAbun(:,:)              ! elemental abundance (specified
                                                     ! by number relative to total
                                                     ! hydrogen density)
+        real, allocatable :: echoVol(:,:,:)             ! BEKS 2010. Contains volume of one
+        ! grid cell enclosed by echo.  Only used if lgEcho=.true.
+
     end type grid_type
 
 
