@@ -5,6 +5,7 @@ module emission_mod
     use constants_mod
     use common_mod
     use continuum_mod
+    use grid_mod
     use voronoi_grid_mod
     use xSec_mod
     use elements_mod
@@ -47,7 +48,7 @@ module emission_mod
         real (kind=8) :: emissionHeII(nbins)             ! HeII continuum emission coefficient
 
         type(grid_type), intent(inout) :: grids(*) ! the grid
-!        type(grid_type)                :: grid ! this line present in previous versions. todo: needed?
+        type(grid_type)                :: grid ! this line present in previous versions. todo: needed?
 
         real    :: dV                        ! volume element
 
