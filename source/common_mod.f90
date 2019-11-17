@@ -29,6 +29,8 @@ module common_mod
     real, allocatable   :: PcompArray (:,:)
     real, allocatable   :: TwoDscaleJ(:)
 
+    real            :: boxXn, boxXp, boxYn, boxYp, boxZn, boxZp
+
     real            :: starttime      ! start time [sec]
     real            :: endtime        ! end time [sec]
     real            :: absInt         ! total number of absorption events
@@ -216,6 +218,7 @@ module common_mod
 
     integer :: noGpLoc=-1
     integer, dimension(3) :: noCellLoc=-1
+    integer :: noCellLocV = -1
 
     integer, dimension(nElements, nElements, 7, 3) &
          &:: elementP                          ! first dim is atomic number of element,
@@ -305,6 +308,34 @@ module common_mod
     integer            :: nSizes           ! number of grain sizes
     integer            :: nSpecies         ! number of grain species
     integer            :: nResLines=0      ! number of resonant lines to be transfered
+
+    integer,parameter :: Nconnectmax = 128         ! Max. no. of connections
+                                                  ! per vertex
+    double precision :: boxsizeV                  ! ..
+
+! derived types for voronoi
+
+    type Connection                               ! Connection data type
+       sequence
+       integer :: i1                              ! id of point 1
+       integer :: i2                              ! id of point 2
+       real(kind=4) :: length                     ! Length of connection
+       real(kind=4) :: invlength                  ! 1 / length
+       real(kind=4) :: runit(1:3)                 ! Unit vector (from i1 to i2)
+    end type Connection
+    !type(Connection),allocatable :: lines(:)      ! Array of lines/connections
+
+    type Vertex                                   ! Vertex data type
+       sequence
+       real(kind=4) :: r(1:3)                     ! Position of vertex
+       real(kind=4) :: mass                       ! Mass contained in cell
+       real(kind=8) :: volume                     ! Voronoi cell volume
+       real(kind=4) :: density                    ! Density of gas in cell
+       real(kind=4) :: ndust                      ! dust density in a cell
+       integer :: Nconnect                        ! No. of connections
+       integer :: iconnect(1:Nconnectmax)         ! ids of connecting particles
+       type(Connection) :: connect(1:Nconnectmax) ! Connection data
+    end type Vertex
 
     type grid_type             ! derived grid type
 
@@ -429,6 +460,7 @@ module common_mod
 
     logical         :: lgRadPress=.false.
     logical         :: lg2D=.false.             ! 2D?
+    logical         :: lgMassVoronoi = .false.
     logical         :: lgMultiStars=.false.
     logical         :: lgEquivalentTau          ! calculate equivalent tau?
     logical         :: lgWarm=.false.           ! warm started?
