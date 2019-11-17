@@ -349,6 +349,7 @@ module common_mod
         integer :: nCellsV                          ! number of active Voronoi cells
         integer :: motherP                          ! pointer to the motherGrid
 
+        integer, allocatable :: dustAbunIndex(:)        ! dust chemistry file index (cell)
         integer, allocatable :: resLinePackets(:)       ! extraPackets to be generated cell (cell)
         integer, allocatable :: abFileIndex(:)          ! abundance file index axxay
         integer, allocatable :: lgConverged(:)          ! has the model converged at this grid cell?
