@@ -1,6 +1,7 @@
 # standard
 FC = mpif90
 LD = mpif90
+CPP = g++
 
 #IBM
 #FC = mpxlf90_r
@@ -37,11 +38,8 @@ else
 endif
 
 MANDIR=$(DESTDIR)$(PREFIX)/share/man/man1
-SOURCES = source/constants_mod.o source/vector_mod.o source/common_mod.o source/interpolation_mod.o \
-	source/set_input_mod.o source/hydro_mod.o source/ph_mod.o source/composition_mod.o \
-	source/continuum_mod.o source/ionization_mod.o source/pathIntegration_mod.o \
-	source/grid_mod.o source/dust_mod.o source/emission_mod.o source/photon_mod.o  \
-	source/update_mod.o source/output_mod.o source/iteration_mod.o source/readdata_mod.o
+SOURCES = source/constants_mod.o source/vector_mod.o source/common_mod.o source/VoronoiVoropp.o source/VoronoiFortranInterface.o source/interpolation_mod.o source/set_input_mod.o source/hydro_mod.o source/ph_mod.o source/composition_mod.o source/continuum_mod.o source/ionization_mod.o source/pathIntegration_mod.o source/grid_mod.o source/voronoi_grid_mod.o source/dust_mod.o source/emission_mod.o source/photon_mod.o source/voronoi_photon_mod.o source/update_mod.o source/output_mod.o source/iteration_mod.o source/readdata_mod.o
+VORO++ = /home/roger/software/vmocassin/voro++-0.4.6/include/voro++
 
 ifeq ($(CO),debug) #to show all compiler warnings
   FFLAGS += -fbounds-check -Wall -Wuninitialized -g -pg #-ffpe-trap=zero,overflow,invalid,underflow,denormal -fbacktrace -fcheck=all
@@ -62,8 +60,11 @@ new: clean all
 %.o: %.f90
 	$(FC) $(FFLAGS) $< -c -o $@
 
+%.o: %.cpp
+	$(CPP) $(CFLAGS) -c $< -I$(VORO++)
+
 mocassinX: $(SOURCES) source/mocassinX.o
-	$(LD) $(LDFLAGS) $(FFLAGS) -o $@ $^
+	$(LD) $(LDFLAGS) $(FFLAGS) -L${VORO++} -lvoro++ -lm -lc -lstdc++ -o $@ $^
 
 mocassinXWarm: $(SOURCES) source/mocassinXWarm.o
 	$(LD) $(LDFLAGS) $(FFLAGS) -o $@ $^
