@@ -355,11 +355,11 @@ module common_mod
 
         integer, allocatable :: active(:,:,:)           ! point to active cell in 1d array (cartesian);
                                                         ! returns 0 for inactive cells
-        integer, allocatable :: activeR(:,:,:)          ! reverse point from active cell
+        integer, allocatable :: activeR(:,:)            ! reverse point from active cell
                                                         ! returns 0 for inactive cells
-        integer, allocatable :: activeV(:,:,:)          ! point to active cell in 1d array (Voronoi);
+        integer, allocatable :: activeV(:)              ! point to active cell in 1d array (Voronoi);
                                                         ! returns 0 for inactive cells
-        integer, allocatable :: activeVR(:,:,:)         ! reverse point from active cell
+        integer, allocatable :: activeVR(:)             ! reverse point from active cell
                                                         ! returns 0 for inactive cells
 
         type(Vertex), allocatable :: voronoi(:)         ! pointer to voronoi cell array
@@ -413,7 +413,7 @@ module common_mod
         real, allocatable :: elemAbun(:,:)              ! elemental abundance (specified
                                                     ! by number relative to total
                                                     ! hydrogen density)
-        real, allocatable :: echoVol(:,:,:)             ! BEKS 2010. Contains volume of one
+        real, allocatable :: echoVol(:)                 ! BEKS 2010. Contains volume of one
         ! grid cell enclosed by echo.  Only used if lgEcho=.true.
 
     end type grid_type
