@@ -548,8 +548,8 @@ module grid_mod
 !              stop
 !           end if
 
-           grid%abFileIndex = 1
-        end if
+!           grid%abFileIndex = 1
+!        end if
 
         grid%nx = nx
         grid%ny = ny
