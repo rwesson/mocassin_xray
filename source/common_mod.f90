@@ -40,8 +40,14 @@ module common_mod
     real            :: dPhi                    !
     real            :: nu0                     !
     real            :: nu0Add                  !
+
     real            :: totalGasMass ! total ionized mass
     real            :: totalDustMass
+    logical         :: lgInputGasMass ! was set by user?
+    real            :: inputGasMass
+    logical         :: lgInputDustMass ! was set by user?
+    real            :: inputDustMass
+
     real            :: convPercent=0.          ! total convergence percentage
     real            :: pwlIndex = 0.           ! power law input spectrum index
     real            :: pwlMin=0.               ! power law lower cutoff [Ryd]
