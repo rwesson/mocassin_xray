@@ -1731,11 +1731,11 @@ module grid_mod
                        if (lgGas) then
                           gasCell = 0.
                           do elem = 1, nElements
-                             gasCell = gasCell + grid%elemAbun(grid%abFileIndex(i,j,k),elem)*&
+                             gasCell = gasCell + grid%elemAbun(grid%abFileIndex(grid%active(i,j,k)),elem)*&
                                   & aWeight(elem)*amu
                              totalGasMass = totalGasMass + &
                                   & grid%Hden(grid%active(i,j,k))*dV*&
-                                  &grid%elemAbun(grid%abFileIndex(i,j,k),elem)*&
+                                  &grid%elemAbun(grid%abFileIndex(grid%active(i,j,k)),elem)*&
                                   & aWeight(elem)*amu
                           end do
                        end if
@@ -1749,7 +1749,7 @@ module grid_mod
                              MhMg=0.
                              do elem = 1, nElements
                                 ! transform to MdMg
-                                MhMg = MhMg+grid%elemAbun(grid%abFileIndex(i,j,k),elem)*&
+                                MhMg = MhMg+grid%elemAbun(grid%abFileIndex(grid%active(i,j,k)),elem)*&
                                      & aWeight(elem)
                              end do
                              MhMg = 1./MhMg
@@ -2141,7 +2141,7 @@ module grid_mod
                     stop
                  end if
                  HdenTemp = 0.
-                 allocate(abFileIndexTemp(1:grid(iG)%nx, 1:grid(iG)%ny, 1:grid(iG)%nz), stat =
+                 allocate(abFileIndexTemp(1:grid(iG)%nx, 1:grid(iG)%ny, 1:grid(iG)%nz), stat = err)
                  if (err /= 0) then
                     print*, "! setSubGrid: can't allocate sub grid memory: abFileIndexTemp", iG
                     stop
@@ -2585,11 +2585,11 @@ module grid_mod
                              do elem = 1, nElements
 !todo: 2.02.70 has abFileIndex(ix,iy,iz); voronoi has abFileIndex(grid(iG)%active(ix,iy,iz)). could replace with cellP?
                                 gasCell = gasCell + &
-                                     & grid(iG)%elemAbun(grid(iG)%abFileIndex(ix,iy,iz),elem)*&
+                                     & grid(iG)%elemAbun(grid(iG)%abFileIndex(grid(iG)%active(ix,iy,iz)),elem)*&
                                      & aWeight(elem)*amu
                                 totalGasMass = totalGasMass + &
                                      & grid(iG)%Hden(grid(iG)%active(ix,iy,iz))*dV*&
-                                     & grid(iG)%elemAbun(grid(iG)%abFileIndex(ix,iy,iz),elem)*&
+                                     & grid(iG)%elemAbun(grid(iG)%abFileIndex(grid(iG)%active(ix,iy,iz)),elem)*&
                                      & aWeight(elem)*amu
                              end do
                           end if
@@ -2603,7 +2603,7 @@ module grid_mod
                                 do elem = 1, nElements
                                    ! transform to MdMg
 ! todo: replace abFileIndex(ix,iy,iz) with grid(iG)%active(ix,iy,iz), or cellP?
-                                   MhMg = MhMg+grid(iG)%elemAbun(grid(iG)%abFileIndex(ix,iy,iz),elem)*&
+                                   MhMg = MhMg+grid(iG)%elemAbun(grid(iG)%abFileIndex(grid(iG)%active(ix,iy,iz)),elem)*&
                                         & aWeight(elem)
                                 end do
                                 MhMg = 1./MhMg
