@@ -192,10 +192,10 @@ module voronoi_grid_mod
            
            if ( (lgDust) .and. (.not.lgGas) ) then 
                close(72)
-               open (unit= 72,  action="read", file=trim(home)//"dustData/nuDustRyd.dat", status = "old", position = "rewind", &
+               open (unit= 72,  action="read", file=PREFIX//"/share/mocassinX/dustData/nuDustRyd.dat", status = "old", position = "rewind", &
                     & iostat = ios)
                if (ios /= 0) then
-                  print*, "! initVoronoiGrid: can't open dust nu grid file - ",trim(home),"dustData/nuDustRyd.dat"
+                  print*, "! initVoronoiGrid: can't open dust nu grid file - ",PREFIX,"/share/mocassinX/dustData/nuDustRyd.dat"
                   stop
                end if
                
@@ -308,10 +308,10 @@ module voronoi_grid_mod
                
                ! dust data points
                close(72)
-               open (unit= 72,  action="read", file=trim(home)//"dustData/nuDustRyd.dat", status = "old", position = "rewind", &
+               open (unit= 72,  action="read", file=PREFIX//"/share/mocassinX/dustData/nuDustRyd.dat", status = "old", position = "rewind", &
                     & iostat = ios)
                if (ios /= 0) then
-                  print*, "! initVoronoiGrid: can't open dust nu grid file - ",trim(home),"nuDustGrid.dat"
+                  print*, "! initVoronoiGrid: can't open dust nu grid file - ",PREFIX,"/share/mocassinX/nuDustGrid.dat"
                   stop
                end if
                
@@ -1791,7 +1791,6 @@ print*, i, totalMass, grid%voronoi(grid%activeV(i))%density, dV
               write(40, *) nstages, ' emittingGrid'
               write(40, *) lgMultistars, ' lgMultiStars'
               write(40,*)  lg2D, ' 2D geometry?'
-              write(40,*) "'",trim(home),"' home()"
               write(40,*) lgEcho, echot1, echot2, echoTemp," Echo on/off"
               write(40,*) lgNosource," NoSourceSED"
 
@@ -2008,7 +2007,6 @@ print*, i, totalMass, grid%voronoi(grid%activeV(i))%density, dV
                  print*,  nstages, ' nstages'
                  print*,  lgMultistars, ' lgMultiStars'
                  print*,  lg2D, ' lg2D'
-                 print*,  "'",trim(home),"' home"
                  print*,  lgEcho, echot1, echot2, echoTemp
                  print*,  lgNosource," NoSourceSED"
 
