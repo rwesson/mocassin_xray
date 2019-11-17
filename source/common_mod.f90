@@ -174,6 +174,7 @@ module common_mod
     real, allocatable :: photoRateFluo(:,:)      ! photoionisation rate (nfluo, nstages) [sec^-1]
 
     type(vector), allocatable :: starPosition(:) ! ionising source(s) position
+    type(vector)       :: nullUnitVector
 
     integer, allocatable  :: HINuEdgeP(:)     ! pointers to the HI, HeI and HeII
     integer, allocatable  :: HeINuEdgeP(:)    ! series edges in nuArray
