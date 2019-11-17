@@ -360,7 +360,7 @@ module common_mod
                                                         ! returns 0 for inactive cells
         integer, allocatable :: activeV(:)              ! point to active cell in 1d array (Voronoi);
                                                         ! returns 0 for inactive cells
-        integer, allocatable :: activeVR(:)             ! reverse point from active cell
+        integer, allocatable :: activeRV(:)             ! reverse point from active cell
                                                         ! returns 0 for inactive cells
 
         type(Vertex), allocatable :: voronoi(:)         ! pointer to voronoi cell array
