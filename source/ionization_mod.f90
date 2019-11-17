@@ -19,6 +19,7 @@ module ionization_mod
     real, save :: sqrTeUsed             ! sqr(Te) at this cell
     real, save :: eDenFFSum=0.          ! sum of heavy elements free electrons
 
+    integer :: cellPUsed
 
     contains
 
@@ -71,7 +72,7 @@ module ionization_mod
                 if (.not.lgElementOn(n)) exit
                 if (abFileUsed<=0) then
                    print*, '! ionizationDriver: abundance file index has value: ', abFileUsed
-                   print*, 'Cell: ', ix,iy,iz, cellPUsed
+                   print*, 'Cell: ', cellPUsed
                    print*, 'Abundance file index array: ', grid%abFileIndex
                    stop
                 end if
