@@ -13,7 +13,7 @@ module voronoi_photon_mod
   use interpolation_mod
   use pathIntegration_mod
   use vector_mod
-  
+
   ! common variables
   integer,parameter      :: safeLim = 10000          ! safety limit for no. of loops ??
   type(vector),parameter :: origin=vector(0.,0.,0.)  ! origin of cartesian grid axis
@@ -23,12 +23,12 @@ module voronoi_photon_mod
   real                   :: Qphot = 0.0              ! ??
 
 contains
-  
-  
+
+
   !----------------------------------------------------------------------------
   subroutine energyPacketDriverV(iStar, n, grid, plot, gpLoc, cellLoc)
     implicit none
-    
+  
     integer,intent(in) :: n                        ! no. of energy packets 
     integer,intent(in) :: iStar                    ! central star index
     type(grid_type),intent(inout) :: grid(:)       ! main voronoi grid
@@ -41,7 +41,7 @@ contains
     integer          :: dt(8)             ! date and time values
     integer          :: freqP             ! pointer to frequency
     integer          :: gPIn              ! ..
-    integer          :: i,iG,ii,j,k       ! counters        
+    integer          :: i,iG,ii,j,k       ! counters      
     integer          :: ian               ! angle counter
     integer          :: iCell             ! cell counter
     integer          :: ierr              ! allocation error status
@@ -56,12 +56,12 @@ contains
     integer          :: reRun             ! flag to re-run photon packet
     integer          :: seedSize          ! pseudo random number generator seed 
     integer          :: trapped           ! no. of trapped photons
-    integer, pointer :: seed(:)           ! seed array
+    integer, allocatable :: seed(:)           ! seed array
     real             :: JDifTot           ! tot JDif
     real             :: JsteTot           ! tot Jste
     real             :: radius            ! radius
     character(len=7) :: chTypeD           ! character type for driver
-    character(len=7) :: chTypeIn          ! character type  
+    character(len=7) :: chTypeIn          ! character type
     type(vector)     :: absPosition       ! position of packet absorption
     type(vector)     :: positionIn        ! position of packet absorption
     type(vector)     :: posDiff           ! initial position vector for diff ext
@@ -73,11 +73,11 @@ contains
        deltaE(0) = grid(gpLoc)%LdiffuseLoc(grid(gpLoc)%activeV&
             &(cellLoc))/NphotonsDiffuseLoc
     end if
-    
+  
     ! Obtain timing information (used to generate 'true' random number)
     call date_and_time(values=dt)
     msec = dt(8)
-    
+  
     ! Allocate memory for containing random number data
     call random_seed(seedSize) 
     allocate(seed(1:seedSize), stat= ierr)
@@ -95,8 +95,8 @@ contains
     ! seed(1) = -2147482802 
     ! seed(2) = -2147482966
     call random_seed(put = seed)
-    if (associated(seed)) deallocate(seed)
-    
+    if (allocated(seed)) deallocate(seed)
+  
     ! Initialise arrays and counters
     Qphot = 0.0
     trapped = 0
@@ -109,19 +109,19 @@ contains
        ! If photon is emitted directly from a star
        !-----------------------------------------------------------------------
        if (iStar >= 1) then
-          
+        
           chTypeD = "stellar"
           igp = 1
           inV = starIndecesV(iStar)
           chTypeIn = chTypeD
           positionIn = starPosition(iStar)  !!DAH
-          
+        
 
        ! If photon is a diffuse (scattered or emitted) photon
        !-----------------------------------------------------------------------
        else if (iStar == 0) then
 
-          chTypeD = "diffExt"              
+          chTypeD = "diffExt"            
           igp = 1
           inV = cellLoc
           posDiff%x = grid(gpLoc)%voronoi(cellLoc)%r(1)
@@ -135,10 +135,10 @@ contains
        ! Stop if something has gone wrong
        !-----------------------------------------------------------------------
        else
-          
+        
           print*, '! energyPacketDriverV: insanity in iStar value'
           stop
-          
+        
        end if
        !-----------------------------------------------------------------------
 
@@ -148,7 +148,7 @@ contains
           if (rerun == 0) exit
        end do
        if (i >= recursionLimit) trapped = trapped + 1
-       
+     
     end do
     !--------------------------------------------------------------------------
 
@@ -163,10 +163,10 @@ contains
     if (lgDust .and. convPercent>=resLinesTransfer .and.&
          & .not. lgResLinesFirst&
          & .and. (.not. nIterateMC==1) .and. .not.lgVoronoi) then
-       
+     
        print*, "! energyPacketDriverV: starting resonance line packets transfer"
-       
-       
+     
+     
        iCell = 0
        igrid = 1
 
@@ -175,48 +175,48 @@ contains
        !-----------------------------------------------------------------------
        do iV = 1,grid(igrid)%nCellsV
           iCell = iCell+1
-                   
+                 
           !--------------------------------------------------------------------
           if (mod(iCell-(taskid+1),numtasks) == 0 .and. &
                & grid(igrid)%activeV(iV) > 0) then
-                         
+                       
              !-----------------------------------------------------------------
              do iPhot = 1, grid(igrid)%resLinePackets(grid(igrid)%activeV(iV))
-                
+              
                 chTypeD = "diffuse"
-                inV = iV                                
+                inV = iV                              
                 posVector%x = grid(igrid)%voronoi(iV)%r(1)
                 posVector%y = grid(igrid)%voronoi(iV)%r(2)
-                posVector%z = grid(igrid)%voronoi(iV)%r(3)                            
+                posVector%z = grid(igrid)%voronoi(iV)%r(3)                          
                 chTypeIn = chTypeD
                 positionIn = posVector
                 gPIn = igrid
                 reRun = 0
-                
-                do i = 1, recursionLimit      
+              
+                do i = 1, recursionLimit    
                    call energyPacketRunV(chTypeIn, positionIn, inV, reRun)
-                   if (rerun == 0) exit                      
+                   if (rerun == 0) exit                    
                 end do
                 if (i >= recursionLimit) trapped = trapped + 1
-                
+              
              end do
              !-----------------------------------------------------------------
-             
+           
           end if
           !--------------------------------------------------------------------
 
        end do
        !-----------------------------------------------------------------------
-       
+     
        print*, "! energyPacketDriverV: ending resonance line packets transfer"
-       
+     
     end if
-    !--------------------------------------------------------------------------    
+    !--------------------------------------------------------------------------  
 
-    
+  
     if (iStar>0) print*, 'Qphot = ', Qphot
     print*, 'Packets trapped = ', trapped, taskid
-    
+  
     ! evaluate Jste and Jdif
     ! NOTE : deltaE is in units of [E36 erg/s] however we also need a factor of
     ! 1.e-45 from the calculations of the volume of the cell hence these
@@ -224,13 +224,13 @@ contains
     ! multiply by 1.E-9
     ! NOTE : Jste and Jdif calculated this way are in units of
     ! [erg sec^-1 cm^-2] -> no Hz^-1 as they are summed over separate bins (see
-    ! Lucy A&A (1999)                                                                                                                                   
-    
+    ! Lucy A&A (1999)                                                                                                                                 
+  
     if (iStar > 0.0) then
-       print*, 'Lstar', Lstar(iStar)           
+       print*, 'Lstar', Lstar(iStar)         
     end if
-    
-    
+  
+  
 
   contains
 
@@ -239,7 +239,7 @@ contains
     !--------------------------------------------------------------------------
     subroutine energyPacketRunV(chType, position, vP, rR)
       implicit none
-      
+    
       character(len=7),intent(inout) :: chType    ! stellar or diffuse?
       type(vector),intent(inout) :: position      ! the position of the photon
       integer,intent(inout) :: vP                 ! voronoi cell index
@@ -248,7 +248,7 @@ contains
       integer                 :: difSourceV       ! ..
       integer                 :: err              ! allocation error status
       integer                 :: gP               ! ..
-      integer                 :: i, j             ! counters  
+      integer                 :: i, j             ! counters
       integer                 :: idirP, idirT     ! direction cosines
       integer                 :: igpr             ! grid pointer 1= mother 2=sub
       type(photon_packet)     :: enPacket         ! the energu packet
@@ -260,12 +260,12 @@ contains
 
 
       ! create a new photon packet
-      !-------------------------------------------------------------------------   
+      !------------------------------------------------------------------------- 
       select case (chType)
-      
-   
+    
+ 
       ! if the energy packet is stellar
-      !-------------------------------------------------------------------------   
+      !------------------------------------------------------------------------- 
       case ("stellar")
 
          ! check for errors in the sources position
@@ -274,37 +274,37 @@ contains
                  & start at the stellar position"
             stop
          end if
-         
-         ! create the packet        
+       
+         ! create the packet      
          enPacket = newPhotonPacketV(chType,position, vP, noCellLocV)
-         
+       
       ! if the photon is from an extra source of diffuse radiation
-      !-------------------------------------------------------------------------   
+      !------------------------------------------------------------------------- 
       case ("diffExt")
-         
-         difSourceV = vP         
+       
+         difSourceV = vP       
          enPacket = newPhotonPacketV(chType, position, vP, difSourceV)
-         
-         
+       
+       
       ! if the photon is diffuse
-      !-------------------------------------------------------------------------   
+      !------------------------------------------------------------------------- 
       case ("diffuse")
-         
+       
          ! create the packet
          enPacket = newPhotonPacketV(chType=chType, position=position, &
               &iVP=vP, difSourceV=noCellLocV)
-         
-      !-------------------------------------------------------------------------   
+       
+      !------------------------------------------------------------------------- 
       case ("dustEmi")
 
          ! create the packet
          enPacket = newPhotonPacketV(chType=chType, position=position, &
               &iVP=vP, difSourceV = noCellLocV)
-         
+       
       end select
-      !-------------------------------------------------------------------------   
+      !------------------------------------------------------------------------- 
 
-      !-------------------------------------------------------------------------   
+      !------------------------------------------------------------------------- 
       if (.not.lgDust .and. enPacket%nu < ionEdge(1) .and. .not.enPacket%lgLine) then
 
          call photonPacketEscapes(enPacket)
@@ -312,22 +312,22 @@ contains
 
       end if
 
-      
+    
       ! if the new packet is capable of re-ionizing or we have dust
-      !-------------------------------------------------------------------------   
+      !------------------------------------------------------------------------- 
       if (.not.enPacket%lgLine) then
 
          ! compute the next segment of trajectory
          call pathSegmentV(enPacket)
-         
+       
          return
-         
+       
       else ! if the packet is a line packet 
          ! add to respective line packet bin
          ! this was just used for debugging
 
       end if
-      
+    
     end subroutine energyPacketRunV
 
 
@@ -348,27 +348,27 @@ contains
       integer             :: igpi              ! grid pointer 1=mother, 2=sub
       integer             :: i, irepeat        ! counter
       integer             :: gP                ! grid number (always 1 on Voronoi)
-      real                :: random            ! random number     
+      real                :: random            ! random number   
       double precision    :: Smin              ! ..
       type(vector)        :: pn, pp            ! ..
       type(photon_packet) :: initPhotonPacketV ! the photon packet
-      
-      
+    
+    
       initPhotonPacketV%direction = direction
-      
+    
       if (.not. (direction%x >= 0. .or. direction%x < 0)) then
          print*, '! initPhotonPacketV: [0] insane direction%x [direction%x]'
          print*, direction%x
          stop
       end if
-      
-      
+    
+    
       gP = 1
       igpi = 1
-      
+    
       initPhotonPacketV%position  = position
       initPhotonPacketV%iG        = gP
-      initPhotonPacketV%nuP       = nuP       
+      initPhotonPacketV%nuP       = nuP     
       initPhotonPacketV%lgStellar = lgStellar
 
       ! check if photon packet is line or continuum photon
@@ -377,11 +377,11 @@ contains
          initPhotonPacketV%lgLine   = .true.
       else
          initPhotonPacketV%nu       = nuArray(nuP)
-         initPhotonPacketV%lgLine   = .false.          
+         initPhotonPacketV%lgLine   = .false.        
       end if
-      
+    
       initPhotonPacketV%iVoronoi = iVP
-      
+    
 
       !DAVID : Probably needs substantial re-writing for Voronoi
       !------------------------------------------------------------------------
@@ -390,9 +390,9 @@ contains
          ! cater for plane parallel ionization case
          !---------------------------------------------------------------------
          if (initPhotonPacketV%lgStellar .and. lgPlaneIonization) then
-      !      
+      !    
       !      ! get position
-      !      
+      !    
       !      ! x-direction
       !      call notrandom2(random)
       !      random = 1. - random
@@ -405,7 +405,7 @@ contains
       !           & initPhotonPacketV%position%x=grid(gP)%xAxis(1)
       !      if (initPhotonPacketV%position%x>grid(gP)%xAxis(grid(gP)%nx))&
       !           & initPhotonPacketV%position%x=grid(gP)%xAxis(grid(gP)%nx)
-      !      
+      !    
       !      call locate(grid(gP)%xAxis, initPhotonPacketV%position%x,&
       !           & initPhotonPacketV%xP(igpi))
       !      if (initPhotonPacketV%xP(igpi) < grid(gP)%nx) then
@@ -414,11 +414,11 @@ contains
       !              & grid(gP)%xAxis(initPhotonPacketV%xP(igpi)+1))/2.) &
       !              & initPhotonPacketV%xP(igpi) = initPhotonPacketV%xP(igpi)+1
       !      end if
-      !      
+      !    
       !      ! y-direction
       !      initPhotonPacketV%position%y = 0.
       !      initPhotonPacketV%yP(igpi) = 1
-      !      
+      !    
       !      ! z-direction
       !      call notrandom2(random)
       !      random = 1. - random
@@ -435,7 +435,7 @@ contains
       !           & grid(gP)%zAxis(grid(gP)%nz)) & 
       !           & initPhotonPacketV%position%z=&
       !           & grid(gP)%zAxis(grid(gP)%nz)
-      !      
+      !    
       !      call locate(grid(gP)%zAxis, &
       !           & initPhotonPacketV%position%z, initPhotonPacketV%zP(igpi))
       !      if (initPhotonPacketV%zP(igpi) < grid(gP)%nz) then 
@@ -445,17 +445,17 @@ contains
       !              & /2.) initPhotonPacketV%zP(igpi) =& 
       !              & initPhotonPacketV%zP(igpi)+1
       !      end if
-      !      
+      !    
       !      if (initPhotonPacketV%xP(igpi)<1) &
-      !           & initPhotonPacketV%xP(igpi)=1             
+      !           & initPhotonPacketV%xP(igpi)=1           
       !      if (initPhotonPacketV%zP(igpi)<1) &
       !           & initPhotonPacketV%zP(igpi)=1
-      !      
+      !    
       !      ! direction is parallel to y-axis direction
       !      initPhotonPacketV%direction%x = 0.
       !      initPhotonPacketV%direction%y = 1.
       !      initPhotonPacketV%direction%z = 0.
-      !      
+      !    
       !      if (initPhotonPacketV%xP(igpi) >  &
       !           & grid(gP)%xAxis(grid(gP)%nx) .or. &
       !           & initPhotonPacketV%zP(igpi) >  &
@@ -467,37 +467,37 @@ contains
       !              & initPhotonPacketV%zP(igpi), &
       !              & grid(gP)%zAxis(grid(gP)%nz),  random, &
       !              & initPhotonPacketV%position%z
-      !         
+      !       
       !         stop
       !      end if
-      !      
+      !    
       !      planeIonDistribution(initPhotonPacketV%xP(igpi),&
       !           & initPhotonPacketV%zP(igpi)) = &
       !           & planeIonDistribution(initPhotonPacketV%xP(igpi),&
       !           & initPhotonPacketV%zP(igpi)) + 1
-      !      
+      !    
          !---------------------------------------------------------------------
          else
-            
+          
             do irepeat = 1, 1000000
                ! get a random direction
                initPhotonPacketV%direction = randomUnitVector(iphot)
-               
+             
                if (.not. (initPhotonPacketV%direction%x >= 0. .or. initPhotonPacketV%direction%x < 0)) then
                   print*, '! initPhotonPacketV: [1] insane initPhotonPacketV%direction%x [initPhotonPacketV%direction%x]'
                   print*, initPhotonPacketV%direction%x
                   stop
                end if
-               
+             
                if (initPhotonPacketV%direction%x/=0. .and. & 
                     & initPhotonPacketV%direction%y/=0. .and. & 
                     & initPhotonPacketV%direction%z/=0.) exit
             end do
-            
+          
          end if
          !---------------------------------------------------------------------
 
-         
+       
          if ((lgSymmetricXYZ) .and. initPhotonPacketV%lgStellar &
               & .and. .not.lgMultistars) then
 !            print*, '! initPhotonPacketV: SymmetricXYZ is not yet implemented in Voronoi'
@@ -510,11 +510,11 @@ contains
             if (initPhotonPacketV%direction%z<0.) &
                  & initPhotonPacketV%direction%z = -initPhotonPacketV%direction%z
          end if
-         
+       
       end if
       !------------------------------------------------------------------------
 
-      
+    
       initPhotonPacketV%origin(1) = gP
       initPhotonPacketV%origin(2) = grid(gP)%activeV(initPhotonPacketV%iVoronoi)
 
@@ -533,7 +533,7 @@ contains
 
     end function initPhotonPacketV
 
-    
+  
 
     ! this function initializes a photon packet
     !--------------------------------------------------------------------------
@@ -619,51 +619,51 @@ contains
       return
     end subroutine calculateBoundaryPath
 
-    
+  
 
     ! this subroutine determines the frequency of a newly created photon packet
     ! according to the given probability density
     !---------------------------------------------------------------------------
     subroutine getNuV(probDen, nuP)
-      
-      real, dimension(:), intent(in) :: probDen    ! probability density function   
+    
+      real, dimension(:), intent(in) :: probDen    ! probability density function 
       integer, intent(out)           :: nuP        ! frequency index of the new
-      
+    
       real                           :: random     ! random number
-      
+    
       ! get a random number
       call random_number(random)
       random = 1.0 - random
 
-      
+    
       ! see what frequency random corresponds to 
       call locate(probDen, random, nuP)
       if (nuP <= 0) nuP = 1
-      
+    
       if (nuP<nbins) then
          if (random>=(probDen(nuP+1)+probDen(nuP))/2.) nuP=nuP+1
       end if
-      
+    
     end subroutine getNuV
 
 
-    
+  
     ! this subroutine determines the frequency of a newly created photon packet
     ! according to the given probability density
     ! does not use bisection to locate nu on array
     !---------------------------------------------------------------------------
     subroutine getNu2V(probDen, nuP)
-      
+    
       real, dimension(:), intent(in) :: probDen    ! probability density function
       integer, intent(out)           :: nuP        ! frequency index of the new
-      
+    
       integer                        :: isearch,i  ! ..
       real                           :: random     ! random number
-      
-            
+    
+          
       ! get a random number
       call random_number(random)
-      
+    
       ! ensure random number does not have 'special values' (e.g. 0 or 1)
       do i = 1, 10000
          if (random==0 .or. random==1. .or. random == 0.9999999) then
@@ -676,29 +676,29 @@ contains
          print*, '! getNu2: problem with random number generator', random, i
          stop
       end if
-      
+    
       ! see what frequency random corresponds to 
       nuP=1
       do isearch = 1, nbins
          if (random >= probDen(isearch)) then
             nuP = isearch
          else 
-            exit                  
+            exit                
          end if
       end do
-      
+    
       if (nuP < nbins - 1) then
          nuP = nuP + 1
       end if
-      
+    
       if (nuP>=nbins) then
          print*, 'random: ', random
          print*, 'probDen: ', probDen
       end if
-      
+    
     end subroutine getNu2V
-    
-    
+  
+  
 
     ! this function creates a new photon packet
     !---------------------------------------------------------------------------
@@ -717,34 +717,34 @@ contains
       real                :: random               ! random number
       type(vector)        :: positionLoc          ! position of the photon packet
       type(photon_packet) :: newPhotonPacketV     ! photon packet to be created
-      
+    
 
       gP = 1
       igpn = 1
 
-      
+    
       !-------------------------------------------------------------------------
       select case (chType)
-      
-   
+    
+ 
       ! if the photon is stellar
       !-------------------------------------------------------------------------
       case ("stellar")
-         
+       
          ! check for errors in the sources position
          if( position /= starPosition(iStar) ) then
             print*, "! newPhotonPacketV: stellar photon packet must&
                  & start at the stellar position"
             stop
          end if
-         
-         
+       
+       
          !gP = starIndeces(iStar,4)
          igpn = 1
-         
+       
          ! determine the frequency of the newly created photon packet
          call getNu2V(inSpectrumProbDen(iStar,1:nbins), nuP)
-         
+       
          if (nuP >= nbins) then
             print*, "! newPhotonPacketV: insanity occured in stellar photon &
                  &nuP assignment (nuP,iVP,activeP)", nuP, iVP, &
@@ -752,13 +752,13 @@ contains
             print*, "inSpectrumProbDen: ",iStar,inSpectrumProbDen(iStar,:), nuP
             stop
          end if
-         
+       
          if (nuP < 1) then
             print*, "! newPhotonPacketV: insanity occured in stellar photon &
                  &                               nuP assignment"
             stop
          end if
-         
+       
          ! initialize the new photon packet
          orV = starIndecesV(iStar)
 
@@ -768,82 +768,82 @@ contains
             print*, chType, nuP, starPosition(iStar), .false., .true., orV
             stop
          end if
-         
+       
 
          newPhotonPacketV = initPhotonPacketV(nuP, starPosition(iStar), &
               & nullUnitVector, .false., .true., orV, .false.)
-         
-         
+       
+       
          if (newPhotonPacketV%nu>1.) then
             Qphot = Qphot + deltaE(iStar)/(2.1799153e-11*newPhotonPacketV%nu)
          end if
-      
-   
+    
+ 
       ! if the photon is from an extra diffuse source
       !-------------------------------------------------------------------------
       case ("diffExt")
-         
+       
          call getNu2V(inSpectrumProbDen(0,1:nbins), nuP)
-         
+       
          if (nuP>=nbins) then
             print*, "! newPhotonPacketV: insanity occured in extra diffuse photon &
                  & nuP assignment (nuP,gp,activeP)", nuP, gp
             print*, "difSpectrumProbDen: ", inSpectrumProbDen(0,:)
             stop
          end if
-         
+       
          if (nuP < 1) then
             print*, "! newPhotonPacketV: insanity occured in extra diffuse photon &
                  & nuP assignment (nuP,gp,activeP)", nuP, gp,grid(gP)%activeV(iVP)
             print*, "difSpectrumProbDen: ", inSpectrumProbDen(0,:)
             stop
          end if
-         
+       
          positionLoc%x = grid(gP)%voronoi(difSourceV)%r(1)
          positionLoc%y = grid(gP)%voronoi(difSourceV)%r(2)
          positionLoc%z = grid(gP)%voronoi(difSourceV)%r(3)
-         
+       
          ! initialize the new photon packet
          orV = difSourceV
-         
+       
          if (grid(gP)%activeV(orV) < 0) then
             print*, "! newPhotonPacketV: new packet cannot be emitted from re-mapped cell -3-"
             print*, "chType, nuP, starPosition(iStar), .false., .true., orV, gp"
             print*, chType, nuP, starPosition(iStar), .false., .true., orV
             stop
          end if
-         
+       
          newPhotonPacketV = initPhotonPacketV(nuP, positionLoc, &
               & nullUnitVector, .false., .false., orV, .false.)
-         
-         
+       
+       
       ! if the photon is diffuse
       !-------------------------------------------------------------------------
       case ("diffuse")
-         
+       
          ! check that gas is present in the grid
          if (.not.lgGas) then
             print*, "! newPhotonPacketV: diffuse packet cannot be created in a no gas grid"
             stop
          end if
-         
+       
          ! check that the position is not inside the inner region
-         if (grid(gP)%activeV(iVP)<= 0) then                   
+         if (grid(gP)%activeV(iVP)<= 0) then                 
             print*, "! newPhotonPacketV: position of the new diffuse &
                  & photon packet is inside the inner region", iVP
             stop
          end if
-         
+       
          ! decide whether continuum or line photon
          call random_number(random)
          random = 1.0 - random
-         
+       
 
          !----------------------------------------------------------------------
          if (random <= grid(gP)%totalLines(grid(gP)%activeV(iVP))) then 
 
             nuP = 0
-            
+          
             ! initialize the new photon packet
             if (grid(gP)%activeV(iVP) < 0.) then
                print*, "! newPhotonPacketV: new packet cannot be emitted from re-mapped cell -4-"
@@ -851,16 +851,16 @@ contains
                print*, chType, nuP, starPosition(iStar), .false., .true., iVP
                stop
             end if
-            
+          
             newPhotonPacketV = initPhotonPacketV(nuP, position, &
                  & nullUnitVector, .true., .false., iVP, .false.)
 
          ! continuum photon
          !----------------------------------------------------------------------
          else 
-            
+          
             call getNu2V(grid(gP)%recPDF(grid(gP)%activeV(iVP),1:nbins), nuP)
-            
+          
             if (nuP>=nbins) then
                print*, "! newPhotonPacketV: insanity occured in diffuse photon &
                     & nuP assignment (nuP,iVP,activeP)", nuP, iVP,&
@@ -868,7 +868,7 @@ contains
                print*, "recPDF: ", grid(gP)%recPDF(grid(gP)%activeV(iVP),1:nbins)
                stop
             end if
-            
+          
             if (nuP < 1) then
                print*, "! newPhotonPacketV: insanity occured in diffuse photon &
                     & nuP assignment", nuP, iVP, & 
@@ -876,47 +876,47 @@ contains
                print*, "recPDF: ", grid(gP)%recPDF(grid(gP)%activeV(iVP),:)
                stop
             end if
-            
+          
             ! initialize the new photon packet
             if (grid(gP)%activeV(iVP) < 0) then
                print*, "! newPhotonPacketV: new packet cannot be emitted from re-mapped cell -5-"
                print*, "chType, nuP, starPosition(iStar), .false., .true., iVP"
                stop
             end if
-            
-            
+          
+          
             newPhotonPacketV = initPhotonPacketV(nuP, position, nullUnitVector,&
                  & .false., .false., iVP, .false.)
-            
+          
          end if
          !----------------------------------------------------------------------
-         
+       
 
       !-------------------------------------------------------------------------
       case ("dustEmi")
-         
+       
          ! check dust is present
          if (.not.lgDust) then
             print*, "! newPhotonPacketV: dust emitted packet cannot be created in a &
                  &no dust grid."
             stop
          end if
-         
+       
          if (lgGas) then
             print*, "! newPhotonPacketV: dustEmi-type packet should be created in a &
                  & grid containing gas."
             stop
          end if
-         
+       
          ! check that the position is not inside the inner region
          if (grid(gP)%activeV(iVP)<= 0) then
             print*, "! newPhotonPacketV: position of the new dust emitted &
                  &photon packet is inside the inner region", iVP
             stop
          end if
-         
+       
          call getNu2V(grid(gP)%dustPDF(grid(gP)%activeV(iVP),1:nbins), nuP)
-         
+       
          if (nuP >= nbins) then
             print*, "! newPhotonPacketV: insanity occured in dust emitted photon &
                  &nuP assignment (iphot, nuP, iVP,activeP)", iphot, &
@@ -926,7 +926,7 @@ contains
             print*, "grain T: ", grid(gP)%Tdust(:,0,grid(gP)%activeV(iVP))
             stop
          end if
-         
+       
          if (nuP < 1) then
             print*, "! newPhotonPacketV: insanity occured in dust emitted photon &
                  &nuP assignment", nuP,iVP,grid(gP)%activeV(iVP)
@@ -934,7 +934,7 @@ contains
             print*, "grain T: ", grid(gP)%Tdust(:, 0, grid(gP)%activeV(iVP))
             stop
          end if
-         
+       
          ! initialize the new photon packet
          if (grid(gP)%activeV(iVP) < 0.) then
             print*, "! newPhotonPacketV: new packet cannot be emitted from re-mapped cell -6-"
@@ -942,25 +942,25 @@ contains
             print*, chType, nuP, starPosition(iStar), .false., .true., iVP
             stop
          end if
-         
+       
          newPhotonPacketV = initPhotonPacketV(nuP, position, nullUnitVector,&
               & .false., .false., iVP, .false.)
-         
-         
-         
+       
+       
+       
       ! if the photon packet type is wrong or missing
       !-------------------------------------------------------------------------
       case default
-         
+       
          print*, "! newPhotonPacketV: wrong photon packet type - 'stellar', 'diffuse' and &
               & dust emitted types allowed-"
          stop
       end select
       !-------------------------------------------------------------------------
 
-      
-    end function newPhotonPacketV
     
+    end function newPhotonPacketV
+  
 
 
     !--------------------------------------------------------------------------
@@ -970,7 +970,7 @@ contains
       type(photon_packet),intent(inout) :: enPacket   ! energy packet
 
       type(vector)         :: rVec2,vHat2             ! position vector
-      type(Vertex),pointer :: v                       ! pointer to current voronoi cell
+      type(Vertex),allocatable :: v                       ! pointer to current voronoi cell
       character(len=7)     :: packetType              ! photon packet type
       logical              :: lgScattered             ! is the packet scattering with dust?
       logical              :: lgReturn                ! flag to return from routine
@@ -1014,7 +1014,7 @@ contains
       vHat(3) = enPacket%direction%z
       iVoronoi = enPacket%iVoronoi
       gp = 1  !enPacket%iG
-      v => grid(gp)%voronoi(iVoronoi)  
+      v => grid(gp)%voronoi(iVoronoi)
       iprev = iVoronoi
 
 
@@ -1039,7 +1039,7 @@ contains
 
       ! initialise optical depth
       absTau = 0.0
-      
+    
       ! calculate the total optical depth to be travelled by the photon packet
 
       call random_number(random)
@@ -1062,25 +1062,25 @@ contains
       !------------------------------------------------------------------------
       do i=1,safeLimit
 
-            
+          
          ! verify that ray is inside a valid Voronoi cell
          ! (need to find calls to relevant Voronoi library routines)
          if (iVoronoi < 1 .and. iVoronoi > grid(gp)%nCellsV) then
             print*, "! pathSegmentV: insanity [gp,iVoronoi]", gp,iVoronoi
             stop
          end if
-         
+       
          ! (DAVID : Missing code here for symmetric walls; implement in the future)
          ! (Update : Not needed; walls done in different way)
-         
+       
          ! initialise variables before finding voronoi path length
          dr(1:3) = v%r(1:3) - rVec(1:3)
          r1sqd = dot_product(dr,dr)
          dS = 9.9e30
          inext = -1
          jjmin = -1
-         
-         
+       
+       
          ! loop over all voronoi connections to find minimum face intersection distance
          !---------------------------------------------------------------------
          do jj=1,v%Nconnect
@@ -1090,7 +1090,7 @@ contains
             dr = grid(gP)%voronoi(jcell)%r - rVec
             r2sqd = dot_product(dr,dr)
             dSaux = r2sqd - r1sqd
-            
+          
             ! Check special case
             if (dSaux < 0.0) then
                invr12comp = 1.0/r12comp
@@ -1099,7 +1099,7 @@ contains
                jjmin = jj
                exit
             end if
-            
+          
             if (r12comp*dSaux > 0.0 .and. dSaux < dS*v%connect(jj)%length*r12comp) then
                invr12comp = 1.0/r12comp
                dS = dSaux*v%connect(jj)%invlength*invr12comp
@@ -1109,24 +1109,24 @@ contains
 
          end do
          !---------------------------------------------------------------------
-         
+       
          ! Set path-length fractionally beyond cell boundary to ensure boundary 
          ! is crossed by photon packet
          dS = 0.5*dS
          dS = 1.00001*dS
          dV = v%volume
 
-         
+       
          ! Check if we've reached the edge of the domain
          if (enPacket%STot + dS >= enPacket%SEscape) then
             dS = enPacket%SEscape - enPacket%STot
             inext = -1
          end if
-         
-         
+       
+       
          ! calculate the optical depth to the next cell wall 
          tauCell = dS*grid(gP)%opacity(grid(gP)%activeV(iVoronoi), enPacket%nuP)
-         
+       
          ! check if photon packet interacets within this cell
          !---------------------------------------------------------------------
          if ((absTau + tauCell > totTau) .and. grid(gP)%activeV(iVoronoi) > 0) then
@@ -1134,16 +1134,16 @@ contains
             ! calculate where within this cell the packet is absorbed
             dlLoc = (totTau - absTau)/&
                  &grid(gP)%opacity(grid(gP)%activeV(iVoronoi),enPacket%nuP)
-            
+          
             ! update packet's position
             rVec = rVec + dlLoc*vHat
-            
+          
             ! add contribution of the packet to the radiation field (BOTH THE SAME!?)
 
             grid(gP)%Jste(grid(gP)%activeV(iVoronoi),enPacket%nuP) = &
                  & grid(gP)%Jste(grid(gP)%activeV(iVoronoi),enPacket%nuP) + dlLoc*deltaE(iStar) / dV
 
-               
+             
             ! check if the position within the cell is still withing the Outer radius
             ! (Not sure how this applies to Voronoi yet; Ask Barbara)
             !------------------------------------------------------------------
@@ -1154,23 +1154,23 @@ contains
                return
             end if
             !------------------------------------------------------------------
-            
-            
+          
+          
             ! check if the packet is absorbed or scattered
             !------------------------------------------------------------------
             if (lgDust) then
-               
+             
                probSca = grid(gP)%scaOpac(grid(gP)%activeV(iVoronoi),enPacket%nuP)/&
                     & (grid(gP)%opacity(grid(gP)%activeV(iVoronoi),enPacket%nuP))
-               
+             
                call random_number(random)
 !               random = random2
                random = 1.0 - random
-               
+             
                if (random > probSca) then
-                  lgScattered = .false.         
+                  lgScattered = .false.       
                else if (random <= probSca) then
-                  lgScattered = .true.         
+                  lgScattered = .true.       
                else
                   print*, '! pathSegment: insanity occured at the scattering/absorption&
                        & decision stage.'
@@ -1182,31 +1182,31 @@ contains
                   print*,'random number=',random,'probSca=',probSca
                   stop
                end if
-               
-               
+             
+             
                !---------------------------------------------------------------
                if (.not. lgScattered) then
-                  
+                
                   absInt = absInt + 1.
-                  
+                
                   ! packet is absorbed by the dust
                   if (.not.lgGas) then
                      packetType = "dustEmi"
-                     exit                         
-                     
+                     exit                       
+                   
                   ! packet is absorbed by the dust+gas
                   else
                      packetType = "diffuse"
-                     exit    
-                     
+                     exit  
+                   
                   end if
-                  
-                  
+                
+                
                !---------------------------------------------------------------
                else
-                  
-                  scaInt = scaInt + 1.                           
-                  
+                
+                  scaInt = scaInt + 1.                         
+                
                   if (lgMultiDustChemistry) then
                      do nS = 1, nSpeciesPart(grid(gP)%dustAbunIndex(grid(gP)%activeV(iVoronoi)))
                         if (grainabun(grid(gP)%dustAbunIndex(grid(gP)%activeV(iVoronoi)),nS)>0. &
@@ -1234,25 +1234,25 @@ contains
                         stop
                      end if
                   end if
-                  
-                  ! packet is scattered by the grain                         
+                
+                  ! packet is scattered by the grain                       
                   ! calculate new direction
                   enPacket%iVoronoi = iVoronoi
                   rVec2%x = rVec(1)
                   rVec2%y = rVec(2)
                   rVec2%z = rVec(3)
-             
-                  
+           
+                
                   if (grid(gP)%activeV(iVoronoi) < 0) then
                      print*, "! pathSegment: new packet cannot be emitted from re-mapped cell -1-"
                      print*, "nuP, starPosition(iStar), .false., .true., iVoronoi"
                      print*, nuP, starPosition(iStar), .false., .true.,  iVoronoi
                      stop
                   end if
-                  
+                
                   enPacket = initPhotonPacketV(enPacket%nuP, rVec2, &
                        & enPacket%direction, .false., .false., iVoronoi, .true.)
-                  
+                
                   if (.not.lgIsotropic .and. .not.enPacket%lgStellar) then
                      do ihg = 1,10
                         call hgV(enPacket,iierr)
@@ -1262,52 +1262,52 @@ contains
                         print*, '! pathSegment [warning]: hg called ten times [enPacket]', enPacket
                      end if
                   end if
-                  
+                
                   vHat(1) = enPacket%direction%x
                   vHat(2) = enPacket%direction%y
                   vHat(3) = enPacket%direction%z
-                  
-                  
+                
+                
                   if (.not. (enPacket%direction%x >= 0. .or. enPacket%direction%x < 0)) then
                      print*, '! pathSegment: [1] insane direction%x [direction%x]'
                      print*, enPacket%direction%x
                      stop
                   end if
-                  
-                  
+                
+                
                   ! initialize optical depth for next photon packet
                   absTau = 0.0
                   call random_number(random)
 !                  random = random2
 
                   totTau = -log(1.0 - random)
-                  
+                
                end if
                !---------------------------------------------------------------
-               
-               
+             
+             
             else
-               
+             
                absInt = absInt + 1.
-               
+             
                if (.not.lgGas) then
                   print*, "! pathSegment: Insanity occured - no gas present when no dust interaction"
                   stop
                end if
-               
+             
                ! packet interacts with gas
                packetType = "diffuse"
                exit
-               
+             
             end if
             !------------------------------------------------------------------
-            
-            
+          
+          
          ! the packet is not absorbed within this cell;
          ! add contribution of the packet to the radiation field
          !---------------------------------------------------------------------
          else
-            
+          
             grid(gP)%Jste(grid(gP)%activeV(iVoronoi),enPacket%nuP) = &
                  & grid(gP)%Jste(grid(gP)%activeV(iVoronoi),enPacket%nuP) + &
                  & dS*deltaE(iStar) / dV
@@ -1341,7 +1341,7 @@ contains
                   call photonPacketEscapes(enPacket)
                   return
                end if
-               
+             
             end if
             !------------------------------------------------------------------
 
@@ -1359,11 +1359,11 @@ contains
                   call photonPacketEscapes(enPacket)
                   return
                end if
-               
+             
             end if
             !------------------------------------------------------------------
 
-            
+          
             ! check if path is still within the simulation region
             radius = sqrt(dot_product(rVec,rVec))
 
@@ -1415,7 +1415,7 @@ contains
 
                      enPacket%STot = 0.0
                      enPacket%SEscape = Smin
-                     
+                   
                      if (lgSymmetricXYZ) then
                         enPacket%iboundary = iboundary
                      else
@@ -1426,18 +1426,18 @@ contains
                end if
 
             end if
-            
+          
          end if
          !---------------------------------------------------------------------
-         
+       
 ! 3.4.
          if (inext == -1) then
             call photonPacketEscapes(enPacket)
             return
          end if
-     
+   
 
-    
+  
       end do
       !------------------------------------------------------------------------
 
@@ -1450,9 +1450,9 @@ contains
             !stop
          end if
          return
-         
+       
       end if
-      
+    
       ! the energy packet has been absorbed - reemit a new packet from this position
       enPacket%iVoronoi = iVoronoi
       chTypeIn          = packetType
@@ -1484,7 +1484,7 @@ contains
       else
          idirT = int(acos(enPacket%direction%z)/dTheta)+1
       end if
-      
+    
       !                      idirT = int(acos(enPacket%direction%z)/dTheta)+1
       if (idirT>totangleBinsTheta) then
          idirT=totangleBinsTheta
@@ -1494,8 +1494,8 @@ contains
               &  idirT, enPacket, dTheta, totAngleBinsTheta
          stop
       end if
-      
-      
+    
+    
       if (abs(enPacket%direction%x)<1.e-35) then
          idirP = 0
       else
@@ -1506,9 +1506,9 @@ contains
          end if
       end if
       if (idirP<0) idirP=totAngleBinsPhi+idirP
-      
+    
       idirP=idirP+1
-      
+    
       if (idirP>totangleBinsPhi) then
          idirP=totangleBinsPhi
       end if
@@ -1517,40 +1517,40 @@ contains
               &  idirP, enPacket, dPhi, totAngleBinsPhi
          stop
       end if
-      
+    
       if (nAngleBins>0) then
          if (viewPointPtheta(idirT) > 0 .and. viewPointPhi(viewPointPtheta(idirT)) < 0) then
-            
+          
             grid(enPacket%origin(1))%escapedPackets(enPacket%origin(2), enPacket%nuP,viewPointPtheta(idirT)) = &
                  &grid(enPacket%origin(1))%escapedPackets(enPacket%origin(2), &
-                 & enPacket%nuP,viewPointPtheta(idirT)) + deltaE(iStar)                     
+                 & enPacket%nuP,viewPointPtheta(idirT)) + deltaE(iStar)                   
             grid(enPacket%origin(1))%escapedPackets(enPacket%origin(2), & 
                  & enPacket%nuP,0) = &
                  & grid(enPacket%origin(1))%escapedPackets(enPacket%origin(2), &
                  & enPacket%nuP,0) +  deltaE(iStar)
-            
+          
          elseif (viewPointPtheta(idirT) == viewPointPphi(idirP).or. &
               & (viewPointTheta(viewPointPphi(idirP))==viewPointTheta(viewPointPtheta(idirT))) .or. &
               & (viewPointPhi(viewPointPtheta(idirT))==viewPointPhi(viewPointPphi(idirP))) ) then
             grid(enPacket%origin(1))%escapedPackets(enPacket%origin(2), enPacket%nuP,& 
                  & viewPointPtheta(idirT)) =grid(enPacket%origin(1))%escapedPackets(enPacket%origin(2),& 
                  & enPacket%nuP,viewPointPtheta(idirT)) +  deltaE(iStar)
-            
+          
             if (viewPointPtheta(idirT)/=0) grid(enPacket%origin(1))%escapedPackets(enPacket%origin(2), &
                  &enPacket%nuP,0) = &
                  & grid(enPacket%origin(1))%escapedPackets(enPacket%origin(2), &
                  & enPacket%nuP,0) +  deltaE(iStar)
-            
+          
          else
             grid(enPacket%origin(1))%escapedPackets(enPacket%origin(2), &
                  & enPacket%nuP,0) = &
                  & grid(enPacket%origin(1))%escapedPackets(enPacket%origin(2), &
                  & enPacket%nuP,0) +  deltaE(iStar)
-            
+          
          end if
-         
+       
       else
-         
+       
          grid(enPacket%origin(1))%escapedPackets(enPacket%origin(2), &
               enPacket%nuP,0) = &
               & grid(enPacket%origin(1))%escapedPackets(enPacket%origin(2), &
@@ -1564,11 +1564,11 @@ contains
 
     !--------------------------------------------------------------------------
     subroutine hgV(inpacket,ierr)
-      
+    
       implicit none
-      
+    
       type(photon_packet), intent(inout) :: inpacket
-      
+    
       real :: nxp,nyp,nzp
       real :: sint,cost,sinp,cosp,phi
       real :: costp,sintp,phip
@@ -1577,18 +1577,18 @@ contains
       real :: cos2sin1,cosi1,sini1,sin2i1,cos2i1
       real :: random, random0, vin(3), vout(3), s, denom
       real :: hgg, g2, znorm
-      
+    
       integer :: ierr
-      
+    
       ierr = 0
-      
+    
       ! BEKS 2010
       vin(1) = inpacket%direction%x
       vin(2) = inpacket%direction%y
       vin(3) = inpacket%direction%z
-      
+    
       hgg = gSca(inpacket%nuP)
-      
+    
       ! henyey-greenstein http://robertoreif.com/Documents/Chapter3.pdf
       call random_number(random0) ! this is the theta dependence
       s=2.*random0-1.
@@ -1606,13 +1606,13 @@ contains
       else
          sint=sqrt(1.-cost**2)
       endif
-      
+    
       call random_number(random) ! this is the phi dependence 
       phi = twoPi*random 
       cosp=cos(phi)
       sinp=sin(phi)
       denom=sqrt(1.-vin(3)**2)
-      
+    
       if (denom.gt.0.001) then
          vout(1)=sint/denom*(vin(1)*vin(3)*cosp-vin(2)*sinp) + vin(1)*cost
          vout(2)=sint/denom*(vin(2)*vin(3)*cosp+vin(1)*sinp) + vin(2)*cost
@@ -1626,19 +1626,19 @@ contains
             vout(3)=-cost
          endif
       endif
-      
-      
-      
+    
+    
+    
       if ( ( (abs(vout(1)) <= 1.) .and. (abs(vout(2)) <= 1.) .and. (abs(vout(3)) <= 1.) )&
            & .and. (vout(1) >= 0. .or. vout(1) < 0.) .and. &
            & (vout(2) >= 0. .or. vout(2) < 0.) .and. & 
            & (vout(3) >= 0. .or. vout(3) < 0.)) then
-         
+       
          inpacket%direction%x =  vout(1)
          inpacket%direction%y =  vout(2)
          inpacket%direction%z =  vout(3)
-         
-         
+       
+       
          ierr = 0
       elseif ((abs(vout(1))>=1.).or.(abs(vout(2))>=1.).or.(abs(vout(3))>=1.)&
            & .and. (vout(1) >= 0. .or. vout(1) < 0.) .and. &
@@ -1653,26 +1653,26 @@ contains
          print*,' ',cost,sint
          print*,' ',cosp,sinp,denom
          print*,' ',vout
-         
+       
          vout(1) = vin(1)
          vout(2) = vin(2)
          vout(3) = vin(3)
-         
+       
          !      print*, vout
          !      print*, vin
          !      print*, random0, random
          !      print*, hgg
          !      print*, inpacket%nuP
          !      print*, sint, cost, sinp, cosp
-         
+       
       end if
-      
+    
       return
-      
-                        
+    
+                      
     end subroutine hgV
 
   end subroutine energyPacketDriverV
-  
-  
+
+
 end module voronoi_photon_mod

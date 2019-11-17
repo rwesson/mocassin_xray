@@ -15,11 +15,11 @@ module voronoi_grid_mod
     use xSec_mod               ! x Section data
     use VoronoiFortranInterface
 
-    real, pointer                  :: dustAbunIndexTemp(:) ! temporary dust abundance index array
+    real, allocatable              :: dustAbunIndexTemp(:) ! temporary dust abundance index array
 
-    real, pointer                  :: MdMg(:)  ! Md/Mg
+    real, allocatable              :: MdMg(:)  ! Md/Mg
 
-    integer, pointer               :: abFileIndexTemp(:) ! temporary 
+    integer, allocatable           :: abFileIndexTemp(:) ! temporary 
 
     character(len=40)              :: keyword      ! character string readers
     contains
@@ -34,12 +34,12 @@ module voronoi_grid_mod
         real, dimension(450) :: ordered
         real, dimension(17)  :: seriesEdge
 
-        real                 :: nuMinArray, nuMaxArray        
+        real                 :: nuMinArray, nuMaxArray      
         real                 :: dradio
         real                 :: nuStepSizeLoc
         real :: p0,p1,p2,p3
 
-        real, pointer        :: nuTemp(:)
+        real, allocatable    :: nuTemp(:)
 
         ! local variable
 
@@ -50,7 +50,7 @@ module voronoi_grid_mod
         integer :: i, j, iCount, nuCount, elem, ion ! counters
         integer :: nradio
         integer :: g0,g1
-        integer :: nEdges  
+        integer :: nEdges
         integer :: nElec
         integer :: outshell
 
@@ -61,37 +61,37 @@ module voronoi_grid_mod
         integer, parameter :: nSeries = 17
 
         print*, "in initVoronoiGrid"
-        
+      
 
         ! CHECK: this is probably ok because the transfer still uses cartesians
         nullUnitVector%x = 1.
         nullUnitVector%y = 0.
         nullUnitVector%z = 0.
-        
+      
 
         elemLabel = (/'*H','He','Li','Be','*B','*C','*N','*O','*F','Ne','Na','Mg',&
              &'Al','Si','*P','*S','Cl','Ar','*K','Ca','Sc','Ti','*V','Cr','Mn','Fe',&
              &'Co','Ni','Cu','Zn'/)
-        
+      
        ! set up atomic weight array
         aWeight = (/1.0080, 4.0026, 6.941, 9.0122, 10.811, 12.0111, 14.0067, 15.9994, &
              & 18.9984, 20.179, 22.9898, 24.305, 26.9815, 28.086, 30.9738, 32.06, 35.453, &
              & 39.948, 39.102, 40.08, 44.956, 47.90, 50.9414, 51.996, 54.9380, 55.847, 58.9332, &
              & 58.71, 63.546, 65.37 /)
-        
+      
         ! only calculate the frequency/energy grid and assign the abundances if this is the
         ! first time that 
         ! this procedure is called - the grid will be constant throughout the execution
-        
+      
         allocate(grid%elemAbun(nAbComponents, nElements), stat = err)
         if (err /= 0) then 
            print*, "! initVoronoiGrid: can't allocate grid memory"
            stop
         end if
         grid%elemAbun=0.
-        
-        if (lgFirst) then  
-           
+      
+        if (lgFirst) then
+         
            if (lgGas) then
               ! set chemical abundances according to the grid%composition
               ! variable  given 
@@ -113,18 +113,18 @@ module voronoi_grid_mod
               lgElementOn=.false.
               elementXref=0
               nElementsUsed=0
-              
+            
            end if
-           
+         
            ! calculate the frequency grid
-           
+         
             ! allocate just enough space for the energy array
            allocate(nuArray(1:nbins), stat = err)
            if (err /= 0) then
               print*, "! grid: can't allocate grid memory"
               stop
            end if
-           
+         
            ! allocate just enough space for the widFlx array
            allocate(widFlx(1:nbins), stat = err)
            if (err /= 0) then
@@ -137,59 +137,59 @@ module voronoi_grid_mod
               print*, "! grid: can't allocate continuum emission array memory"
               stop
            end if
-           
+         
            if (lgGas) then
-              
+            
               call phInit() ! set up photoionization data
-              
+            
               seriesEdge = (/0.0069, 0.0083, 0.01, 0.0123, 0.0156, 0.0204, 0.0278, 0.04, &
                    & 0.0625, 0.11117, &
                    & 0.11610, 0.12248, 0.13732, 0.24763, 0.24994, 0.26630, 0.29189/)
-              
+            
               nEdges = 1
-              
+            
               ! find the ionization edges included in our frequency range
               do elem = 1, nElements  ! begin element loop
                  do ion = 1, min(elem, nStages-1) ! begin ion loop
                     if(.not.lgElementOn(elem)) exit
-                         
-                    if (elem > 2) then
                        
+                    if (elem > 2) then
+                     
                        ! find the number of electrons in this ion
                        nElec = elem - ion + 1
-                       
+                     
                        ! find the outer shell number and statistical weights 
                        call getOuterShell(elem, nELec, outShell, g0, g1)
-                         
+                       
                        ! get threshold energy
                        ionEdge(nEdges) = ph1(1,elem, nElec, outShell)/RydtoEv
                     else if (elem == 1) then ! HI
-                       
+                     
                        ionEdge(nEdges) = 0.999434
-                       
+                     
                     else if ( (elem == 2) .and. (ion == 1) ) then ! HeI
-                       
+                     
                        ionEdge(nEdges) = 1.80804
-                       
+                     
                     else if ( (elem == 2) .and. (ion == 2) ) then ! HeII
-                       
+                     
                        ionEdge(nEdges) = 4.
-                       
+                     
                     end if
-                    
+                  
                     if (ionEdge(nEdges) <= nuMax) nEdges = nEdges + 1
-                    
-                    
+                  
+                  
                  end do
               end do
-              
+            
               nEdges = nEdges -1
-              
+            
               call sortUp(ionEdge(1:nEdges))
 
            end if
-           
-           
+         
+         
            if ( (lgDust) .and. (.not.lgGas) ) then 
                close(72)
                open (unit= 72,  action="read", file=PREFIX//"/share/mocassinX/dustData/nuDustRyd.dat", status = "old", position = "rewind", &
@@ -198,7 +198,7 @@ module voronoi_grid_mod
                   print*, "! initVoronoiGrid: can't open dust nu grid file - ",PREFIX,"/share/mocassinX/dustData/nuDustRyd.dat"
                   stop
                end if
-               
+             
                do i = 1, 10000000
                   if (i<=nbins+1) then
                      read(unit=72,fmt=*,iostat=ios) nuArray(i)
@@ -210,21 +210,21 @@ module voronoi_grid_mod
                      stop
                   end if
                end do
-               
+             
                nbins = i-1
                print*, "! initVoronoiGrid: nbins reset to ", nbins
-               
+             
                close(72)
-               
+             
                allocate (nuTemp(1:nbins))
                nuTemp = nuArray(1:nbins)
-               if (associated(nuArray)) deallocate(nuArray)
+               if (allocated(nuArray)) deallocate(nuArray)
                allocate (nuArray(1:nbins))
                nuArray = nuTemp
-               if (associated(nuTemp)) deallocate(nuTemp)
+               if (allocated(nuTemp)) deallocate(nuTemp)
 
             else if (lgGas .and. (.not.lgDust)) then
-               
+             
                ! first count how many edge, thresholds etc
                if (nuMin<radio4p9GHz) then
                   nuArray(1)     = radio4p9GHz
@@ -232,7 +232,7 @@ module voronoi_grid_mod
                else
                   nuCount = 1
                end if
-               
+             
                nuMinArray = nuMin
                nuMaxArray = nuMax
                ! H series edges 
@@ -246,7 +246,7 @@ module voronoi_grid_mod
                      print*, 'initVoronoiGrid [warning]: H series - nuMaxArray increased to ', nuMaxArray, i
                   end if
                   nuCount = nuCount+3
-                  
+                
                end do
                ! IP Thresholds
                do i = 1, nEdges
@@ -258,20 +258,20 @@ module voronoi_grid_mod
                      nuCount = nuCount+3
                   end if
                end do
-               
+             
                ! build the log energy mesh
                iCount = nbins-nuCount+1
                nuStepSize = (log10(nuMaxArray)-log10(nuMinArray))/(iCount-1)
                nuArray(nuCount) = nuMinArray
-               do i = nuCount+1, nbins                  
+               do i = nuCount+1, nbins                
                   nuArray(i) = 10.**(log10(nuArray(i-1))+nuStepSize)
                enddo
-               
+             
                ! now sort in ascending order
                call sortUp(nuArray)
-               
+             
             else if (lgDust .and. lgGas) then
-               
+             
                ! first count how many edge, thresholds etc
                if (nuMin<radio4p9GHz) then
                   nuArray(1)     = radio4p9GHz
@@ -279,7 +279,7 @@ module voronoi_grid_mod
                else
                   nuCount = 1
                end if
-               
+             
                nuMinArray = nuMin
                nuMaxArray = nuMax
                ! H series edges 
@@ -293,7 +293,7 @@ module voronoi_grid_mod
                      print*, 'initVoronoiGrid [warning]: H series - nuMaxArray increased to ', nuMaxArray, i
                   end if
                   nuCount = nuCount+3
-                  
+                
                end do
                ! IP Thresholds
                do i = 1, nEdges
@@ -305,7 +305,7 @@ module voronoi_grid_mod
                      nuCount = nuCount+3
                   end if
                end do
-               
+             
                ! dust data points
                close(72)
                open (unit= 72,  action="read", file=PREFIX//"/share/mocassinX/dustData/nuDustRyd.dat", status = "old", position = "rewind", &
@@ -314,7 +314,7 @@ module voronoi_grid_mod
                   print*, "! initVoronoiGrid: can't open dust nu grid file - ",PREFIX,"/share/mocassinX/nuDustGrid.dat"
                   stop
                end if
-               
+             
                do i = 1, 10000000
                   if (i<=nbins) then
                      read(unit=72,fmt=*,iostat=ios) nuArray(nuCount)
@@ -327,74 +327,74 @@ module voronoi_grid_mod
                      stop
                   end if
                end do
-               
+             
                close(72)
-               
+             
                ! build the log energy mesh
                iCount = nbins-nuCount+1
                nuStepSize = (log10(nuMaxArray)-log10(nuMinArray))/(iCount-1)
                nuArray(nuCount) = nuMinArray
-               do i = nuCount+1, nbins                  
+               do i = nuCount+1, nbins                
                   nuArray(i) = 10.**(log10(nuArray(i-1))+nuStepSize)
                enddo
-               
+             
                ! now sort in ascending order
-               call sortUp(nuArray)               
-               
+               call sortUp(nuArray)             
+             
             end if
-            
+          
             widFlx(1) = nuArray(2)-nuArray(1)
             do i = 2, nbins-1
                widFlx(i) = (nuArray(i+1)-nuArray(i-1))/2.
                print*, i, nuArray(i), widFlx(i)
             end do
             widFlx(nbins) =  nuArray(nbins)-nuArray(nbins-1)
-            
+          
              ! set the 4.9 GHz pointer
             if (nuArray(1) <= radio4p9GHz) then
                call locate(nuArray,radio4p9GHz,radio4p9GHzP)
                if (radio4p9GHz > (nuArray(radio4p9GHzP)+nuArray(radio4p9GHzP+1))/2.) &
                     & radio4p9GHzP =radio4p9GHzP+1
             end if
-            
+          
             if (widFlx(1)<=0. .or. widFlx(nbins)<=0. ) then
                print*, " ! initVoronoiGrid: null or negative frequency bin [1, nbins]", widFlx(1), widFlx(nbins)
                stop
             end if
-            
+          
             lgFirst = .false.
-            
+          
             ! initialize the continuum gamma coeffs
             call initGammaCont()
-            
+          
          end if
-         
+       
          ! allocate active cells pointers
          allocate(grid%activeV(1:grid%nCellsV), stat = err)
          if (err /= 0) then
             print*, "Can't allocate grid memory, activeV"
             stop
          end if
-         
-!         ! allocate axes        
+       
+!         ! allocate axes      
 !         allocate(grid%xAxis(1:nx), stat = err)
 !         if (err /= 0) then
 !            print*, "Can't allocate grid memory, xAxis"
 !            stop
 !         end if
-         
+       
 !         allocate(grid%yAxis(1:ny), stat = err)
 !         if (err /= 0) then
 !            print*, "Can't allocate grid memory, yAxis"
 !            stop
 !         end if
-         
+       
 !         allocate(grid%zAxis(1:nz), stat = err)
 !         if (err /= 0) then
 !            print*, "Can't allocate grid memory, zAxis"
 !            stop
 !         end if
-              
+            
 !        allocate(grid%voronoi(1:ncellV), stat= err) 
 !        if (err /= 0) then
 !            print*, "Can't allocate grid memory, voronoi"
@@ -412,7 +412,7 @@ module voronoi_grid_mod
 !        grid%yAxis = 0.
 !        grid%zAxis = 0.
 
-        
+      
 
         !new
          dTheta = Pi/totAngleBinsTheta
@@ -434,7 +434,7 @@ module voronoi_grid_mod
 !         if (err /= 0) then
 !            print*, "Can't allocate grid memory, viewAngleP "
 !            stop
-!         end if        
+!         end if      
 
 
          allocate(viewPointPTheta(0:totAngleBinsTheta), stat = err)
@@ -447,12 +447,12 @@ module voronoi_grid_mod
             print*, "! initVoronoiGrid: Can't allocate grid memory, viewAnglePPhi "
             stop
          end if
-         
+       
          viewPointPtheta = 0
          viewPointPphi = 0
 
 !         ii = 1
-!         do i = 1, nAngleBins         
+!         do i = 1, nAngleBins       
 !            viewPointP(int(viewPoint(i)/dTheta)+1) = ii
 !            ii = ii+1
 !         end do
@@ -462,10 +462,10 @@ module voronoi_grid_mod
                print*, '! initVoronoiGrid: the inclination theta required is not available for symmetricXYZ models (theta > Pi/2)'
                stop
             end if
-            viewPointPtheta(int(viewPointTheta(i)/dTheta)+1) = i            
+            viewPointPtheta(int(viewPointTheta(i)/dTheta)+1) = i          
             viewPointPphi(int(viewPointPhi(i)/dPhi)+1) = i
          end do
-         
+       
 !         print*, 'viewpointptheta'
 !         print*, viewpointptheta
 !         print*, ' '
@@ -473,7 +473,7 @@ module voronoi_grid_mod
 !         print*, viewpointpphi
 
          print*, 'dTheta : ', dTheta
-         print*, 'dPhi : ', dPhi               
+         print*, 'dPhi : ', dPhi             
 
          close(77)
          if (lgDfile) then
@@ -488,7 +488,7 @@ module voronoi_grid_mod
          else
             print*, "! initVoronoiGrid: density file required for Voronoi grids"
             stop
-         end if         
+         end if       
 
          allocate (grid%voronoi(grid%nCellsV)) 
 
@@ -498,16 +498,16 @@ module voronoi_grid_mod
             print*, "! initVoronoiGrid: can't allocate grid memory"
             stop
          end if
-         abFileIndexTemp = 1.        
+         abFileIndexTemp = 1.      
 
 
          grid%activeV = 1
 
          if (lgGas) then
            do i = 1, grid%nCellsV
-              
+            
               if (.not.lgMultiChemistry) then
-                 
+               
                  read(77, *) p0, p1, p2, p3
 
                  grid%voronoi(i)%r(1) = p0
@@ -515,21 +515,21 @@ module voronoi_grid_mod
                  grid%voronoi(i)%r(3) = p2
 
                  grid%voronoi(i)%density = p3
-                 
+               
               else
-                 
+               
                  read(77, *) grid%voronoi(i)%r(1), grid%voronoi(i)%r(2), grid%voronoi(i)%r(3),&
                       & grid%voronoi(i)%density, abFileIndexTemp(i)
-                 
+               
               end if
-              
-              
+            
+            
 !              if (fillingFactor<1.) then
 !                 print*, "! setMotherGridV: fillingFactor not implement for Voronoi grids - &
 !                      & please act directly on your density grid file"
 !                 stop
 !              end if
-              
+            
            end do
            close(77)
         end if ! lgGas
@@ -537,25 +537,25 @@ module voronoi_grid_mod
 
         ! set up dust data
         if (lgDust) then
-           
+         
            if (lgMultiDustChemistry) then
               allocate(dustAbunIndexTemp(1:grid%nCellsV), stat = err)
               if (err /= 0) then
                  print*, "! setMotherGridV: can't allocate dustAbunIndexTemp memory"
                  stop
               end if
-              dustAbunIndexTemp = 0.              
+              dustAbunIndexTemp = 0.            
            end if
-           
+         
            if (lgMdMg .or. lgMdMh) then
-              
+            
               allocate(MdMg(1:grid%nCellsV), stat = err)
               if (err /= 0) then
                  print*, "! setMotherGridV: can't allocate MdMg memory"
                  stop
               end if
               MdMg = 0.
-              
+            
               if (lgDustConstant) then
                  MdMg = MdMgValue
               else
@@ -567,21 +567,21 @@ module voronoi_grid_mod
                  end if
                  read(20,*)keyword
                  if (keyword .ne. "#") backspace 20
-                 
+               
                  if (lgMultiDustChemistry) then
                     do i = 1, grid%nCellsV
                        read(20, *) index, MdMg(i), dustAbunIndexTemp(i)
                     end do
-                 else                    
+                 else                  
                     do i = 1, grid%nCellsV
                        read(20, *) index, MdMg(i)
                     end do
                  end if
                  close(20)
               end if
-              
+            
            else
-              
+            
               ! Ndust was directly defined by  the user
               if (lgDustConstant) then
                  grid%voronoi(i)%ndust = NdustValue
@@ -601,7 +601,7 @@ module voronoi_grid_mod
                             & grid%voronoi(i)%ndust, dustAbunIndexTemp(i)
                     end do
                  else
-                    
+                  
                     do i = 1, grid%nCellsV
                        read(20, *) grid%voronoi(i)%r(1), grid%voronoi(i)%r(2), grid%voronoi(i)%r(3),&
                             & grid%voronoi(i)%ndust
@@ -612,14 +612,14 @@ module voronoi_grid_mod
               end if
 
            end if
-           
+         
         end if
 
         call GenerateVoronoiTessellation("voro++",  grid%nCellsV, grid%voronoi, boxXn, boxXp,boxYn, boxYp,boxZn, boxZp, boxsizeV)
 
 
         if (lgMassVoronoi) then 
-           do i = 1, grid%nCellsV           
+           do i = 1, grid%nCellsV         
               grid%voronoi(i)%density = grid%voronoi(i)%density*1.9891d-12/grid%voronoi(i)%volume
               grid%voronoi(i)%density = grid%voronoi(i)%density/2.3546d-24
            end do
@@ -634,7 +634,7 @@ module voronoi_grid_mod
            close(20)
 
         else
-           
+         
            open(unit=20, file='output/dgrid.out')
 
            do i = 1, grid%nCellsV
@@ -643,17 +643,17 @@ module voronoi_grid_mod
            end do
 
            close(20)
-           
+         
 
         end if
-           
-           
+         
+         
 
         print*, "out initVoronoiGrid"
 
       end subroutine initVoronoiGrid
 
-    
+  
        subroutine fillGridV(grid)
          implicit none
 
@@ -667,12 +667,12 @@ module voronoi_grid_mod
          integer :: err                                    ! memory allocation status
          integer :: ngridsloc
          integer, parameter :: max_points = 10000          ! safety limit
-         
+       
          real :: radius     !
 
         integer :: iCount, nuCount              ! counters
         integer :: g0,g1
-        integer :: nEdges  
+        integer :: nEdges
         integer :: nElec
         integer :: outshell
         integer :: totCells
@@ -680,11 +680,11 @@ module voronoi_grid_mod
 
         integer, parameter :: maxLim = 10000
         integer, parameter :: nSeries = 17
-        
+      
         real                 :: nuStepSizeLoc
         real :: massFrac
         real(kind=8) :: dV
-        integer                        :: ix,iy,iz     ! counters   
+        integer                        :: ix,iy,iz     ! counters 
         integer                        :: nspec, ai    ! counters
         integer                        :: nsp          ! pointer
 
@@ -699,11 +699,11 @@ module voronoi_grid_mod
            print*, '! fillGridV: 1D is not implemented in Voronoi'
            stop
         end if
-        
+      
         if (lgNeutral) then
-           
+         
            ! set up density distribution and initial grid properties
-           
+         
            call setMotherGridV(grid(1))
 
            ! set the subGrids
@@ -730,7 +730,7 @@ module voronoi_grid_mod
 
               massFrac = inputGasMass / totalGasMass
               print*,'! fillGridV: Scaling all gas densities by ',massFrac
-              
+            
               if (lgDust .and. (lgMdMg .or. lgMdMh)) &
                    & print*,'! fillGridV: Scaling all dust densities by ',massFrac
 
@@ -747,7 +747,7 @@ module voronoi_grid_mod
                     endif
                  enddo
               enddo
-              
+            
               totalGasMass = inputGasMass
               totalDustMass = totalDustMass * massFrac
            endif
@@ -786,7 +786,7 @@ module voronoi_grid_mod
                  enddo
               enddo
 
-!HERE              
+!HERE            
               massFrac = inputDustMass / totalDustMass
               print*,'fillGridV: Scaling all dust densities by ',massFrac
               do iG = 1, nGrids
@@ -801,14 +801,14 @@ module voronoi_grid_mod
               totalDustMass = inputDustMass
            endif
 !
-           totCells = 0       
+           totCells = 0     
            totcellsloc=0
            if (emittingGrid>0) then
               nGridsloc = emittingGrid
            else
               nGridsloc = ngrids
            end if
-           
+         
            do i = 1, nGrids
               totCells = totCells+grid(i)%nCells
            end do
@@ -817,17 +817,17 @@ module voronoi_grid_mod
            end do
 
            if (taskid==0) print*, '! fillGridV: total number of active cells over all grids: ', totCells
-              
+            
            if (lgGas) then
               if (lgSymmetricXYZ) totalGasMass=totalGasMass*8.
               print*, 'fillGridV: Actual total gas mass [1.e45 g]: ', totalGasMass
-              print*, 'fillGridV: Actual total gas mass [Msol]: ', totalGasMass*5.028e11                
-           end if           
+              print*, 'fillGridV: Actual total gas mass [Msol]: ', totalGasMass*5.028e11              
+           end if         
            if (lgDust) then
               if (lgSymmetricXYZ) totalDustMass=totalDustMass*8.
               print*, 'fillGridV: Actual total dust mass [1.e45 g]: ', totalDustMass
-              print*, 'fillGridV: Actual total dust mass [Msol]: ', totalDustMass*5.028e11                
-           end if           
+              print*, 'fillGridV: Actual total dust mass [Msol]: ', totalDustMass*5.028e11              
+           end if         
 
            if (nPhotonsDiffuse > 0 .and. nPhotonsDiffuse < totCellsloc) then
               print*, '! fillGridV: total number of active cells is larger than the &
@@ -850,7 +850,7 @@ module voronoi_grid_mod
                 & in this version. plese re-run with neutral keyword'
            stop 
         end if
-        
+      
         if (lgPlaneIonization) then
            print*, 'PlaneIonisation not available with Voronoi'
            stop
@@ -875,8 +875,8 @@ module voronoi_grid_mod
 !           print*, "! fillGrid: can't allocate dl memory"
 !           stop
 !        end if
-!        dl = 0.        
-        
+!        dl = 0.      
+      
 !        do iG = 1, nGrids
 !           ! find geometric corrections
 !           grid(iG)%geoCorrX = (grid(iG)%xAxis(grid(iG)%nx) - grid(iG)%xAxis(grid(iG)%nx-1))/2.
@@ -890,7 +890,7 @@ module voronoi_grid_mod
 
 !           if (taskid==0) print*, "Geometric grid corrections for grid ", &
 !                & iG, ' : ', grid(iG)%geoCorrX, grid(iG)%geoCorrY, grid(iG)%geoCorrZ
-           
+         
            ! find linear increment
 !           dl(iG) =  abs(grid(iG)%xAxis(2) - grid(iG)%xAxis(1))
 !           do i = 2, grid(iG)%nx-1
@@ -902,13 +902,13 @@ module voronoi_grid_mod
 !           do i = 1, grid(iG)%nz-1
 !              dl(iG) = min(dl(iG), abs(grid(iG)%zAxis(i+1)-grid(iG)%zAxis(i)) )
 !           end do
-!           dl(iG) = dl(iG)/50.                                                                                                 
+!           dl(iG) = dl(iG)/50.                                                                                               
 !        end do
-                       
+                     
         print*, "out fillGridV"
-        
-      end subroutine fillGridV
       
+      end subroutine fillGridV
+    
 
       subroutine setMotherGridV(grid)
         implicit none
@@ -936,12 +936,12 @@ module voronoi_grid_mod
         real, dimension(nElements) :: aWeight
         real, parameter :: amu = 1.66053e-24 ! [g]
 
-!        real, pointer                  :: HdenTemp(:) ! temporary Hden
-        real, pointer                  :: activeRVTemp(:) ! temporary Hden
-        
-!        real, pointer                  :: NdustTemp(:) ! temporary dust number density arra
-        real, pointer                  :: twoDscaleJTemp(:)
-        
+!        real, allocatable              :: HdenTemp(:) ! temporary Hden
+        real, allocatable              :: activeRVTemp(:) ! temporary Hden
+      
+!        real, allocatable              :: NdustTemp(:) ! temporary dust number density arra
+        real, allocatable              :: twoDscaleJTemp(:)
+      
 
         integer                        :: icomp 
         integer                        :: i,j,k        ! counters
@@ -953,10 +953,10 @@ module voronoi_grid_mod
         integer                        :: nspec, ai    ! counters
         integer                        :: nsp          ! pointer
         integer                        :: nu0P         ! 
-        integer                        :: RinP         ! pointer to the inner radius intercept  
+        integer                        :: RinP         ! pointer to the inner radius intercept
         integer                        ::tot
 
-        integer                        :: yTop, xPmap  ! 2D indece                
+        integer                        :: yTop, xPmap  ! 2D indece              
                                                        ! with one of the axes
 
 
@@ -973,7 +973,7 @@ module voronoi_grid_mod
            print*, "! setMotherGridV: can't allocate grid memory,activeRVTemp"
            stop
         end if
-        activeRVTemp = 0.        
+        activeRVTemp = 0.      
 
            ! allocate space for HdenTemp
 !           allocate(HdenTemp(1:grid%nCellsV), stat = err)
@@ -985,7 +985,7 @@ module voronoi_grid_mod
            ! set active cells pointers
            grid%nCells = 0
            do i = 1, grid%nCellsV
-              
+            
               ! calculate radius
               radius = 1.e10*sqrt( (grid%voronoi(i)%r(1)/1.e10)*(grid%voronoi(i)%r(1)/1.e10)+ &
                    &                    (grid%voronoi(i)%r(2)/1.e10)*(grid%voronoi(i)%r(2)/1.e10)+ &
@@ -996,7 +996,7 @@ module voronoi_grid_mod
               if (.not. lgPlaneIonization) then
 
                  if (radius < R_in) then
-                    grid%activeV(i) = 0                         
+                    grid%activeV(i) = 0                       
                  else if (radius > R_out .and. R_out>0.) then
                     grid%activeV(i) = 0
                  end if
@@ -1007,16 +1007,16 @@ module voronoi_grid_mod
                  grid%voronoi(i)%ndust = 0.
                  if (lgMultiDustChemistry) dustAbunIndexTemp(i) = 0.
               end if
-              
+            
               if (grid%activeV(i) <= 0 .and. lgGas ) grid%voronoi(i)%density = 0.
-              
+            
               if (lgDust .and. lgGas) then
                  if (grid%voronoi(i)%density > 0. .or. grid%voronoi(i)%ndust>0.) then
                     grid%nCells = grid%nCells + 1
                     grid%activeV(i) = grid%nCells
 
                     activeRVTemp(grid%nCells) = i
-                    
+                  
                  else
                     grid%activeV(i) = 0
                     grid%voronoi(i)%density = 0.
@@ -1026,7 +1026,7 @@ module voronoi_grid_mod
                  end if
 
               else if ( lgDust .and. (.not.lgGas) ) then
-                 
+               
                  if (grid%voronoi(i)%ndust >0.) then
                     grid%nCells = grid%nCells + 1
                     grid%activeV(i) = grid%nCells
@@ -1046,7 +1046,7 @@ module voronoi_grid_mod
                     grid%voronoi(i)%density = 0.
                  end if
               else
-                      
+                    
                  print*, '! setMotherGridV: no gas and no dust? The grid is empty.'
                  stop
               end if
@@ -1055,12 +1055,12 @@ module voronoi_grid_mod
 
            allocate(grid%activeRV(grid%nCells))
            do i = 1, grid%nCells
-              grid%activeRV(i) = activeRVTemp(i)             
-              
+              grid%activeRV(i) = activeRVTemp(i)           
+            
 !print*, 'here', i, grid%activeRV(i) 
            end do
 !stop
-           
+         
            deallocate(activeRVTemp)
 
 
@@ -1082,7 +1082,7 @@ module voronoi_grid_mod
 !          if (err /= 0) then
 !             print*, "Can't allocate grid memory, active"
 !             stop
-!          end if          
+!          end if        
 
 !          allocate(grid%voronoi(0:grid%nCells), stat = err)
 !          if (err /= 0) then
@@ -1097,7 +1097,7 @@ module voronoi_grid_mod
              if (err /= 0) then
                 print*, "! setMotherGridV: can't allocate grid memory"
                 stop
-             end if             
+             end if           
 
              allocate(grid%abFileIndex(0:grid%nCells), stat = err)
              if (err /= 0) then
@@ -1120,12 +1120,12 @@ module voronoi_grid_mod
 
              allocate(grid%ionDen(0:grid%nCells, 1:nElementsUsed, 1:nstages), stat = err)
              if (err /= 0) then
-                print*, "! setMotherGridV: can't allocate grid memory,ionDen"  
+                print*, "! setMotherGridV: can't allocate grid memory,ionDen"
                 stop
              end if
              allocate(ionDenUsed(1:nElementsUsed, 1:nstages), stat = err)
              if (err /= 0) then
-                print*, "! setMotherGridV: can't allocate grid memory,ionDen"  
+                print*, "! setMotherGridV: can't allocate grid memory,ionDen"
                 stop
              end if
              allocate(grid%Ne(0:grid%nCells), stat = err)
@@ -1146,11 +1146,11 @@ module voronoi_grid_mod
 
              grid%Hden = 0.
              grid%Ne = 0.
-             grid%Te = 0.        
+             grid%Te = 0.      
              grid%ionDen = 0.
              grid%recPDF = 0.
              grid%totalLines = 0.
-             
+           
           end if
 
           if (Ldiffuse>0.) then
@@ -1213,7 +1213,7 @@ module voronoi_grid_mod
              end if
              grid%dustAbunIndex=0.
              ! be 2.02.44 end
-             
+           
              if (.not.lgGas) then
                 allocate(grid%dustPDF(0:grid%nCells, 1:nbins), stat = err)
                 if (err /= 0) then
@@ -1249,12 +1249,12 @@ module voronoi_grid_mod
                 print*, "! initVoronoiGrid: can't allocate grid%linePDF memory"
                 stop
              end if
-             
+           
              grid%linePackets = 0.
              grid%linePDF     = 0.
-             
+           
           end if
-             
+           
 !BS10          end if
 
           allocate(grid%lgConverged(0:grid%nCells), stat = err)
@@ -1262,14 +1262,14 @@ module voronoi_grid_mod
              print*, "Can't allocate memory to lgConverged array"
              stop
           end if
-          
+        
           allocate(grid%lgBlack(0:grid%nCells), stat = err)
           if (err /= 0) then
              print*, "Can't allocate memory to lgBlack array"
              stop
           end if
-          
-          
+        
+        
           if (lgNeInput) then
              allocate(grid%NeInput(0:grid%nCells), stat = err)
              if (err /= 0) then
@@ -1278,12 +1278,12 @@ module voronoi_grid_mod
              end if
              grid%NeInput = 0.
           end if
-          
-          grid%opacity = 0.        
-          grid%Jste = 0.        
+        
+          grid%opacity = 0.      
+          grid%Jste = 0.      
           grid%lgConverged = 0
-          grid%lgBlack = 0           
-          
+          grid%lgBlack = 0         
+        
           do i = 1, grid%nCellsV
 
              if (grid%activeV(i)>0) then
@@ -1294,7 +1294,7 @@ module voronoi_grid_mod
                    grid%abFileIndex(grid%activeV(i)) = abFileIndexTemp(i)
                    grid%Te(grid%activeV(i)) = TeStart
                 end if
-                
+              
                 if (lgDust) then
                    grid%ndust(grid%activeV(i)) = grid%voronoi(i)%ndust
                    if (lgMultiDustChemistry) &
@@ -1318,12 +1318,12 @@ module voronoi_grid_mod
              H0in  = 1.e-5
 
              do i = 1, grid%nCellsV
-                      
+                    
                 if (grid%activeV(i)>0 ) then
 
                    ! calculate ionDen for H0
                    if (lgElementOn(1)) then
-                      grid%ionDen(grid%activeV(i),elementXref(1),1) = H0in                                              
+                      grid%ionDen(grid%activeV(i),elementXref(1),1) = H0in                                            
                       grid%ionDen(grid%activeV(i),elementXref(1),2) = &
                            & 1.-grid%ionDen(grid%activeV(i),elementXref(1),1)
                    end if
@@ -1334,7 +1334,7 @@ module voronoi_grid_mod
                            & (1.-grid%ionDen(grid%activeV(i),elementXref(2),1))
                       grid%ionDen(grid%activeV(i),elementXref(2),3) = 0.
                    end if
-                   
+                 
                    ! initialize Ne
                    grid%Ne(grid%activeV(i)) =  grid%voronoi(i)%density
 
@@ -1353,22 +1353,22 @@ module voronoi_grid_mod
                       end do
                    end do
                 end if     ! active condition
-                
+              
              end do
-             
+           
              ! deallocate temp array
-             !                   if(associated(HdenTemp)) deallocate(HdenTemp)
-             if(associated(abFileIndexTemp)) deallocate(abFileIndexTemp)
+             !                   if(allocated(HdenTemp)) deallocate(HdenTemp)
+             if(allocated(abFileIndexTemp)) deallocate(abFileIndexTemp)
 
 
           end if ! lgGas
-          
-          
+        
+        
           if (lgDust) then
-             if(lgMultiDustChemistry .and. associated(dustAbunIndexTemp)) deallocate(dustAbunIndexTemp)
+             if(lgMultiDustChemistry .and. allocated(dustAbunIndexTemp)) deallocate(dustAbunIndexTemp)
           end if
-          
-          
+        
+        
           ! set up atomic weight array
           aWeight = (/1.0080, 4.0026, 6.941, 9.0122, 10.811, 12.0111, 14.0067, 15.9994, &
                & 18.9984, 20.179, 22.9898, 24.305, 26.9815, 28.086, 30.9738, 32.06, 35.453, &
@@ -1379,13 +1379,13 @@ module voronoi_grid_mod
           totalMass = 0.
           totalVolume = 0.
           echoVolume = 0.
-          
+        
           do i = 1, grid%nCellsV
-             
+           
              if (lgEcho) grid%echoVol(grid%activeV(i))=0. ! initialize
 
              if (grid%activeV(i)>0) then
-                
+              
                 dV = grid%voronoi(grid%activeV(i))%volume
 
                 if (lgGas) then
@@ -1409,8 +1409,8 @@ print*, i, totalMass, grid%voronoi(grid%activeV(i))%density, dV
                 endif
 
                 if (lgDust .and. (lgMdMg.or.lgMdMh) ) then
-                   
-                   
+                 
+                 
                    if (lgMdMh) then
                       MhMg=0.
                       do elem = 1, nElements
@@ -1418,20 +1418,20 @@ print*, i, totalMass, grid%voronoi(grid%activeV(i))%density, dV
                          MhMg = MhMg+grid%elemAbun(grid%abFileIndex(grid%activeV(i)),elem)*&
                               & aWeight(elem)
                       end do
-                      MhMg = 1./MhMg                             
+                      MhMg = 1./MhMg                           
                       MdMg(i) = MdMg(i)*MhMg
                    end if
-                   
+                 
                    if (.not.lgGas) then
                       print*, '! setMotherGridV: Mass to dust ratio (MdMg) cannot be used in a pure dust (noGas)&
                            & simulation. Ndust must be used instead.'
                       stop
                    end if
-                   
+                 
                    grid%voronoi(grid%activeV(i))%ndust = gasCell*MdMg(i)*grid%voronoi(grid%activeV(i))%density
-                   
+                 
                    denominator = 0.
-                   
+                 
                    if (lgMultiDustChemistry) then
                       nsp = grid%dustAbunIndex(grid%activeV(i))
                    else
@@ -1464,19 +1464,19 @@ print*, i, totalMass, grid%voronoi(grid%activeV(i))%density, dV
                               &(1.3333*Pi*((grainRadius(ai)*1.e-4)**3)*&
                               & rho(dustComPoint(nsp)-1+nspec)*grainWeight(ai)*&
                               & grainAbun(nsp,nspec))*grid%voronoi(grid%activeV(i))%ndust*dV
-                         
+                       
                       end do
                    end do
-                   
+                 
                 end if
 
              end if
           end do
-          
-          if(associated(MdMg)) deallocate(MdMg)
-          
+        
+          if(allocated(MdMg)) deallocate(MdMg)
+        
           if (taskid == 0) then
-             
+           
              print*, 'Mothergrid :'
              if (lgGas) then
                 print*, 'Total gas mass of ionized region by mass [1.e45 g]: ', totalMass
@@ -1500,13 +1500,13 @@ print*, i, totalMass, grid%voronoi(grid%activeV(i))%density, dV
              endif
 
           end if
-          
+        
           ! if we are using a plane parallel ionization then we must find the luminosity 
           ! of the ionizing plane from the input meanField
           if (lgPlaneIonization) then
 
              print*, 'Flux above ', nu0, ' is ', meanField
-             
+           
              if (nu0 > 0.) then
                 call locate(nuArray, nu0, nu0P) 
                 if (nu0P >= nbins .or. nu0P <1) then
@@ -1524,23 +1524,23 @@ print*, i, totalMass, grid%voronoi(grid%activeV(i))%density, dV
                 end do
                 meanField = norm*scale
              end if
-             
-             print*, 'Flux bolometric is ', meanField              
-             
+           
+             print*, 'Flux bolometric is ', meanField            
+           
              Lstar(1) = (meanField/1.e36)*grid%xAxis(grid%nx)*grid%zAxis(grid%nz)
              deltaE(1) = Lstar(1)/nPhotons(1)
           end if
-          
+        
           if (taskid == 0) then
              print*, 'Total ionizing flux :', Lstar(1)
              print*, 'deltaE :', deltaE(1)
           end if
-          
+        
           print*, 'out setMotherGridV'
 
 
         end subroutine setMotherGridV
-        
+      
 
         subroutine freeGridV(grid)
  
@@ -1548,52 +1548,52 @@ print*, i, totalMass, grid%voronoi(grid%activeV(i))%density, dV
           print*, "in freeGridV"
 
           if (lgDust) then
-             if(associated(grid%absOpac)) deallocate(grid%absOpac)
-             if(associated(grid%scaOpac)) deallocate(grid%scaOpac)
-              if(associated(grid%voronoi)) deallocate(grid%voronoi)
-              if(associated(grid%Tdust)) deallocate(grid%Tdust)
-              if (lgMultiChemistry .and. associated(grid%dustAbunIndex)) &
+             if(allocated(grid%absOpac)) deallocate(grid%absOpac)
+             if(allocated(grid%scaOpac)) deallocate(grid%scaOpac)
+              if(allocated(grid%voronoi)) deallocate(grid%voronoi)
+              if(allocated(grid%Tdust)) deallocate(grid%Tdust)
+              if (lgMultiChemistry .and. allocated(grid%dustAbunIndex)) &
                    &  deallocate(grid%dustAbunIndex)
               if (.not.lgGas) then
-                 if(associated(grid%dustPDF)) deallocate(grid%dustPDF)
+                 if(allocated(grid%dustPDF)) deallocate(grid%dustPDF)
               end if
            end if
-           if (associated(grid%active)) deallocate(grid%active)
-           if (associated(grid%lgConverged)) deallocate(grid%lgConverged)
-           if (associated(grid%lgBlack)) deallocate(grid%lgBlack)     
+           if (allocated(grid%active)) deallocate(grid%active)
+           if (allocated(grid%lgConverged)) deallocate(grid%lgConverged)
+           if (allocated(grid%lgBlack)) deallocate(grid%lgBlack)   
            if (lgGas) then
-              if (associated(grid%abFileIndex)) deallocate(grid%abFileIndex)           
-              if (associated(grid%Te)) deallocate(grid%Te)
-              if (associated(grid%Ne)) deallocate(grid%Ne)
-              if (associated(grid%ionDen)) deallocate(grid%ionDen)
-              if (associated(ionDenUsed)) deallocate(ionDenUsed)
-              if (associated(grid%recPDF)) deallocate(grid%recPDF)
-              if (associated(grid%totalLines)) deallocate(grid%totalLines)
+              if (allocated(grid%abFileIndex)) deallocate(grid%abFileIndex)         
+              if (allocated(grid%Te)) deallocate(grid%Te)
+              if (allocated(grid%Ne)) deallocate(grid%Ne)
+              if (allocated(grid%ionDen)) deallocate(grid%ionDen)
+              if (allocated(ionDenUsed)) deallocate(ionDenUsed)
+              if (allocated(grid%recPDF)) deallocate(grid%recPDF)
+              if (allocated(grid%totalLines)) deallocate(grid%totalLines)
            end if
-           if (associated(grid%opacity)) deallocate(grid%opacity)
-           if (associated(grid%Jste)) deallocate(grid%Jste)
+           if (allocated(grid%opacity)) deallocate(grid%opacity)
+           if (allocated(grid%Jste)) deallocate(grid%Jste)
            if (lgDebug) then
-              if (associated(grid%Jdif)) deallocate(grid%Jdif)
+              if (allocated(grid%Jdif)) deallocate(grid%Jdif)
            end if
 
-           if (associated(grid%linePackets)) deallocate(grid%linePackets)
-           if (associated(grid%linePDF)) deallocate(grid%linePDF)
+           if (allocated(grid%linePackets)) deallocate(grid%linePackets)
+           if (allocated(grid%linePDF)) deallocate(grid%linePDF)
 
            if (lgNeInput) then
-               if (associated(grid%NeInput)) deallocate(grid%NeInput)
+               if (allocated(grid%NeInput)) deallocate(grid%NeInput)
             end if
-!           if (associated(grid%xAxis)) deallocate(grid%xAxis)
-!           if (associated(grid%yAxis)) deallocate(grid%yAxis)
-!           if (associated(grid%zAxis)) deallocate(grid%zAxis)
+!           if (allocated(grid%xAxis)) deallocate(grid%xAxis)
+!           if (allocated(grid%yAxis)) deallocate(grid%yAxis)
+!           if (allocated(grid%zAxis)) deallocate(grid%zAxis)
 
            print*, "out freeGridV"
          end subroutine freeGridV
-         
+       
          subroutine writeGridV(grid)
            implicit none
 
            type(grid_type), dimension(:), intent(in) :: grid                ! grid
-           
+         
            ! local variables
            integer                     :: cellP               ! cell pointer
            integer                     :: elem                ! element counter
@@ -1620,7 +1620,7 @@ print*, i, totalMass, grid%voronoi(grid%activeV(i))%density, dV
                  stop
               end if
               close(30)
-              open(unit=30, file="output/grid2V.out", action="write",position="rewind",status="unknown", iostat = ios)   
+              open(unit=30, file="output/grid2V.out", action="write",position="rewind",status="unknown", iostat = ios) 
               if (ios /= 0 ) then
                  print*, "! writeGridV: can't open file for writing - grid2V.out"
                  stop
@@ -1643,11 +1643,11 @@ print*, i, totalMass, grid%voronoi(grid%activeV(i))%density, dV
 
               ! write the rest of the grid to files
               do i = 1, grid(iG)%nCellsV
-                 
+               
                  cellP = grid(iG)%activeV(i)
-                 
+               
                  if (cellP<0) cellP=0
-                    
+                  
                  write(21, *) grid(iG)%activeV(i), grid(iG)%lgConverged(cellP), &
                       & grid(iG)%lgBlack(cellP)
 
@@ -1660,7 +1660,7 @@ print*, i, totalMass, grid%voronoi(grid%activeV(i))%density, dV
                        write(20, *) grid(iG)%Te(cellP), grid(iG)%Ne(cellP), &
                             & grid(iG)%voronoi(i)%density, grid(iG)%voronoi(i)%volume
                     end if
-                    
+                  
                     do elem = 1, nElements
                        if (lgElementOn(elem)) then
 
@@ -1670,9 +1670,9 @@ print*, i, totalMass, grid%voronoi(grid%activeV(i))%density, dV
                        end do
                     end if
                     if (lgDust) then
-                       
-                       if (lgMultiChemistry) then                          
-                          write(50, *) grid(iG)%VORONOI(cellP)%ndust, grid(iG)%dustAbunIndex(cellP)               
+                     
+                       if (lgMultiChemistry) then                        
+                          write(50, *) grid(iG)%VORONOI(cellP)%ndust, grid(iG)%dustAbunIndex(cellP)             
                        else
                           write(50, *) grid(iG)%voronoi(cellP)%ndust
                        end if
@@ -1681,11 +1681,11 @@ print*, i, totalMass, grid%voronoi(grid%activeV(i))%density, dV
                        end do
 
                     end if
-                    
+                  
                  end do
-                 
+               
               end do
-              
+            
               ! close files
               close(21)
               if (lgGas) then
@@ -1698,16 +1698,16 @@ print*, i, totalMass, grid%voronoi(grid%activeV(i))%density, dV
                  write(50,*) 'Total dust mass [Msol]: ', totalDustMass*5.028e11
                  close(50)
               end if
-              
+            
               ! stellar parameters
               close(42) 
-              open(unit=42, file="output/photoSource.out", action="write",position="rewind",status="unknown", iostat = ios)   
+              open(unit=42, file="output/photoSource.out", action="write",position="rewind",status="unknown", iostat = ios) 
               if (ios /= 0 ) then
                  print*, "! writeGridV: can't open file for writing - photoSource.out"
                  stop
               end if
-              
-              
+            
+            
               write(42, *) nStars, ' number of photon sources'
               do i = 1, nStars
 ! Watch out!! here i changed how this is written out for voronoi - make sure it is consistent with how it is reread in!
@@ -1718,13 +1718,13 @@ print*, i, totalMass, grid%voronoi(grid%activeV(i))%density, dV
                       & trim(spID(i)), tStep(i)
                  if (contShapeIn(i)=='powerlaw') write(42,*) pwlIndex
               end do
-              
+            
               write(42, *) '(contShape, T_eff[K], L_* [E36 erg/s], nPackets, (x,y,z) position, spID, tstep)'
               close(42)
 
               ! general simulation parameters
               close(40)
-              open(unit=40, file="output/grid3.out", action="write",position="rewind",status="unknown", iostat = ios)   
+              open(unit=40, file="output/grid3.out", action="write",position="rewind",status="unknown", iostat = ios) 
               if (ios /= 0 ) then
                  print*, "! writeGridV: can't open file for writing - grid3.out"
                  stop
@@ -1796,11 +1796,11 @@ print*, i, totalMass, grid%voronoi(grid%activeV(i))%density, dV
 
               ! close file
               close(40)
-              
+            
               print*, 'out writeGridV'
             end subroutine writeGridV
-            
-            
+          
+          
             subroutine resetGridV(grid)
               implicit none
 
@@ -1815,37 +1815,37 @@ print*, i, totalMass, grid%voronoi(grid%activeV(i))%density, dV
               integer                        :: elem,&! 
                    &                                       ion,i1 ! counters
               real                           :: p0,p00,p1,p2,p3,p4,p5,p6,p7, ind
-              real, pointer                  :: p(:)                                        
+              real, allocatable              :: p(:)                                      
               integer :: iCount, nuCount, iG, ai      ! counters
               integer :: g0,g1
-              integer :: nEdges  
+              integer :: nEdges
               integer :: nElec
               integer :: outshell
               integer :: totCells, totcellsloc
               integer :: yTop, xPmap
-              
+            
 
               integer, parameter :: maxLim = 10000
               integer, parameter :: nSeries = 17
-              
+            
               real, dimension(450) :: ordered
               real, dimension(17)  :: seriesEdge
               real                 :: radius
-              
+            
               real                 :: nuStepSizeLoc
-              
+            
               print*, 'resetGridV in'
-      
-              
+    
+            
       ! read stellar parameters
               close(72) 
-              open(unit=72, file="output/photoSource.out",action="read", position="rewind",status="old", iostat = ios)   
+              open(unit=72, file="output/photoSource.out",action="read", position="rewind",status="old", iostat = ios) 
               if (ios /= 0 ) then
                  print*, "! resetGridV: can't open file for reading - photoSource.out"
                  stop
               end if
 
-        
+      
               read(72, *) nStars
               print*, nStars, ' photon sources'
               print*, '(contShape, T_eff[K], L_* [E36 erg/s], nPackets, (x,y,z) position [cm])'
@@ -1884,7 +1884,7 @@ print*, i, totalMass, grid%voronoi(grid%activeV(i))%density, dV
               read(77,*) lgVoronoi, lgDfile, densityFile 
               if( lgVoronoi) read(77, *) boxXn, boxXp, boxYn, boxYp, boxZn, boxZp
               read(77, *) lgMassVoronoi
-              read(77, *) nGrids     
+              read(77, *) nGrids   
               read(77, *) convWriteGrid
               read(77, *) lgAutoPackets, convIncPercent, nPhotIncrease, maxPhotons
               read(77, *) lgSymmetricXYZ
@@ -1960,7 +1960,7 @@ print*, i, totalMass, grid%voronoi(grid%activeV(i))%density, dV
               read(77, *) lgEcho, echot1, echot2, echoTemp
               read(77,*) lgNosource
 
-              
+            
               if (taskid == 0) then
                  print*, lgVoronoi, lgDfile, densityFile, " Voronoi? lgDfile, densityFile, "
                  print*,  nGrids,'nGrids'
@@ -2025,7 +2025,7 @@ print*, i, totalMass, grid%voronoi(grid%activeV(i))%density, dV
                  print*, "! resetGridV: error opening file grid0V.out"
                  stop
               end if
-              
+            
               if (lgGas) then
                  close(78)
                  open(unit=78, file='output/grid1V.out',  action="read",position='rewind',  &
@@ -2065,10 +2065,10 @@ print*, i, totalMass, grid%voronoi(grid%activeV(i))%density, dV
                  read(89, *) nGrids
                  read(89, *) grid(iG)%nCellsV, grid(iG)%nCells, grid(iG)%motherP, R_out
                  print*, grid(iG)%nCellsV, grid(iG)%nCells, grid(iG)%motherP, R_out
-                 
+               
                  ! initialize cartesian grid
                  call initVoronoiGrid(grid(iG)) 
-         
+       
                  if (iG>1) then
                     print*, "! resetGridV: multigrids are not allowed in Voronoi"
                     stop
@@ -2086,7 +2086,7 @@ print*, i, totalMass, grid%voronoi(grid%activeV(i))%density, dV
                     planeIonDistribution = 0
                  end if
 
-         
+       
                  allocate(grid(iG)%activeRV(grid(iG)%nCellsV), stat = err)
                  if (err /= 0) then
                     print*, "! resetGridV: Can't allocate grid memory, activeRV"
@@ -2096,7 +2096,7 @@ print*, i, totalMass, grid%voronoi(grid%activeV(i))%density, dV
 
 
 
-                 ! Allocate grid arrays       
+                 ! Allocate grid arrays     
                  if (lgGas) then
 
 
@@ -2111,13 +2111,13 @@ print*, i, totalMass, grid%voronoi(grid%activeV(i))%density, dV
                        print*, "! resetGridV: can't allocate grid memory"
                        stop
                     end if
-            
+          
                     allocate(grid(iG)%Ne(0:grid(iG)%nCells), stat = err)
                     if (err /= 0) then
                        print*, "! resetGridV: can't allocate grid memory"
                        stop
                     end if
-         
+       
                     allocate(grid(iG)%Te(0:grid(iG)%nCells), stat = err)
                     if (err /= 0) then
                        print*, "! resetGridV:can't allocate grid memory"
@@ -2132,35 +2132,35 @@ print*, i, totalMass, grid%voronoi(grid%activeV(i))%density, dV
 
                     allocate(grid(iG)%ionDen(0:grid(iG)%nCells, 1:nElementsUsed, 1:nstages), stat = err)
                     if (err /= 0) then
-                       print*, "! resetGridV: can't allocate grid memory,ionDen"  
+                       print*, "! resetGridV: can't allocate grid memory,ionDen"
                        stop
                     end if
 
                     allocate(ionDenUsed(1:nElementsUsed, 1:nstages), stat = err)
                     if (err /= 0) then
-                       print*, "! resetGridV: can't allocate grid memory,ionDen"  
+                       print*, "! resetGridV: can't allocate grid memory,ionDen"
                        stop
                     end if
-            
+          
                     allocate(grid(iG)%recPDF(0:grid(iG)%nCells, 1:nbins), stat = err)
                     if (err /= 0) then
                        print*, "! resetGridV: Can't allocate grid memory, 8"
                        stop
                     end if
-            
+          
                     allocate(grid(iG)%totalLines(0:grid(iG)%nCells), stat = err)
                     if (err /= 0) then
                        print*, "resetGridV: Can't allocate grid memory, 10"
                        stop
                     end if
-            
+          
                     grid(iG)%Ne = 0.
-                    grid(iG)%Te = 0.        
-                    grid(iG)%Hden = 0.        
+                    grid(iG)%Te = 0.      
+                    grid(iG)%Hden = 0.      
                     grid(iG)%ionDen = 0.
                     grid(iG)%recPDF = 0.
                     grid(iG)%totalLines = 0.
-            
+          
                  end if
 
                  if (Ldiffuse>0.) then
@@ -2178,7 +2178,7 @@ print*, i, totalMass, grid%voronoi(grid%activeV(i))%density, dV
                  elseif (emittingGrid==0) then
                     totCellsLoc = totCellsLoc + grid(iG)%nCells
                  end if
-            
+          
 
 
                  allocate(grid(iG)%opacity(0:grid(iG)%nCells, 1:nbins), stat = err)
@@ -2186,13 +2186,13 @@ print*, i, totalMass, grid%voronoi(grid%activeV(i))%density, dV
                     print*, "! resetGridV: can't allocate grid memory,opacity "
                     stop
                  end if
-        
+      
                  allocate(grid(iG)%Jste(0:grid(iG)%nCells, 1:nbins), stat = err)
                  if (err /= 0) then
                     print*, "! resetGridV: can't allocate Jste grid memory"
                     stop
                  end if
-         
+       
                  if (lgDebug) then
                     allocate(grid(iG)%Jdif(0:grid(iG)%nCells, 1:nbins), stat = err)
                     if (err /= 0) then
@@ -2204,13 +2204,13 @@ print*, i, totalMass, grid%voronoi(grid%activeV(i))%density, dV
 
                  ! allocate pointers depending on nLines
                  if (nLines > 0) then
-               
+             
                     allocate(grid(iG)%linePackets(0:grid(iG)%nCells, 1:nLines), stat = err)
                     if (err /= 0) then
                        print*, "! resetGridV: can't allocate grid(iG)%linePackets memory"
                        stop
                     end if
-                    
+                  
                     allocate(grid(iG)%linePDF(0:grid(iG)%nCells, 1:nLines), stat = err)
                     if (err /= 0) then
                        print*, "! resetGridV: can't allocate grid(iG)%linePDF memory"
@@ -2219,8 +2219,8 @@ print*, i, totalMass, grid%voronoi(grid%activeV(i))%density, dV
 
                     grid(iG)%linePackets = 0.
                     grid(iG)%linePDF     = 0.
-                    
-                 end if                            
+                  
+                 end if                          
 
                  allocate(grid(iG)%lgConverged(0:grid(iG)%nCells), stat = err)
                  if (err /= 0) then
@@ -2233,7 +2233,7 @@ print*, i, totalMass, grid%voronoi(grid%activeV(i))%density, dV
                     print*, "!resetGridV: Can't allocate memory to lgBlack array"
                     stop
                  end if
-         
+       
                  allocate(grid(iG)%escapedPackets(0:grid(iG)%nCells, 0:nbins,0:nAngleBins), stat = err)
                  if (err /= 0) then
                     print*, "! resetGridV: can't allocate grid memory : Jste"
@@ -2251,7 +2251,7 @@ print*, i, totalMass, grid%voronoi(grid%activeV(i))%density, dV
 
 
                  if (.not.lgGas) then
-                    
+                  
                     allocate(grid(iG)%dustPDF(0:grid(iG)%nCells, 1:nbins), stat = err)
                     if (err /= 0) then
                        print*, "! resetGridV:Can't allocate grid memory, dustPDF"
@@ -2260,54 +2260,54 @@ print*, i, totalMass, grid%voronoi(grid%activeV(i))%density, dV
                     grid(iG)%dustPDF=0.
                  end if
 
-         
-                 grid(iG)%opacity = 0.        
-                 grid(iG)%Jste = 0.        
+       
+                 grid(iG)%opacity = 0.      
+                 grid(iG)%Jste = 0.      
                  grid(iG)%lgConverged = 0
                  grid(iG)%lgBlack = 0
 
 
 
                  ! read the rest of the grid to files
-print*, 'a'                    
+print*, 'a'                  
                  do i = 1, grid(iG)%nCellsV
 
                     read(89, *) p1, p2, p3
                     grid(iG)%activeV(i) = p1 
-                    
+                  
                     cellP = grid(iG)%activeV(i)
                     grid(iG)%lgConverged(cellP) = p2
-                    grid(iG)%lgBlack(cellP) = p3               
-                    
+                    grid(iG)%lgBlack(cellP) = p3             
+                  
                     grid(iG)%activeRV(cellP) = i
 
                     if (lgGas) then
-                       
+                     
                        i1=1
                        if (lgMultiChemistry) then
                           read(78, *) p1,p2,p3,i1
                        else
                           read(78, *) p1,p2,p3
                        end if
-                       
+                     
                        grid(iG)%Te(cellP)=p1
                        grid(iG)%Ne(cellP)=p2
                        grid(iG)%voronoi(i)%density=p3
                        grid(iG)%Hden(cellP) = p3
 
                        grid(iG)%abFileIndex(cellP)=i1
-                       
+                     
                        do elem = 1, nElements
                           if (lgElementOn(elem)) then
-                             
+                           
                              read(79, *) (p(ion), ion =1,min(elem+1,nstages))
-                             
+                           
                              grid(iG)%ionDen(cellP,elementXref(elem),:)=p
-                             
+                           
                           end if
                        end do
                     end if
-                    
+                  
                     if (lgDust) then
                        if (lgMultiDustChemistry) then
                           read(88, *) p00, ind
@@ -2315,7 +2315,7 @@ print*, 'a'
                        else
                           read(88, *) p00
                        end if
-                       
+                     
                        do ai = 0, nSizes
                           read(88, *) (grid(iG)%Tdust(elem,ai,cellP), elem = 0,nSpeciesMax)
                        end do
@@ -2326,36 +2326,36 @@ print*, 'a'
                  if (lg2D .and. iG==1) then
                     print*, " resetGridV: 2D not implemented for Voronoi"
                     stop
-                    
+                  
                     allocate(TwoDscaleJ(grid(iG)%nCells))
                     TwoDscaleJ = 1.
-                    
+                  
                     do i = 1, grid(ig)%nx
                        do j = 2, grid(ig)%ny
                           do k = 1, grid(ig)%nz
                              radius = 1.e10*sqrt( (grid(ig)%xAxis(i)/1.e10)*&
                                   &(grid(ig)%xAxis(i)/1.e10) + &
                                   &(grid(ig)%yAxis(j)/1.e10)*(grid(ig)%yAxis(j)/1.e10) ) 
-                             
+                           
                              call locate(grid(ig)%xAxis, radius, xPmap)
                              if (xPmap < grid(ig)%nx) then
                                 if (radius >= (grid(ig)%xAxis(xPmap)+grid(ig)%xAxis(xPmap+1))/2.) &
                                      & xPmap = xPmap+1
                              end if
                              grid(ig)%active(i,j,k) = grid(ig)%active(xPmap, 1, k)
-                             
+                           
                              if (grid(ig)%active(xPmap,1,k)>0) &
                                   & TwoDScaleJ(grid(ig)%active(xPmap,1,k)) = &
                                   & TwoDScaleJ(grid(ig)%active(xPmap,1,k))+1.
-                             
+                           
                           end do
                        end do
                     end do
                  end if
-                 
-                 
+               
+               
               end do ! closes nGrids loop
-print*, 'b'                 
+print*, 'b'               
               if (emittingGrid>0) then
                  if (totCellsloc<=0) then
                     print*, '! resetGridV: insanity totCellsloc'
@@ -2372,7 +2372,7 @@ print*, 'b'
 
               ! close files
               close(89)
-              
+            
               if (lgGas) then
                  close(78)
                  close(79)
@@ -2387,7 +2387,7 @@ print*, 'b'
 
 !              if (taskid == 0) print*, 'Mothergrid origin at cell:  ' , iOrigin, jOrigin, kOrigin
 
-              if (associated(p)) deallocate(p)
+              if (allocated(p)) deallocate(p)
 print*, 'c'
 
 
@@ -2398,7 +2398,7 @@ print*, 'c'
 !DONE-DAH
     subroutine setStarPositionV(grid)
       implicit none
-      
+    
       type(grid_type), intent(inout) :: grid(maxGrids)  ! the 3d grids
 
       integer :: i
@@ -2441,14 +2441,14 @@ print*, 'star: ', i, starPosition(i)%x, starPosition(i)%y, &
 ! return the fraction of the grid cell containing an echo
       implicit none
       type(grid_type),intent(in) :: grid              ! the grid
-      integer, intent(in)        :: xP, yP, zP        ! cell indeces  
+      integer, intent(in)        :: xP, yP, zP        ! cell indeces
       double precision :: x,y,z,dx,dy,dz,t1,t2,vfrac,vol
       real             :: t1i,t2i,vEcho,odx,ody,odz,volume
       double precision :: h,rho,ddx,ddy,xx,yy
       double precision :: dfac=9.4605284e17,tfac=365.25
       integer :: i,j
       integer :: n=25 ! number of points in grid cell over which to integrate
-      
+    
 ! N.B. work in yrs & lt-yrs, they are easier...
 
       x=dble(grid%xAxis(xP))/dfac
@@ -2469,7 +2469,7 @@ print*, 'star: ', i, starPosition(i)%x, starPosition(i)%y, &
       else if ( xP==grid%nx ) then
          odx = abs(grid%xAxis(xP)  -grid%xAxis(xP-1))
       end if
-      
+    
       if ( (yP>1) .and. (yP<grid%ny) ) then
          ody = abs(grid%yAxis(yP+1)-grid%yAxis(yP-1))/2.
       else if ( yP==1 ) then
@@ -2481,23 +2481,23 @@ print*, 'star: ', i, starPosition(i)%x, starPosition(i)%y, &
       else if ( yP==grid%ny ) then
          ody = abs(grid%yAxis(yP)  -grid%yAxis(yP-1))
       end if
-      
-      if ( (zP>1) .and. (zP<grid%nz) ) then    
-         odz = abs(grid%zAxis(zP+1)-grid%zAxis(zP-1))/2.    
-      else if ( zP==1 ) then    
+    
+      if ( (zP>1) .and. (zP<grid%nz) ) then  
+         odz = abs(grid%zAxis(zP+1)-grid%zAxis(zP-1))/2.  
+      else if ( zP==1 ) then  
          if (lgSymmetricXYZ) then
             odz = abs(grid%zAxis(zP+1)-grid%zAxis(zP))/2.
          else
             odz = abs(grid%zAxis(zP+1)-grid%zAxis(zP))
          end if
-      else if ( zP==grid%nz ) then    
+      else if ( zP==grid%nz ) then  
          odz = abs(grid%zAxis(zP)-grid%zAxis(zP-1))
       end if
 
       dx=dble(odx)/dfac
       dy=dble(ody)/dfac
       dz=dble(odz)/dfac
-      
+    
       vEcho=0.
       vol=0.0
 
