@@ -270,16 +270,16 @@ module set_input_mod
                read(unit=10, fmt=*, iostat=ios) keyword, nAbComponents, (abundanceFile(j), j=1,nAbComponents)
                !print*, keyword, nAbComponents, (abundanceFile(j), j=1,nAbComponents)
             case ("multiDustChemistry")
-               backspace 10
-               read(unit=10, fmt=*, iostat=ios) keyword, nDustComponents
-               lgMultiDustChemistry = .true.
-               lgDust = .true.
-               backspace(10)
-               allocate(dustSpeciesFile(1:nDustComponents))
-               allocate(nSpeciesPart(1:nDustComponents))
-               read(unit=10, fmt=*, iostat=ios) keyword, nDustComponents, (dustSpeciesFile(j), j=1,nDustComponents), dustFile(2)
-               !print*, keyword, nDustComponents, (dustSpeciesFile(j), j=1,nDustComponents)
-               print*, dustFile(2)
+!               backspace 10
+!               read(unit=10, fmt=*, iostat=ios) keyword, nDustComponents
+!               lgMultiDustChemistry = .true.
+!               lgDust = .true.
+!               backspace(10)
+!               allocate(dustSpeciesFile(1:nDustComponents))
+!               allocate(nSpeciesPart(1:nDustComponents))
+!               read(unit=10, fmt=*, iostat=ios) keyword, nDustComponents, (dustSpeciesFile(j), j=1,nDustComponents), dustFile(2)
+!               !print*, keyword, nDustComponents, (dustSpeciesFile(j), j=1,nDustComponents)
+!               print*, dustFile(2)
             case ("planeIonization")
                backspace 10
                read(unit=10, fmt=*, iostat=ios) keyword, meanFieldin, nu0, nu0Add
