@@ -314,6 +314,7 @@ module common_mod
     integer            :: nSizes           ! number of grain sizes
     integer            :: nSpecies         ! number of grain species
     integer            :: nResLines=0      ! number of resonant lines to be transfered
+    integer, allocatable    :: nSpeciesPart(:)  ! number of grain specie
 
     integer,parameter :: Nconnectmax = 128         ! Max. no. of connections
                                                   ! per vertex
@@ -439,6 +440,7 @@ module common_mod
 
     character(len=50)  :: gridList ! grid list file name
     character(len=50), allocatable  :: abundanceFIle(:) ! abundance file names
+    character(len=50), allocatable  :: dustSpeciesFIle(:) ! abundance file names
     character(len=50)           :: contDiffuse      ! shape of the diffuse ionising spectrum
     character(len=50), allocatable  :: contShape(:)     ! continuumShape
     character(len=50), allocatable  :: contShapeIn(:)   ! continuumShape
