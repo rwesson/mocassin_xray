@@ -57,7 +57,7 @@ module emission_mod
         integer :: i                         ! counters
         integer :: izp
 
-        cellPUsed = grids(iG)%active(ix, iy, iz)
+!        cellPUsed = grids(iG)%active(ix, iy, iz)
 
         ! check whether this cell is active
         if (cellPloc<=0) return
@@ -125,7 +125,8 @@ module emission_mod
         continuum = (emissionHI + emissionHeI + emissionHeII)
 
         if (.not. lgVoronoi) then
-          dV = getVolume(grids(iG),ix,iy,iz)
+          dV = getVolume(grids(iG),1,1,1)
+!          dV = getVolume(grids(iG),cellPUsed)
         else
           dV = grid%voronoi(grid%activeRV(cellPUsed))%volume
         end if
@@ -1641,14 +1642,10 @@ module emission_mod
                        grids(iG)%linePDF(cellPUsed, i) = hydroLines(izp,iup, ilow) / &
                             & grids(iG)%totalLines(cellPUsed)
 
-
-
                     else
 
                        grids(iG)%linePDF(cellPUsed, i) = grids(iG)%linePDF(cellPUsed, i-1) + &
                             & hydroLines(izp,iup, ilow) / grids(iG)%totalLines(cellPUsed)
-
-
 
                     end if
                     i = i+1
@@ -1673,8 +1670,7 @@ module emission_mod
                     do iup = 1, nForLevels
                        do ilow = 1, nForLevels
                           if (forbiddenLines(elem, ion, iup, ilow)> 1.e-35) then
-                             grids(iG)%linePDF(cellPUsed, i) = grids(iG)%linePDF(grids(iG)%active(ix, iy&
-                                  &, iz), i-1) + forbiddenLines(elem, ion, iup, ilow)&
+                             grids(iG)%linePDF(cellPUsed, i) = grids(iG)%linePDF(cellPUsed, i-1) + forbiddenLines(elem, ion, iup, ilow)&
                                   & / grids(iG)%totalLines(cellPUsed)
                           end if
                           if (grids(iG)%linePDF(cellPUsed, i) > 1. ) grids(iG)%linePDF(cellPUsed, i) = 1.
@@ -2998,7 +2994,7 @@ module emission_mod
                    cellP = grids(gPin)%active(xP,yP,zP)
 
                    if (cellP > 0 ) then
-                      compoP = grids(gPin)%abFileIndex(xP,yP,zP)!todo: simplifiable?
+                      compoP = grids(gPin)%abFileIndex(cellP)!todo: correct use of cellP here?
                       if (xp == xpin .and. yp == ypin .and. zp == zpin .and. gP == gpin) then
                          gasdensity = gasdensity0
                          gastemperature=gastemperature0

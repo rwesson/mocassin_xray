@@ -853,7 +853,9 @@ module photon_mod
 
                 do irepeat = 1, 1000000
                    ! get a random direction
-                   initPhotonPacket%direction = randomUnitVector(iphot)
+                   initPhotonPacket%direction = randomUnitVector()
+! originally called with a variable:
+!                   initPhotonPacket%direction = randomUnitVector(iphot)
                    if (initPhotonPacket%direction%x/=0. .and. &
                         & initPhotonPacket%direction%y/=0. .and. &
                         & initPhotonPacket%direction%z/=0.) exit
@@ -4152,7 +4154,7 @@ module photon_mod
             if (nuPin<highnuP .and. nuPin>nu1P ) then
 
                photoRateFluoFrac = phXsec*grid(igin)%elemAbun(grid(igin)%&
-                    & abFileIndex(xPin,yPin,zPin),26)*grid(igin)%Hden(icell)*&
+                    & abFileIndex(icell),26)*grid(igin)%Hden(icell)*&
                     & grid(igin)%ionDen(icell,elementXref(26),ion)/&
                     & ((grid(igin)%opacity(grid(igin)%active(xPin,yPin,zPin),nuPin)-&
                     &KNsigmaT(nuPin)*grid(igin)%Ne(grid(igin)%active(xpin,ypin,zpin)))*&
@@ -4163,7 +4165,7 @@ module photon_mod
 !        1373        1409
 
 !print*, phXsec*grid(igin)%elemAbun(grid(igin)%&
-!                 & abFileIndex(xPin,yPin,zPin),26)*grid(igin)%Hden(icell)*&
+!                 & abFileIndex(icell),26)*grid(igin)%Hden(icell)*&
 !                 & grid(igin)%ionDen(icell,elementXref(26),ion), &
 !                 & grid(igin)%opacity(grid(igin)%active(xPin,yPin,zPin),nuPin),&
 !                 & KNsigmaT(nuPin)*grid(igin)%Ne(grid(igin)%active(xpin,ypin,zpin)), &
@@ -4171,7 +4173,7 @@ module photon_mod
 
 
 ! phXsec*grid(igin)%elemAbun(grid(igin)%&
-!                 & abFileIndex(xPin,yPin,zPin),26)*grid(igin)%Hden(icell)*&
+!                 & abFileIndex(icell),26)*grid(igin)%Hden(icell)*&
 !                 & grid(igin)%ionDen(icell,elementXref(26),ion), &
 !                 & grid(igin)%opacity(grid(igin)%active(xPin,yPin,zPin),nuPin)*&
 !                 & Ryd2erg*nuArray(nuPin), &
@@ -4209,7 +4211,7 @@ module photon_mod
                phXsec = 0.
             end if
             photoRateFluoFrac = phXsec*grid(igin)%elemAbun(grid(igin)%&
-                 & abFileIndex(xPin,yPin,zPin),elP)*grid(igin)%Hden(icell)*&
+                 & abFileIndex(icell),elP)*grid(igin)%Hden(icell)*&
                  & grid(igin)%ionDen(icell,elementXref(elP),ion)/&
                  & ((grid(igin)%opacity(grid(igin)%active(xPin,yPin,zPin),nuPin)-&
                  & KNsigmaT(nuPin)*grid(igin)%Ne(grid(igin)%active(xpin,ypin,zpin)))*&
@@ -4238,7 +4240,7 @@ module photon_mod
                phXsec = 0.
             end if
             photoRateFluoFrac = phXsec*grid(igin)%elemAbun(grid(igin)%&
-                 & abFileIndex(xPin,yPin,zPin),elP)*grid(igin)%Hden(icell)*&
+                 & abFileIndex(icell),elP)*grid(igin)%Hden(icell)*&
                  & grid(igin)%ionDen(icell,elementXref(elP),ion)/&
                  & ((grid(igin)%opacity(grid(igin)%active(xPin,yPin,zPin),nuPin)-&
                  & KNsigmaT(nuPin)*grid(igin)%Ne(grid(igin)%active(xpin,ypin,zpin)))*&
@@ -4267,7 +4269,7 @@ module photon_mod
                phXsec = 0.
             end if
             photoRateFluoFrac = phXsec*grid(igin)%elemAbun(grid(igin)%&
-                 & abFileIndex(xPin,yPin,zPin),elP)*grid(igin)%Hden(icell)*&
+                 & abFileIndex(icell),elP)*grid(igin)%Hden(icell)*&
                  & grid(igin)%ionDen(icell,elementXref(elP),ion)/&
                  & ((grid(igin)%opacity(grid(igin)%active(xPin,yPin,zPin),nuPin)-&
                  & KNsigmaT(nuPin)*grid(igin)%Ne(grid(igin)%active(xpin,ypin,zpin)))*&
@@ -4296,7 +4298,7 @@ module photon_mod
                phXsec = 0.
             end if
             photoRateFluoFrac = phXsec*grid(igin)%elemAbun(grid(igin)%&
-                 & abFileIndex(xPin,yPin,zPin),elP)*grid(igin)%Hden(icell)*&
+                 & abFileIndex(icell),elP)*grid(igin)%Hden(icell)*&
                  & grid(igin)%ionDen(icell,elementXref(elP),ion)/&
                  & ((grid(igin)%opacity(grid(igin)%active(xPin,yPin,zPin),nuPin)-&
                  & KNsigmaT(nuPin)*grid(igin)%Ne(grid(igin)%active(xpin,ypin,zpin)))*&
@@ -4325,7 +4327,7 @@ module photon_mod
                phXsec = 0.
             end if
             photoRateFluoFrac = phXsec*grid(igin)%elemAbun(grid(igin)%&
-                 & abFileIndex(xPin,yPin,zPin),elP)*grid(igin)%Hden(icell)*&
+                 & abFileIndex(icell),elP)*grid(igin)%Hden(icell)*&
                  & grid(igin)%ionDen(icell,elementXref(elP),ion)/&
                  & ((grid(igin)%opacity(grid(igin)%active(xPin,yPin,zPin),nuPin)-&
                  & KNsigmaT(nuPin)*grid(igin)%Ne(grid(igin)%active(xpin,ypin,zpin)))*&
@@ -4354,7 +4356,7 @@ module photon_mod
                phXsec = 0.
             end if
             photoRateFluoFrac = phXsec*grid(igin)%elemAbun(grid(igin)%&
-                 & abFileIndex(xPin,yPin,zPin),elP)*grid(igin)%Hden(icell)*&
+                 & abFileIndex(icell),elP)*grid(igin)%Hden(icell)*&
                  & grid(igin)%ionDen(icell,elementXref(elP),ion)/&
                  & ((grid(igin)%opacity(grid(igin)%active(xPin,yPin,zPin),nuPin)-&
                  & KNsigmaT(nuPin)*grid(igin)%Ne(grid(igin)%active(xpin,ypin,zpin)))*&
@@ -4383,7 +4385,7 @@ module photon_mod
                phXsec = 0.
             end if
             photoRateFluoFrac = phXsec*grid(igin)%elemAbun(grid(igin)%&
-                 & abFileIndex(xPin,yPin,zPin),elP)*grid(igin)%Hden(icell)*&
+                 & abFileIndex(icell),elP)*grid(igin)%Hden(icell)*&
                  & grid(igin)%ionDen(icell,elementXref(elP),ion)/&
                  & ((grid(igin)%opacity(grid(igin)%active(xPin,yPin,zPin),nuPin)-&
                  & KNsigmaT(nuPin)*grid(igin)%Ne(grid(igin)%active(xpin,ypin,zpin)))*&
@@ -4412,7 +4414,7 @@ module photon_mod
                phXsec = 0.
             end if
             photoRateFluoFrac = phXsec*grid(igin)%elemAbun(grid(igin)%&
-                 & abFileIndex(xPin,yPin,zPin),elP)*grid(igin)%Hden(icell)*&
+                 & abFileIndex(icell),elP)*grid(igin)%Hden(icell)*&
                  & grid(igin)%ionDen(icell,elementXref(elP),ion)/&
                  & ((grid(igin)%opacity(grid(igin)%active(xPin,yPin,zPin),nuPin)-&
                  & KNsigmaT(nuPin)*grid(igin)%Ne(grid(igin)%active(xpin,ypin,zpin)))*&
@@ -4441,7 +4443,7 @@ module photon_mod
                phXsec = 0.
             end if
             photoRateFluoFrac = phXsec*grid(igin)%elemAbun(grid(igin)%&
-                 & abFileIndex(xPin,yPin,zPin),elP)*grid(igin)%Hden(icell)*&
+                 & abFileIndex(icell),elP)*grid(igin)%Hden(icell)*&
                  & grid(igin)%ionDen(icell,elementXref(elP),ion)/&
                  & ((grid(igin)%opacity(grid(igin)%active(xPin,yPin,zPin),nuPin)-&
                  & KNsigmaT(nuPin)*grid(igin)%Ne(grid(igin)%active(xpin,ypin,zpin)))*&
@@ -4470,7 +4472,7 @@ module photon_mod
                phXsec = 0.
             end if
             photoRateFluoFrac = phXsec*grid(igin)%elemAbun(grid(igin)%&
-                 & abFileIndex(xPin,yPin,zPin),elP)*grid(igin)%Hden(icell)*&
+                 & abFileIndex(icell),elP)*grid(igin)%Hden(icell)*&
                  & grid(igin)%ionDen(icell,elementXref(elP),ion)/&
                  & ((grid(igin)%opacity(grid(igin)%active(xPin,yPin,zPin),nuPin)-&
                  & KNsigmaT(nuPin)*grid(igin)%Ne(grid(igin)%active(xpin,ypin,zpin)))*&
@@ -4499,7 +4501,7 @@ module photon_mod
                phXsec = 0.
             end if
             photoRateFluoFrac = phXsec*grid(igin)%elemAbun(grid(igin)%&
-                 & abFileIndex(xPin,yPin,zPin),elP)*grid(igin)%Hden(icell)*&
+                 & abFileIndex(icell),elP)*grid(igin)%Hden(icell)*&
                  & grid(igin)%ionDen(icell,elementXref(elP),ion)/&
                  & ((grid(igin)%opacity(grid(igin)%active(xPin,yPin,zPin),nuPin)-&
                  & KNsigmaT(nuPin)*grid(igin)%Ne(grid(igin)%active(xpin,ypin,zpin)))*&
@@ -4528,7 +4530,7 @@ module photon_mod
                phXsec = 0.
             end if
             photoRateFluoFrac = phXsec*grid(igin)%elemAbun(grid(igin)%&
-                 & abFileIndex(xPin,yPin,zPin),elP)*grid(igin)%Hden(icell)*&
+                 & abFileIndex(icell),elP)*grid(igin)%Hden(icell)*&
                  & grid(igin)%ionDen(icell,elementXref(elP),ion)/&
                  & ((grid(igin)%opacity(grid(igin)%active(xPin,yPin,zPin),nuPin)-&
                  & KNsigmaT(nuPin)*grid(igin)%Ne(grid(igin)%active(xpin,ypin,zpin)))*&
@@ -4557,7 +4559,7 @@ module photon_mod
                phXsec = 0.
             end if
             photoRateFluoFrac = phXsec*grid(igin)%elemAbun(grid(igin)%&
-                 & abFileIndex(xPin,yPin,zPin),elP)*grid(igin)%Hden(icell)*&
+                 & abFileIndex(icell),elP)*grid(igin)%Hden(icell)*&
                  & grid(igin)%ionDen(icell,elementXref(elP),ion)/&
                  & ((grid(igin)%opacity(grid(igin)%active(xPin,yPin,zPin),nuPin)-&
                  & KNsigmaT(nuPin)*grid(igin)%Ne(grid(igin)%active(xpin,ypin,zpin)))*&
