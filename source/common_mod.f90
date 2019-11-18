@@ -502,10 +502,13 @@ module common_mod
     logical            :: lgOutput         ! output line fluxes,temp & ion struct files?
     logical            :: lg1D             ! 1-D switch
     logical            :: lgMultiChemistry ! do we have a chemically inhomogeneous gas?
+    logical            :: lgMultiDustChemistry ! do we have a inhomogeneous dust species distribution?
     logical            :: lgNeutral        ! starting from neutral gas?
     logical            :: lgPlaneIonization! plane parallel ionization?
     logical            :: lgSymmetricXYZ   ! symmetric in x, y, and z?
     logical            :: lgVoronoi = .false. ! Voronoi grid?
+    logical            :: lgIsotropic      ! isotropic scattering
+    logical            :: lgNosource       ! no source SED
 
     logical, allocatable :: &
          & lgDataAvailable(:,:)! is the atomic data available for this species?

@@ -35,6 +35,7 @@ module set_input_mod
         lgRecombination = .false.
         lgAutoPackets = .false.
         lgMultiChemistry = .false.
+        lgMultiDustChemistry = .false.
         lgTalk        = .false.
         lgHdenConstant= .false.
         lgDfile       = .false.
@@ -53,7 +54,9 @@ module set_input_mod
         lgDustScattering = .true.
         lgSymmetricXYZ= .false.
         lgOutputExists= .false.
-        lgVoronoi = .false.
+        lgVoronoi     = .false.
+        lgIsotropic   = .false.
+        lgNosource    = .false.
 
         nPhotonsDiffuse = 0
         nStars        = 0
@@ -168,6 +171,12 @@ module set_input_mod
             case("nahar")
                !print*, keyword
                lgNahar = .true.
+            case("NoSourceSED")
+               lgNosource = .true.
+               !print*, keyword, lgNosource
+            case("isotropicScattering")
+               lgIsotropic = .true.
+               !print*, keyword, lgIsotropic
             case("nstages")
                backspace 10
                read(unit=10, fmt=*, iostat=ios) keyword, nstages
@@ -260,6 +269,17 @@ module set_input_mod
                allocate(abundanceFile(1:nAbComponents))
                read(unit=10, fmt=*, iostat=ios) keyword, nAbComponents, (abundanceFile(j), j=1,nAbComponents)
                !print*, keyword, nAbComponents, (abundanceFile(j), j=1,nAbComponents)
+            case ("multiDustChemistry")
+               backspace 10
+               read(unit=10, fmt=*, iostat=ios) keyword, nDustComponents
+               lgMultiDustChemistry = .true.
+               lgDust = .true.
+               backspace(10)
+               allocate(dustSpeciesFile(1:nDustComponents))
+               allocate(nSpeciesPart(1:nDustComponents))
+               read(unit=10, fmt=*, iostat=ios) keyword, nDustComponents, (dustSpeciesFile(j), j=1,nDustComponents), dustFile(2)
+               !print*, keyword, nDustComponents, (dustSpeciesFile(j), j=1,nDustComponents)
+               print*, dustFile(2)
             case ("planeIonization")
                backspace 10
                read(unit=10, fmt=*, iostat=ios) keyword, meanFieldin, nu0, nu0Add
