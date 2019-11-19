@@ -84,6 +84,7 @@ module output_mod
         integer                     :: totEscapedPackets ! total number of esc packets
         integer                     :: iCellCount
         integer                     :: iz
+        integer                     :: yPloc             ! for lg2D
 
         character(len=30), optional, intent(in) :: extMap
 
@@ -344,8 +345,8 @@ module output_mod
 
                        ! find the physical properties of this cell
 !                       cellPUsed       = grid(iG)%active(i,j,k)
-                       abFileUsed      = grid(iG)%abFileIndex(i,j,k)
-                       elemAbundanceUsed(:) = grid(iG)%elemAbun(grid(iG)%abFileIndex(i,j,k), :)
+                       abFileUsed      = grid(iG)%abFileIndex(cellPUsed)
+                       elemAbundanceUsed(:) = grid(iG)%elemAbun(grid(iG)%abFileIndex(cellPUsed), :)
                        HdenUsed        = grid(iG)%Hden(grid(iG)%active(i,j,k))
                        ionDenUsed      = grid(iG)%ionDen(grid(iG)%active(i,j,k), :, :)
                        if (lgDebug) linePacketsUsed = grid(iG)%linePackets(grid(iG)%active(i,j,k), :)
