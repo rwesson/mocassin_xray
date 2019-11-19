@@ -9,6 +9,7 @@ program MoCaSSiNwarm
     use common_mod
     use constants_mod
     use dust_mod
+    use grid_mod
     use voronoi_grid_mod
     use iteration_mod
     use output_mod
@@ -21,6 +22,7 @@ program MoCaSSiNwarm
 
     type(grid_type) :: grid3D(maxGrids) ! the 3D Cartesian  grid
 
+    integer         :: err              ! allocation error status
     integer         :: iGrid            !
 
     call mpi_init(ierr)
