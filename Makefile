@@ -61,7 +61,7 @@ new: clean all
 	$(FC) $(FFLAGS) $< -c -o $@
 
 %.o: %.cpp
-	$(CPP) $(CFLAGS) -c $< -I$(VORO++)
+	$(CPP) $(CFLAGS) -c $< -I$(VORO++) -o $@
 
 mocassinX: $(SOURCES) source/mocassinX.o
 	$(LD) $(LDFLAGS) $(FFLAGS) -L${VORO++} -lvoro++ -lm -lc -lstdc++ -o $@ $^
