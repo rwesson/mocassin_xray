@@ -720,6 +720,8 @@ module iteration_mod
                    call energyPacketDriver(iStar,load, grid(1:nGrids), nogpLoc, noCellLoc)
                 end if
 
+              end if
+
               call mpi_barrier(mpi_comm_world, ierr)! todo: necessary?
            end do
 
@@ -812,9 +814,8 @@ module iteration_mod
            if (lgPlaneIonization) then
 
               if (lgVoronoi) then
-                 print*, "!iterateMC: diffuse ionisation is not yet implemented in Voronoi grid
-                      &  please contact B Ercolano (ercolano@usm.lmu.de) or David Hubber &
-                      & (dhubber@usm.lmu.de)"
+                 print*, "!iterateMC: diffuse ionisation is not yet implemented in Voronoi grid"
+                 print *,"            please contact B Ercolano (ercolano@usm.lmu.de) or David Hubber (dhubber@usm.lmu.de)"
                  stop
               end if
 
