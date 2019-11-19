@@ -29,6 +29,8 @@ module common_mod
     real, allocatable   :: PcompArray (:,:)
     real, allocatable   :: TwoDscaleJ(:)
 
+    real, allocatable :: gSca(:)                 ! gSca(freq)
+
     real            :: boxXn, boxXp, boxYn, boxYp, boxZn, boxZp
 
     real            :: starttime      ! start time [sec]
@@ -72,7 +74,7 @@ module common_mod
     real               :: convWriteGrid    ! min conv level before starting to write the grid
     real               :: nPhotIncrease    ! nPhoton increase factor
     real               :: densityLaw(3)    ! density law parameters (R1,n,f,N0)
-    real,allocatable   :: grainAbun(:)     ! abundance of this species
+    real,allocatable   :: grainAbun(:,:)   ! abundance of this species
     real,allocatable   :: grainRadius(:)   ! grain radius [um]
     real,allocatable   :: grainWeight(:)   ! grain weight normalised to 1
     real,allocatable   :: viewPointTheta(:),viewPointPhi(:)     ! viewing angles
@@ -277,6 +279,7 @@ module common_mod
     integer            :: maxIterateMC     ! limit on number of MC iterations
     integer            :: maxPhotons       ! limit to packets to be used
     integer            :: nAbComponents=1  ! number of abundance components
+    integer, allocatable   :: dustComPoint(:)  !
     integer            :: nBins            ! number of energy bins
     integer            :: nElementsUsed    ! actual number of elements used
     integer, allocatable   :: nPhotons(:)      ! # of packets to be used in the sim
