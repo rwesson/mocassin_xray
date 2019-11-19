@@ -421,7 +421,8 @@ module output_mod
 
                        end if
 
-                       dV = getVolume(grid(iG), i,j,k)
+                       if (.not. lgVoronoi) then
+                         dV = getVolume(grid(iG), i,j,k)
 ! todo: original and voronoi have checks here for lg2D and lgSymmetricXYZ. needed?
 ! todo: this next block might be out of sequence
                        else
@@ -472,15 +473,13 @@ module output_mod
                           end do
                        end do
 
-                       if (lgGas .and. convPercent>=resLinesTransfer &
-                            & .and. (.not.lgResLinesFirst)) then
+                       if (lgGas .and. convPercent>=resLinesTransfer .and. (.not.lgResLinesFirst)) then
 
                           do iRes =1, nResLines
 
                              do imul = 1, resLine(iRes)%nmul
 
-                                if ( resLine(iRes)%elem &
-                                     &== resLine(iRes)%ion) then
+                                if ( resLine(iRes)%elem == resLine(iRes)%ion) then
 
                                    resLinesVol(abFileUsed, iRes) = resLinesVol(abFileUsed, iRes)+&
                                         &hydroLines(resLine(iRes)%elem,&
@@ -717,7 +716,7 @@ module output_mod
                     end if
 
                  end if
-              end do
+              end if
            end do
 
         end do
