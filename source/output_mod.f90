@@ -3189,8 +3189,9 @@ module output_mod
 
                end do
             end do
+          end do
 
-          else
+        else
 
             do ix = 1, grid(iG)%nCellsV
 
