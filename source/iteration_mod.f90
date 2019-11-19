@@ -197,11 +197,11 @@ module iteration_mod
                                do freq = 1, nbins
                                   grid(iG)%scaOpac(i,freq) = &
                                        & grid(iG)%scaOpac(i,freq) + &
-                                       & grainAbun(nS)*grainWeight(ai)*grid(iG)%Ndust(i)*&
+                                       & grainAbun(nS,1)*grainWeight(ai)*grid(iG)%Ndust(i)*&
                                        & xSecArray(dustScaXsecP(nS,ai)+freq-1)
                                   grid(iG)%absOpac(i,freq) = &
                                        & grid(iG)%absOpac(i,freq) + &
-                                       & grainAbun(nS)*grainWeight(ai)*grid(iG)%Ndust(i)*&
+                                       & grainAbun(nS,1)*grainWeight(ai)*grid(iG)%Ndust(i)*&
                                        & xSecArray(dustAbsXsecP(nS,ai)+freq-1)
                                end do
                             end if
