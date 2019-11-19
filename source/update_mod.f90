@@ -719,7 +719,7 @@ module update_mod
                    photoelHeat_d(ns,na) = photoelHeat_d(ns,na)+Qa*photFlux*EY*hcRyd/Pi
 
                    photoelHeat_g = photoelHeat_g+Qa*photFlux*(EY-Yhat*grainPot(ns,na))*&
-                        & grainAbun(ns)*grainWeight(na)
+                        & grainAbun(ns,1)*grainWeight(na)
 
                 end do
              end do
@@ -805,7 +805,7 @@ module update_mod
 
                             gasDustColl_g = gasDustColl_g + &
                                  & ionDenUsed(elementXref(elem),istage)*&
-                                 & grainWeight(na)*grainAbun(ns)*grid%Ndust(cellP)*&
+                                 & grainWeight(na)*grainAbun(ns,1)*grid%Ndust(cellP)*&
                                  & grid%elemAbun(grid%abFileIndex(cellP),elem)*&
                                  & Pi*grainRadius(na)*grainRadius(na)*1.e-8*&
                                  & S*vmean*(2.*kT*Ryd2erg*xi-eta*2.*kBoltzmann*&
@@ -841,7 +841,7 @@ module update_mod
 
                    gasDustColl_g = gasDustColl_g + &
                         & NeUsed* &
-                        & grainWeight(na)*grainAbun(ns)*grid%Ndust(cellP)*&
+                        & grainWeight(na)*grainAbun(ns,1)*grid%Ndust(cellP)*&
                         & Pi*grainRadius(na)*grainRadius(na)*1.e-8*&
                         & S*vmean*(2.*kT*Ryd2erg*xi)/&
                         & grid%Hden(cellP)
@@ -926,7 +926,7 @@ module update_mod
 !                     backspace 57
                   end do
                end if
-               write(57,*) 'Cell,Te: ', xp,yp,zp, TeUsed, NeUsed
+               write(57,*) 'Cell,Te: ', cellP, TeUsed, NeUsed
                write(57,*) 'Ionising radiation: ', ionJ
                write(57,*) 'FF H-like: ', coolFF
                write(57,*) 'Rec H-like: ', coolrec
@@ -1504,7 +1504,7 @@ module update_mod
             NeUsed = NeUsed * grid%Hden(cellP)
 
 
-            if (NeUsed==0. .and. lgVerbose) print*, '! ionBalance [warning]: cell ', xP,yP,zP, &
+            if (NeUsed==0. .and. lgVerbose) print*, '! ionBalance [warning]: cell ', cellP, &
                  &'; NeUsed = ',  NeUsed
 
             if (NeUsed == 0.) then
@@ -2210,7 +2210,7 @@ module update_mod
 
             NeUsed = NeUsed * grid%Hden(cellP)
 
-            if (NeUsed==0.) print*, '! ionBalance [warning]: cell ', xP,yP,zP, &
+            if (NeUsed==0.) print*, '! ionBalance [warning]: cell ', cellP, &
                  &'; NeUsed = ',  NeUsed
 
             if (NeUsed == 0.) then
@@ -3243,7 +3243,7 @@ module update_mod
                      do i = 1, nbins
 
                         grid%arad(cellP) = grid%arad(cellP)+Cpr(nS,ai,i)*grid%H(cellP,i)*&
-                             & grainAbun(nS)*grainWeight(ai)
+                             & grainAbun(nS,1)*grainWeight(ai)
 
                      end do
                   end if
@@ -3303,9 +3303,9 @@ module update_mod
                        & (.not.nIterateMC==1) ) then
                      dustHeatingBudget(grid%abFileIndex(cellP),0) = &
                           &dustHeatingBudget(grid%abFileIndex(cellP),0)+&
-                          & dustAbsIntegral*grainWeight(ai)*grainAbun(nS)*grid%Ndust(cellP)
+                          & dustAbsIntegral*grainWeight(ai)*grainAbun(nS,1)*grid%Ndust(cellP)
                      dustHeatingBudget(0,0) = dustHeatingBudget(0,0)+&
-                          & dustAbsIntegral*grainWeight(ai)*grainAbun(nS)*grid%Ndust(cellP)
+                          & dustAbsIntegral*grainWeight(ai)*grainAbun(nS,1)*grid%Ndust(cellP)
                      resLineHeat = resLineHeating(ai,ns)
                      dustAbsIntegral = dustAbsIntegral+resLineHeat
                   end if
@@ -3353,7 +3353,7 @@ module update_mod
                   end if
 
                   if (lgTalk) &
-                       & print*, "! getDustT: [talk] cell ", xP,yP,zP,"; Grain temperature: "&
+                       & print*, "! getDustT: [talk] cell ", cellP,"; Grain temperature: "&
                        &, grid%Tdust(nS,ai,cellP), " species ", grainLabel(nS), " size:", grainRadius(ai)
 
                   ! find weighted mean
@@ -3363,7 +3363,7 @@ module update_mod
                end do
 
                grid%Tdust(0,0,cellP) = grid%Tdust(0,0,cellP)+&
-                    & grid%Tdust(nS,0,cellP)*grainAbun(nS)
+                    & grid%Tdust(nS,0,cellP)*grainAbun(nS,1)
 
             end do
 
@@ -3455,9 +3455,9 @@ module update_mod
 
                dustHeatingBudget(grid%abFileIndex(cellP),iL) = &
                     & dustHeatingBudget(grid%abFileIndex(cellP),iL) + &
-                    & heat*grainWeight(sizeP)*grainAbun(speciesP)*grid%Ndust(cellP)
+                    & heat*grainWeight(sizeP)*grainAbun(speciesP,1)*grid%Ndust(cellP)
                dustHeatingBudget(0,iL) = dustHeatingBudget(0,iL) + &
-                    & heat*grainWeight(sizeP)*grainAbun(speciesP)*grid%Ndust(cellP)
+                    & heat*grainWeight(sizeP)*grainAbun(speciesP,1)*grid%Ndust(cellP)
 
 
             end do
@@ -3978,9 +3978,6 @@ module update_mod
             real                       :: x,y1,y2
 
             T4 = TeUsed / 10000.
-            ix = xP
-            iy = yP
-            iz = zP
 
             ! find the nearest temp bin
             itemp = 1
@@ -4063,7 +4060,7 @@ module update_mod
 
                   Hbeta(izp) = Hbeta(izp)*NeUsed*&
                        &ionDenUsed(elementXref(izp),izp+1)*&
-                       &grid%elemAbun(grid%abFileIndex(ix,iy,iz),izp)
+                       &grid%elemAbun(grid%abFileIndex(cellP),izp)
                   hydroLines(izp,:,:) = hydroLines(izp,:,:)*Hbeta(izp)
                end if
 
@@ -4148,7 +4145,7 @@ module update_mod
                   Hbeta(izp) = (real(izp**3)/8.)*10.**(Afit+Bfit*log10TeZ)
 
                   Hbeta(izp) = Hbeta(izp)*NeUsed*ionDenUsed(elementXref(izp),izp+1)*&
-                       &grid%elemAbun(grid%abFileIndex(ix,iy,iz),izp)
+                       &grid%elemAbun(grid%abFileIndex(cellP),izp)
 
                   hydroLines(izp,:,:) = hydroLines(izp,:,:)*Hbeta(izp)
 
@@ -4211,7 +4208,7 @@ module update_mod
                end do
             end if
             HeIRecLines=HeIRecLines*NeUsed*&
-                 &grid%elemAbun(grid%abFileIndex(ix,iy,iz),2)*&
+                 &grid%elemAbun(grid%abFileIndex(cellP),2)*&
                  &ionDenUsed(elementXref(2),2)
 
 
