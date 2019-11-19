@@ -342,7 +342,7 @@ module iteration_mod
                                          grid(iG)%dustPDF(grid(iG)%active(i,j,k), 1:nbins) = 0.
                                       end if
 
-                                      call emissionDriver(grid,i,j,k,iG)
+                                      call emissionDriver(grid,grid(iG)%active(i,j,k),iG)
 
                                    end if
 
@@ -353,7 +353,7 @@ module iteration_mod
                                       grid(iG)%dustPDF(grid(iG)%active(i,j,k), 1:nbins) = 0.
                                    end if
 
-                                   call emissionDriver(grid,i,j,k,iG)
+                                   call emissionDriver(grid,grid(iG)%active(i,j,k),iG)
 
 
                                 end if
@@ -1392,7 +1392,7 @@ module iteration_mod
                     end do
                  end if
                  print*, ' '
-                 print*, 'deltaE = ', deltaE
+                 print*, 'deltaE = ', deltaEUsed
               end if
 
            end do
