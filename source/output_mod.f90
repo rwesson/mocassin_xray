@@ -304,7 +304,7 @@ module output_mod
                  if (lg1D ) then
                     if (grid(iG)%ionDen(grid(iG)%active(i,j,k),elementXref(1),1) > 0.95) then
                        print*, 'R_out = ', grid(iG)%xAxis(i-1), ' (',i-1,')'
-                       exit outer
+                       exit! todo: check this behaviour
                     end if
                  end if
 
@@ -716,9 +716,9 @@ module output_mod
                     end if
                     end if
 
-                 end do
+                 end if
               end do
-           end do outer
+           end do
 
         end do
 
