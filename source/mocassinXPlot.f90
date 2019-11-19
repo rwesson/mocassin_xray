@@ -25,6 +25,7 @@ program MoCaSSiNplot
 
     real(kind=8),allocatable:: flinePlot(:,:,:,:)
     real, allocatable   :: image(:,:,:,:)
+    real, allocatable   :: imageV(:)
 
     real, dimension(nElements) ::  elemAbundanceUsed  ! local abundances
     real            :: log10NeP, log10TeP
@@ -40,6 +41,8 @@ program MoCaSSiNplot
     character(len=30) :: filename       ! input file
     character(len=30) :: bandFile       ! band transmission coeff file
 
+    integer         :: iCell
+    integer         :: nCellsUp
     integer         :: iz             ! counter
     integer         :: abFileIndexUsed
     integer         :: err            ! allocation error statu
@@ -171,20 +174,18 @@ program MoCaSSiNplot
        if (lgVoronoi) then
           do iCell = 1, grid3D(iG)%nCellsV
              dV = grid3D(1)%voronoi(iCell)%volume
-             if (taskid == 0) write(29,*) grid3d(ig)%voronoi(icell)%r(1), grid3d(ig)%voronoi(ic
+             if (taskid == 0) write(29,*) grid3d(ig)%voronoi(icell)%r(1), grid3d(ig)%voronoi(icell)%r(1), grid3d(ig)%voronoi(icell)%r(2),grid3d(iG)%voronoi(icell)%r(3),dV
           end do
        else
-
-       do i = 1, grid3D(iG)%nx
-          do j = 1, grid3D(iG)%ny
-             do k = 1, grid3D(iG)%nz
-
+         do i = 1, grid3D(iG)%nx
+            do j = 1, grid3D(iG)%ny
+               do k = 1, grid3D(iG)%nz
                    if (taskid == 0) write(29, *) grid3D(iG)%xAxis(i),grid3D(iG)%yAxis(j),&
                         & grid3D(iG)%zAxis(k),dV
-
-             end do
-          end do
-       end do
+               end do
+            end do
+         end do
+       end if
 
        if (taskid == 0)    close (29)
 
@@ -192,7 +193,7 @@ program MoCaSSiNplot
 
           if (.not.lgVoronoi) then
              ! find the volume of this cell
-             dV = grid3D(iG)%Volume(grid3D(1)%activeR(1,iCell), grid3D(1)%activeR(2,iCell), gri
+             dV = grid3D(iG)%Volume(grid3D(1)%activeR(1,iCell), grid3D(1)%activeR(2,iCell), grid3D(1)%activeR(3,iCell))
           else
              dV = grid3D(1)%voronoi(grid3D(1)%activeRV(iCell))%volume
           end if
@@ -214,8 +215,8 @@ program MoCaSSiNplot
             log10NeP        = log10(NeUsed)
             TeUsed          = grid3D(iG)%Te(iCell)
             log10TeP        = log10(TeUsed)
-            abFileIndexUsed = grid3D(iG)%abFileIndex(i,j,k)
-            elemAbundanceUsed(:) = grid3D(iG)%elemAbun(grid3D(iG)%abFileIndex(i,j,k), :)
+            abFileIndexUsed = grid3D(iG)%abFileIndex(iCell)
+            elemAbundanceUsed(:) = grid3D(iG)%elemAbun(grid3D(iG)%abFileIndex(iCell), :)
 
             ! recalculate line emissivities at this cell
 
@@ -301,7 +302,7 @@ program MoCaSSiNplot
 
                            call locate(frequency(1:tranMaxP), nuArray(contP), tranP)
                            if ( nuArray(contP) >= (frequency(tranP) + frequency(tranP+1))/2. ) tranP = tranP+1
-                           if( (tranP <= 0) .or. (tranP >= tranMaxP) ) coeff = 0.
+                           if ( (tranP <= 0) .or. (tranP >= tranMaxP) ) coeff = 0.
 
                            coeff(plotNum) = tranCoeff(tranP)
 
@@ -435,7 +436,7 @@ program MoCaSSiNplot
        do i = 1, grid3D(1)%nCellsV
           if (plot%lgFilter) then
              do plotNum = 1, plot%nPlots
-                imageV(i) = imageV(i) + plot%intensity(1,grid3D(1)%activeV(i),plotNum)*coeff(pl
+                imageV(i) = imageV(i) + plot%intensity(1,grid3D(1)%activeV(i),plotNum)*coeff(plotNum)
              end do
 
              iCount = iCount + 1
