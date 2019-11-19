@@ -1313,15 +1313,16 @@ module iteration_mod
               end if
 
               do i = 1, grid(iG)%nCells
-                 if (.not.lgEcho) then
+!todo: reimplement echo
+!                 if (.not.lgEcho) then
                     convPercent = convPercent + grid(iG)%lgConverged(i)
                     totCells    = totCells + 1.
-                 else ! if light echo then only count echo cells!
-                    if (grid(iG)%echoVol(i).gt.0.0) then
-                       convPercent = convPercent + grid(iG)%lgConverged(i)
-                       totCells    = totCells + 1.
-                    end if
-                 endif
+!                 else ! if light echo then only count echo cells!
+!                    if (grid(iG)%echoVol(i).gt.0.0) then
+!                       convPercent = convPercent + grid(iG)%lgConverged(i)
+!                       totCells    = totCells + 1.
+!                    end if
+!                 endif
               end do
 
 
