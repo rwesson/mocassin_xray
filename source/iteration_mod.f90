@@ -161,9 +161,7 @@ module iteration_mod
                  call mpi_barrier(mpi_comm_world, ierr)
                  do i = 1, grid(iG)%nCells
                     do freq = 1, nbins
-                       if (grid(iG)%active(i,j,k)>0) then
-                          grid(iG)%opacity(i,freq) = opacityTemp(i,freq)
-                       end if
+                       grid(iG)%opacity(i,freq) = opacityTemp(i,freq)
                     end do
                  end do
                  if ( allocated(opacityTemp) ) deallocate(opacityTemp)
