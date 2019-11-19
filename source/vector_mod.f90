@@ -82,7 +82,7 @@ module vector_mod
      module procedure crossProd
   end interface operator(.cross.)
 
-  integer :: inr2 = 0.
+  integer :: inr2 = 0
 
 contains
 
