@@ -971,7 +971,7 @@ module xSec_mod
         absOpacSpecies=0.
 
         ! allocate abundances array for dust
-        allocate (grainAbun(1:nSpecies), stat=err)
+        allocate (grainAbun(1:nSpecies,1), stat=err)
         if (err/=0) then
            print*, "! makeDustXsec: error allocation memory for grainAbun array"
            stop
@@ -1092,7 +1092,7 @@ module xSec_mod
 
         do nSpec = 1, nSpecies
 
-           read(10, *) extinctionFile, grainAbun(nSpec)
+           read(10, *) extinctionFile, grainAbun(nSpec,1)
 
            open (unit=20, file=PREFIX//"/share/mocassinX/"//extinctionFile, iostat = ios, &
                 &status = 'old', position = 'rewind', action="read")
@@ -1489,7 +1489,7 @@ module xSec_mod
         print*, "! makeDustXsec: Grain Abundances: "
         print*, "(index, label, abundance, sublimation T)"
         do nSpec = 1, nSpecies
-           print*, nSpec, grainLabel(nSpec),grainAbun(nSpec),TdustSublime(nSpec)
+           print*, nSpec, grainLabel(nSpec),grainAbun(nSpec,1),TdustSublime(nSpec)
         end do
         print*, ""
 
@@ -1507,13 +1507,13 @@ module xSec_mod
                  if (lgRadPress) then
                     Cpr(nSpec,ai,i) = Cpr(nSpec,ai,i)*Pi*&
                          & grainRadius(ai)*grainRadius(ai)*1.e-8
-                    CTpr(i) = CTpr(i) + grainAbun(nSpec)*&
+                    CTpr(i) = CTpr(i) + grainAbun(nSpec,1)*&
                          & Cpr(nSpec,ai,i)*grainWeight(ai)
                  end if
 
 
-                 CTsca(i) = CTsca(i) + grainAbun(nSpec)*Csca(nSpec,ai,i)*grainWeight(ai)
-                 CTabs(i) = CTabs(i) + grainAbun(nSpec)*Cabs(nSpec,ai,i)*grainWeight(ai)
+                 CTsca(i) = CTsca(i) + grainAbun(nSpec,1)*Csca(nSpec,ai,i)*grainWeight(ai)
+                 CTabs(i) = CTabs(i) + grainAbun(nSpec,1)*Cabs(nSpec,ai,i)*grainWeight(ai)
 
               end do
            end do

@@ -1508,9 +1508,9 @@ module emission_mod
                              bb = getFlux(nuArray(freq), treal, cShapeLoc)
                              sumDiffuseDust(freq) = sumDiffuseDust(freq) + &
                                   &  xSecArray(dustAbsXsecP(nS,ai)+freq-1)*bb*widFlx(freq)*&
-                                  & grainWeight(ai)*grainAbun(nS)*Pspike(iT)
+                                  & grainWeight(ai)*grainAbun(nS,1)*Pspike(iT)
                              normDust = normDust+xSecArray(dustAbsXsecP(nS,ai)+freq-1)*bb*widFlx(freq)*&
-                                  & grainWeight(ai)*grainAbun(nS)*Pspike(iT)
+                                  & grainWeight(ai)*grainAbun(nS,1)*Pspike(iT)
                           end do
                        end do
 
@@ -1520,9 +1520,9 @@ module emission_mod
                           bb = getFlux(nuArray(freq), grids(iG)%Tdust(nS,ai,cellPUsed), cShapeLoc)
                           sumDiffuseDust(freq) = sumDiffuseDust(freq) + &
                                &  xSecArray(dustAbsXsecP(nS,ai)+freq-1)*bb*widFlx(freq)*&
-                               & grainWeight(ai)*grainAbun(nS)
+                               & grainWeight(ai)*grainAbun(nS,1)
                           normDust = normDust+xSecArray(dustAbsXsecP(nS,ai)+freq-1)*bb*widFlx(freq)*&
-                               & grainWeight(ai)*grainAbun(nS)
+                               & grainWeight(ai)*grainAbun(nS,1)
                        end do
                     end if
                  end if
@@ -1743,7 +1743,7 @@ module emission_mod
                         bb = getFlux(nuArray(i), treal, cShapeLoc)
                         grids(iG)%dustPDF(cellPUsed, i) = grids(iG)%dustPDF(cellPUsed, i)+ &
                              & xSecArray(dustAbsXsecP(n,ai)+i-1)*bb*widFlx(i)*&
-                             & grainWeight(ai)*grainAbun(n)*Pspike(iT)
+                             & grainWeight(ai)*grainAbun(n,1)*Pspike(iT)
                      end do
 
                   else
@@ -1752,7 +1752,7 @@ module emission_mod
                      bb = getFlux(nuArray(i), treal, cShapeLoc)
                      grids(iG)%dustPDF(cellPused, i) = grids(iG)%dustPDF(cellPused, i)+&
                           & xSecArray(dustAbsXsecP(n,ai)+i-1)*bb*widFlx(i)*&
-                          & grainWeight(ai)*grainAbun(n)
+                          & grainWeight(ai)*grainAbun(n,1)
                   end if
                end do
 

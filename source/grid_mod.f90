@@ -1773,7 +1773,7 @@ module grid_mod
                                 denominator = denominator + &
                                      & (1.3333*Pi*( (grainRadius(ai)*1.e-4)**3)*&
                                      &rho(nspec)*grainWeight(ai)*&
-                                     & grainAbun(nspec))
+                                     & grainAbun(nspec,1))
                              end do
                           end do
                           grid%Ndust(grid%active(i,j,k)) = &
@@ -1789,7 +1789,7 @@ module grid_mod
                                 totalDustMass = totalDustMass + &
                                      &(1.3333*Pi*((grainRadius(ai)*1.e-4)**3)*&
                                      &rho(nspec)*grainWeight(ai)*&
-                                     & grainAbun(nspec))*grid%Ndust(grid%active(i,j,k))*dV
+                                     & grainAbun(nspec,1))*grid%Ndust(grid%active(i,j,k))*dV
 
                              end do
                           end do
@@ -2629,7 +2629,7 @@ module grid_mod
                                    denominator = denominator + &
                                         & (1.3333*Pi*( (grainRadius(ai)*1.e-4)**3)*&
                                         &rho(nspec)*grainWeight(ai)*&
-                                        & grainAbun(nspec))
+                                        & grainAbun(nspec,1))
                                 end do
                              end do
                              grid(iG)%Ndust(grid(iG)%active(ix,iy,iz)) =&
@@ -2646,7 +2646,7 @@ module grid_mod
                                    totalDustMass = totalDustMass + &
                                         &(1.3333*Pi*((grainRadius(ai)*1.e-4)**3)*&
                                         &rho(nspec)*grainWeight(ai)*&
-                                        & grainAbun(nspec))*grid(iG)%Ndust(grid(iG)%&
+                                        & grainAbun(nspec,1))*grid(iG)%Ndust(grid(iG)%&
                                         &active(ix,iy,iz))*dV
                                 end do
                              end do

@@ -785,7 +785,7 @@ module voronoi_grid_mod
 !                                  & rho(dustComPoint(nsp)-1+nspec)*&
                                   & rho(nspec)*&
 !                                  & grainWeight(ai)*grainAbun(nsp,nspec)&
-                                  & grainWeight(ai)*grainAbun(nsp)&
+                                  & grainWeight(ai)*grainAbun(nsp,1)&
                                   & *grid(iG)%voronoi(ix)%ndust*dV)
                           end do
                        end do
@@ -1457,7 +1457,7 @@ print*, i, totalMass, grid%voronoi(grid%activeV(i))%density, dV
 !                              & rho(dustComPoint(nsp)+nspec-1)*grainWeight(ai)*&
                               & rho(nspec)*&
 !                              & grainAbun(nsp, nspec))
-                              & grainAbun(nsp))
+                              & grainAbun(nsp,1))
                       end do
                    end do
                    grid%voronoi(grid%activeV(i))%ndust = grid%voronoi(grid%activeV(i))%ndust/&
@@ -1481,7 +1481,7 @@ print*, i, totalMass, grid%voronoi(grid%activeV(i))%density, dV
 !                              & rho(dustComPoint(nsp)-1+nspec)*grainWeight(ai)*&
                               & rho(nspec)*grainWeight(ai)*&
 !                              & grainAbun(nsp,nspec))*grid%voronoi(grid%activeV(i))%ndust*dV
-                              & grainAbun(nsp))*grid%voronoi(grid%activeV(i))%ndust*dV
+                              & grainAbun(nsp,1))*grid%voronoi(grid%activeV(i))%ndust*dV
 
                       end do
                    end do
