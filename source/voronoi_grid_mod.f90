@@ -498,7 +498,7 @@ module voronoi_grid_mod
             print*, "! initVoronoiGrid: can't allocate grid memory"
             stop
          end if
-         abFileIndexTemp = 1.
+         abFileIndexTemp = 1
 
 
          grid%activeV = 1
