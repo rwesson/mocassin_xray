@@ -74,13 +74,14 @@ module emission_mod
         abFileUsed= grids(iG)%abFileIndex(cellPused)
         NeUsed    = grids(iG)%Ne(cellPUsed)
         TeUsed    = grids(iG)%Te(cellPUsed)
+        HdenUsed  = grids(iG)%Hden(cellPUsed)
         sqrTeUsed = sqrt(TeUsed)
 
         log10Te = log10(TeUsed)
         log10Ne = log10(NeUsed)
 
         ! check that the cell is ionised if not use neutral cell approx
-        if (NeUsed/grid%Hden(cellPUsed) < 1.e-3 .or. TeUsed < 500.) then
+        if (NeUsed/HdenUsed < 1.e-3 .or. TeUsed < 500.) then
            grid%totalLines(cellPUsed) = 1.
            return
         end if
@@ -1590,9 +1591,9 @@ module emission_mod
 
         grids(iG)%totalLines(cellPUsed) = normRec + normFor
 
-        if (.not.grid%totalLines(cellPUsed) > 0.) then
+        if (.not.grids(iG)%totalLines(cellPUsed) > 0.) then
           print*, '! insanity in totallines, normRec, normFor'
-          print*, grid%totalLines(cellPUsed), normRec, normFor
+          print*, grids(iG)%totalLines(cellPUsed), normRec, normFor
           stop
         end if
 
@@ -1694,10 +1695,10 @@ module emission_mod
         normalize = normalize + grids(iG)%totalLines(cellPUsed)
 
         if (normalize > 0.) then
-          grid%totalLines(cellPUsed) = grid%totalLines(cellPUsed) / normalize
+          grids(iG)%totalLines(cellPUsed) = grids(iG)%totalLines(cellPUsed) / normalize
         else
           print*, '! setDiffusePDF: insanity in the calculation of totalllines - &
-               & normalize <= 0.!!', cellPUsed, grid%totalLines(cellPUsed), normalize
+               & normalize <= 0.!!', cellPUsed, grids(iG)%totalLines(cellPUsed), normalize
           stop
         end if
 
