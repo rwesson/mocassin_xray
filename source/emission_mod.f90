@@ -703,6 +703,9 @@ module emission_mod
         ! local variables
         integer        :: i   ! counter
 
+! todo: loop can be replaced with
+!        ffCoeff1 = fourPi*54.43*1*1*gauntFF*exp(dble(-nuArray*hcRyd_k/TeUsed))/sqrTeUsed
+!        ffCoeff2 = fourPi*54.43*2*2*gauntFFHeII*exp(dble(-nuArray*hcRyd_k/TeUsed))/sqrTeUsed
         do i = 1, nbins
             ! find the free-free emission coefficient for H+ and He+
             ffCoeff1(i) = ffCoeff(nuArray(i), 1, gauntFF(i))
