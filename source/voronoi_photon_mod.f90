@@ -26,13 +26,13 @@ contains
 
 
   !----------------------------------------------------------------------------
-  subroutine energyPacketDriverV(iStar, n, grid, plot, gpLoc, cellLoc)
+  subroutine energyPacketDriverV(iStar, n, grid, gpLoc, cellLoc)
     implicit none
 
     integer,intent(in) :: n                        ! no. of energy packets
     integer,intent(in) :: iStar                    ! central star index
     type(grid_type),intent(inout) :: grid(:)       ! main voronoi grid
-    type(plot_type),intent(inout),optional :: plot ! only used in the mocassinPlot version
+!    type(plot_type),intent(inout),optional :: plot ! only used in the mocassinPlot version
     integer,intent(inout),optional :: gpLoc        ! local grid (only used for extra diffuse sources) (Needed??)
     integer,intent(inout),optional :: cellLoc      ! local cell (only used for extra diffuse sources)
 
