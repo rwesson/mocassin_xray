@@ -117,6 +117,7 @@ module iteration_mod
                  if (taskid==0) print*, '! iterateMC: ionizationDriver in', iG
                  ! calculate the opacities at every grid cell
                  do i = 1, grid(iG)%nCells
+                   iCell=iCell+1!todo:is this right? iCell can simply be replaced with i anyway
                    if (mod(iCell-(taskid+1),numtasks)==0) then
                       if (nIterateMC>1 .and. &
                            &((abs(grid(iG)%Te(i)-&
