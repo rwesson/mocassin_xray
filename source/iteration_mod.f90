@@ -325,7 +325,7 @@ module iteration_mod
                                       if (lgGas.and.convPercent>=resLinesTransfer .and. (.not.lgResLinesFirst) &
                                            & .and. (.not.nIterateMC==1))  then
                                          grid(iG)%fEscapeResPhotons(grid(iG)%active(i,j,k), :) = 0.
-                                         grid(iG)%resLinePackets(grid(iG)%active(i,j,k)) = 0.
+                                         grid(iG)%resLinePackets(grid(iG)%active(i,j,k)) = 0
                                       end if
 
                                       if (lgGas) then
@@ -361,7 +361,7 @@ module iteration_mod
                                 if (lgGas.and.convPercent>=resLinesTransfer .and. (.not.lgResLinesFirst) &
                                      & .and. (.not.nIterateMC==1))  then
                                    grid(iG)%fEscapeResPhotons(grid(iG)%active(i,j,k), :) = 0.
-                                   grid(iG)%resLinePackets(grid(iG)%active(i,j,k)) = 0.
+                                   grid(iG)%resLinePackets(grid(iG)%active(i,j,k)) = 0
                                 end if
 
                                 if (lgGas) then
@@ -550,7 +550,7 @@ module iteration_mod
                             & memory:resLinePacketsTemp"
                        stop
                     end if
-                    resLinePacketsTemp = 0.
+                    resLinePacketsTemp = 0
 
                     size = (grid(iG)%nCells+1)*nResLines
 
@@ -671,9 +671,8 @@ module iteration_mod
 
            end if
 
-           totalEscaped = 0.
+           totalEscaped = 0
 
-           totalEscaped = 0.
            do iG = 1, nGrids
               grid(iG)%escapedPackets(0:grid(iG)%nCells, 0:nbins, 0:nAngleBins) = 0.
               if (lgSeparateSED) then
