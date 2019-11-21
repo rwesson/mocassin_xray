@@ -31,7 +31,6 @@ module grid_mod
         real, allocatable    :: nuTemp(:)
 
         integer :: err, ios                         ! allocation error status
-        integer :: ix,iy,iz
         integer :: i, j, iCount, nuCount, elem, ion ! counters
         integer :: g0,g1
         integer :: nEdges
@@ -614,6 +613,7 @@ module grid_mod
 
       ifill0 = n0 - 1
 
+!todo: nbin is integer. nint, round?
       nbin = log( 10. ) * log10( enhi / enlo ) / resolv + 1
       fildel = log10( enhi/enlo ) / nbin
 
@@ -1012,7 +1012,7 @@ module grid_mod
               print*, "! setMotherGrid: can't allocate grid memory,activeRTemp"
               stop
            end if
-           activeRTemp = 0.
+           activeRTemp = 0
 
            ! allocate space for HdenTemp
            allocate(HdenTemp(1:grid%nx, 1:grid%ny, 1:grid%nz), stat = err)
@@ -1028,7 +1028,7 @@ module grid_mod
               print*, "! setMotherGrid: can't allocate grid memory"
               stop
            end if
-           abFileIndexTemp = 1.
+           abFileIndexTemp = 1
 
            if (lgDfile) then
               open (unit= 77,  action="read", file=densityFile, status = "old", position = "rewind", &
@@ -3134,7 +3134,7 @@ module grid_mod
       implicit none
 
 
-      real                 :: p0,p00,p1,p2,p3
+      real                 :: p1,p2,p3
       real, allocatable    :: p(:)
       real                 :: radius
 
@@ -3143,6 +3143,7 @@ module grid_mod
       integer :: xPmap
 
       integer :: iac, jac, kac, acreader
+      integer :: p0,p00
       integer, parameter :: maxLim = 10000
       integer, parameter :: nSeries = 17
 
