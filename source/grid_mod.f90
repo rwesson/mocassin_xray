@@ -1909,8 +1909,8 @@ module grid_mod
            real                           :: totalVolume  ! total active volume
 
            real, allocatable              :: HdenTemp(:,:,:) ! temporary Hden
-           real, allocatable              :: abFileIndexTemp(:,:,:) ! temporary Hden
            real, allocatable              :: NdustTemp(:,:,:) ! temporary dust number density array
+           integer, allocatable           :: abFileIndexTemp(:,:,:) ! temporary Hden
 
            integer                        :: edgeP        ! subgrid edge pointer on mothergrid
            integer                        :: iG,ai        ! counters
