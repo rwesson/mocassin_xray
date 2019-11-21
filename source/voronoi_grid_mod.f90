@@ -1219,7 +1219,7 @@ module voronoi_grid_mod
                 print*, "! grid: can't allocate dustAbunIndex memory"
                 stop
              end if
-             grid%dustAbunIndex=0.
+             grid%dustAbunIndex=0
              ! be 2.02.44 end
 
              if (.not.lgGas) then
