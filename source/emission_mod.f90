@@ -2839,7 +2839,7 @@ module emission_mod
     integer             :: gPmother,xPmother,yPmother,zPmother
     integer             :: icount  ! counter
     integer             :: idir, jdir, kdir ! freq counter
-    integer, parameter  :: safeLimit=1e5 ! loop limit
+    integer, parameter  :: safeLimit=100000 ! loop limit
     integer             :: gP ! subgrid counters
     integer             :: cellP   ! cell pointer on active grid array
     integer             :: compoP  ! pointer to gas component index
