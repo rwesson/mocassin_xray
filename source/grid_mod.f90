@@ -3134,7 +3134,7 @@ module grid_mod
       implicit none
 
 
-      real                 :: p0,p00,p1,p2,p3, acreader
+      real                 :: p0,p00,p1,p2,p3
       real, allocatable    :: p(:)
       real                 :: radius
 
@@ -3142,7 +3142,7 @@ module grid_mod
       integer :: totCells, totcellsloc
       integer :: xPmap
 
-      integer :: iac, jac, kac
+      integer :: iac, jac, kac, acreader
       integer, parameter :: maxLim = 10000
       integer, parameter :: nSeries = 17
 
