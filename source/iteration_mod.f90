@@ -66,7 +66,7 @@ module iteration_mod
            integer                :: load,rest       !
            integer                :: size            ! size for mpi
            integer                :: iCell           ! cell index including non-active
-           integer                :: cellPUsed       ! cell index for active
+!          integer                :: cellPUsed       ! cell index for active
            integer                :: iStar           ! star index
            integer                :: ai              ! grain size counter
            integer                :: icontrib,icomp ! counters

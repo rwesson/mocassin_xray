@@ -39,30 +39,22 @@ contains
 
     ! local variables
     integer          :: dt(8)             ! date and time values
-    integer          :: freqP             ! pointer to frequency
     integer          :: gPIn              ! ..
-    integer          :: i,iG,ii,j,k       ! counters
-    integer          :: ian               ! angle counter
+    integer          :: i                 ! counter
     integer          :: iCell             ! cell counter
     integer          :: ierr              ! allocation error status
-    integer          :: ifreq             ! freq counter
     integer          :: igp               ! always 1 for voronoi grid
     integer          :: igrid             ! ..
     integer          :: inV               ! voronoi cell id
-    integer          :: iview             ! viewing angle counter
     integer          :: iV                ! voronoi cell id
     integer          :: msec              ! millisecs of the sec
-    integer          :: plotNum           ! counter
     integer          :: reRun             ! flag to re-run photon packet
     integer          :: seedSize          ! pseudo random number generator seed
     integer          :: trapped           ! no. of trapped photons
     integer, allocatable :: seed(:)           ! seed array
-    real             :: JDifTot           ! tot JDif
-    real             :: JsteTot           ! tot Jste
     real             :: radius            ! radius
     character(len=7) :: chTypeD           ! character type for driver
     character(len=7) :: chTypeIn          ! character type
-    type(vector)     :: absPosition       ! position of packet absorption
     type(vector)     :: positionIn        ! position of packet absorption
     type(vector)     :: posDiff           ! initial position vector for diff ext
     type(vector)     :: posVector         ! initial position vector for dust emi
@@ -246,11 +238,7 @@ contains
       integer,intent(inout) :: rR                 ! rerun?
 
       integer                 :: difSourceV       ! ..
-      integer                 :: err              ! allocation error status
       integer                 :: gP               ! ..
-      integer                 :: i, j             ! counters
-      integer                 :: idirP, idirT     ! direction cosines
-      integer                 :: igpr             ! grid pointer 1= mother 2=sub
       type(photon_packet)     :: enPacket         ! the energu packet
 
 
@@ -346,11 +334,9 @@ contains
 
       integer             :: iboundary         ! ..
       integer             :: igpi              ! grid pointer 1=mother, 2=sub
-      integer             :: i, irepeat        ! counter
+      integer             :: irepeat           ! counter
       integer             :: gP                ! grid number (always 1 on Voronoi)
-      real                :: random            ! random number
       double precision    :: Smin              ! ..
-      type(vector)        :: pn, pp            ! ..
       type(photon_packet) :: initPhotonPacketV ! the photon packet
 
 
@@ -709,7 +695,6 @@ contains
       integer, intent(in)          :: difSourceV     ! Grid/Voronoi indicies
       type(vector), intent(in), optional :: position ! the position of the photon
 
-      logical             :: lgLine_loc=.false.   ! line photon?
       integer             :: gP                   ! ..
       integer             :: igpn                 ! grid pointe 1=motehr, 2=sub
       integer             :: nuP                  ! frequency index of the photon packet
@@ -975,9 +960,9 @@ contains
       logical              :: lgScattered             ! is the packet scattering with dust?
       logical              :: lgReturn                ! flag to return from routine
       integer              :: gP                      ! grid index
-      integer              :: i,j                     ! ..
+      integer              :: i                       ! ..
       integer              :: iboundary               ! ..
-      integer              :: igpp,ihg                ! ..
+      integer              :: ihg                     ! ..
       integer              :: iierr                   ! ..
       integer              :: inext                   ! id of next Voronoi cell
       integer              :: iprev                   ! id of previous Voronoi cell
@@ -1569,14 +1554,9 @@ contains
 
       type(photon_packet), intent(inout) :: inpacket
 
-      real :: nxp,nyp,nzp
       real :: sint,cost,sinp,cosp,phi
-      real :: costp,sintp,phip
-      real :: bmu,b,ri1,ri3,cosi3,sini3,cosb2,sinbt,sini2,bott,cosdph
-      real :: cosi2,sin2i3,sin2i2,cos2i3,cos2i2,sin2,cos2,sin2cos1
-      real :: cos2sin1,cosi1,sini1,sin2i1,cos2i1
       real :: random, random0, vin(3), vout(3), s, denom
-      real :: hgg, g2, znorm
+      real :: hgg, znorm
 
       integer :: ierr
 

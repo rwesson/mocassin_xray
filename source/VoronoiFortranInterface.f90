@@ -154,7 +154,6 @@ CONTAINS
     real(kind=DP) :: drmag                    ! Distance
     real(kind=DP) :: drsqd                    ! Distance squared
     real(kind=DP) :: invdrmag                 ! 1 / distance
-    real(kind=DP) :: volaux
 
     integer(c_int) :: c_N                     ! No. of points (c-type)
     integer(c_int) :: c_ndim                  ! No. of dimensiones (c-type)

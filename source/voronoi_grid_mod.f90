@@ -31,12 +31,9 @@ module voronoi_grid_mod
         type(grid_type),intent(inout) :: grid       ! grid
 
 
-        real, dimension(450) :: ordered
         real, dimension(17)  :: seriesEdge
 
         real                 :: nuMinArray, nuMaxArray
-        real                 :: dradio
-        real                 :: nuStepSizeLoc
         real :: p0,p1,p2,p3
 
         real, allocatable    :: nuTemp(:)
@@ -45,17 +42,13 @@ module voronoi_grid_mod
 
         integer :: index
         integer :: err, ios                         ! allocation error status
-        integer :: ii
-        integer :: ix,iy,iz
-        integer :: i, j, iCount, nuCount, elem, ion ! counters
-        integer :: nradio
+        integer :: i, iCount, nuCount, elem, ion ! counters
         integer :: g0,g1
         integer :: nEdges
         integer :: nElec
         integer :: outshell
 
         logical, save :: lgFirst=.true.
-        logical       :: lgAssigned
 
         integer, parameter :: maxLim = 10000
         integer, parameter :: nSeries = 17
@@ -658,36 +651,26 @@ module voronoi_grid_mod
 
 
        subroutine fillGridV(grid)
-         implicit none
+        implicit none
 
-         include 'mpif.h'
+        include 'mpif.h'
 
-         type(grid_type), dimension(:),intent(inout) :: grid
+        type(grid_type), dimension(:),intent(inout) :: grid
 
-         ! local variables
-         integer :: i, j, k, l, m, n, elem, ion, iG, jG    ! counters
-         integer :: ios                                    ! I/O status
-         integer :: err                                    ! memory allocation status
-         integer :: ngridsloc
-         integer, parameter :: max_points = 10000          ! safety limit
+        ! local variables
+        integer :: i, elem,iG          ! counters
+        integer :: ngridsloc
+        integer, parameter :: max_points = 10000          ! safety limit
 
-         real :: radius     !
-
-        integer :: iCount, nuCount              ! counters
-        integer :: g0,g1
-        integer :: nEdges
-        integer :: nElec
-        integer :: outshell
         integer :: totCells
         integer :: totCellsLoc=0
 
         integer, parameter :: maxLim = 10000
         integer, parameter :: nSeries = 17
 
-        real                 :: nuStepSizeLoc
         real :: massFrac
         real(kind=8) :: dV
-        integer                        :: ix,iy,iz     ! counters
+        integer                        :: ix           ! counter
         integer                        :: nspec, ai    ! counters
         integer                        :: nsp          ! pointer
 
@@ -923,22 +906,16 @@ module voronoi_grid_mod
         type(grid_type), intent(inout) :: grid      ! the grid
 
         ! local variables
-        real                           :: denominator   ! denominator
-        real(kind=8)                           :: dV           ! volume element
-        real                           :: expFactor    ! exp factor in density law calculations
-        real                           :: expTerm      ! exp term
-        real                           :: factor       ! conputation factor
+        real                           :: denominator  ! denominator
+        real(kind=8)                   :: dV           ! volume element
         real                           :: gasCell      ! mass of gas in current cell
         real                           :: H0in         ! estimated H0 at the inner radius for regionI
         real                           :: MhMg         ! mass oh hydrogen over mass of gas
         real                           :: norm, scale  ! normalisation and scaling for meanField
         real                           :: radius       ! distance from the origin
-        real                           :: random       ! random nmumber
-        real                           :: readReal     ! real number reader
-        real                           :: surfIn       ! surface at inner radius [e36 cm^2]
         real                           :: totalMass    ! total ionized mass
         real                           :: totalVolume  ! total active volume
-        real                      :: echoVolume, vol   ! just echo volume
+        real                           :: echoVolume   ! just echo volume
 
         real, dimension(nElements) :: aWeight
         real, parameter :: amu = 1.66053e-24 ! [g]
@@ -947,25 +924,14 @@ module voronoi_grid_mod
         real, allocatable              :: activeRVTemp(:) ! temporary Hden
 
 !        real, allocatable              :: NdustTemp(:) ! temporary dust number density arra
-        real, allocatable              :: twoDscaleJTemp(:)
 
 
-        integer                        :: icomp
-        integer                        :: i,j,k        ! counters
-        integer                        :: index        ! general index
-        integer                        :: iOrigin,&    ! indeces of the origin of the grid
-             & jOrigin, kOrigin
-        integer                        :: ios, err     ! I/O and allocation error status
+        integer                        :: i            ! counter
+        integer                        :: err          ! allocation error status
         integer                        :: elem, ion    ! counters
         integer                        :: nspec, ai    ! counters
         integer                        :: nsp          ! pointer
         integer                        :: nu0P         !
-        integer                        :: RinP         ! pointer to the inner radius intercept
-        integer                        ::tot
-
-        integer                        :: yTop, xPmap  ! 2D indece
-                                                       ! with one of the axes
-
 
         print*, 'in setMotherGridV'
 
@@ -1618,8 +1584,7 @@ print*, i, totalMass, grid%voronoi(grid%activeV(i))%density, dV
            integer                     :: elem                ! element counter
            integer                     :: ion                 ! ion counter
            integer                     :: ios                 ! I/O error status
-           integer                     :: i,j,k,iG,ai         ! counters
-           integer                     :: yTop                ! 2D index
+           integer                     :: i,iG,ai             ! counters
 
            print* , 'in writeGridV'
 
@@ -1830,31 +1795,21 @@ print*, i, totalMass, grid%voronoi(grid%activeV(i))%density, dV
 
               ! local variables
 
-              logical, save :: lgfirst = .true.
               integer                        :: cellP ! cell pointer
               integer                        :: err,ios   ! I/O error status
               integer                        :: i,j,k ! counters
-              integer                        :: elem,&!
-                   &                                       ion,i1 ! counters
-              real                           :: p0,p00,p1,p2,p3,p4,p5,p6,p7, ind
+              integer                        :: elem,ion,i1 ! counters
+              real                           :: p00,p1,p2,p3
               real, allocatable              :: p(:)
-              integer :: iCount, nuCount, iG, ai      ! counters
-              integer :: g0,g1
-              integer :: nEdges
-              integer :: nElec
-              integer :: outshell
+              integer :: iG, ai      ! counters
               integer :: totCells, totcellsloc
-              integer :: yTop, xPmap
+              integer :: xPmap
 
 
               integer, parameter :: maxLim = 10000
               integer, parameter :: nSeries = 17
 
-              real, dimension(450) :: ordered
-              real, dimension(17)  :: seriesEdge
               real                 :: radius
-
-              real                 :: nuStepSizeLoc
 
               print*, 'resetGridV in'
 
@@ -2470,7 +2425,7 @@ print*, 'star: ', i, starPosition(i)%x, starPosition(i)%y, &
       implicit none
       type(grid_type),intent(in) :: grid              ! the grid
       integer, intent(in)        :: xP, yP, zP        ! cell indeces
-      double precision :: x,y,z,dx,dy,dz,t1,t2,vfrac,vol
+      double precision :: x,y,z,dx,dy,dz,t1,t2,vol
       real             :: t1i,t2i,vEcho,odx,ody,odz,volume
       double precision :: h,rho,ddx,ddy,xx,yy
       double precision :: dfac=9.4605284e17,tfac=365.25
@@ -2554,7 +2509,6 @@ print*, 'star: ', i, starPosition(i)%x, starPosition(i)%y, &
 !
     function zee(rho,t)
       double precision :: zee,rho,t
-      double precision :: cl=2.998e10
 
       zee=rho**2/(2.*t)-t/2.
       return
