@@ -54,7 +54,7 @@ module photon_mod
         integer                        :: reRun
 
 
-        integer, intent(inout) &
+        integer, intent(in) &
              & :: gpLoc                               ! local grid (only used for extra diffuse sources)
         integer, intent(inout) &
              & :: cellLoc(3)                          ! local cell (only used for extra diffuse sources)
