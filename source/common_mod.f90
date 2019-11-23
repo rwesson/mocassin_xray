@@ -495,7 +495,6 @@ module common_mod
     logical            :: lgAutoPackets    ! automatic increase of packets on the fly?
     logical            :: lgTalk           ! talk on?
     logical            :: lgDfile          ! use an external density file?
-    logical            :: lgDebug          ! debigging mode? (memory consuming)
     logical            :: lgDlaw           ! use the density law routine?
     logical            :: lgDust           ! is dust included in this model?
     logical            :: lgDustScattering ! is dust scattering included in this model?

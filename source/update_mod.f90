@@ -101,23 +101,12 @@ module update_mod
 
 
         ! find out if this cell has been hit by at least one photon
-        if (.not.lgDebug) then
-           do i = 1, nbins
-              if ( grid%Jste(cellP,i) > 0.) then
-                 lgHit = .true.
-                 exit
-              end if
-           end do
-        else
-           do i = 1, nbins
-              if ( (grid%Jste(cellP,i) > 0.) .or. &
-                   & (grid%Jdif(cellP,i) > 0.)) then
-                 lgHit = .true.
-                 exit
-              end if
-           end do
-        end if
-
+        do i = 1, nbins
+           if ( grid%Jste(cellP,i) > 0.) then
+              lgHit = .true.
+              exit
+           end if
+        end do
 
         ionJ = 0.
         do i = lymanP, nbins
@@ -559,13 +548,8 @@ module update_mod
 
              Yhat = Yn*min(1., max(0.,1.-Vg/(nuArray(ifreq)-grainVn(isp))))
 
-             if (.not. lgDebug) then
-!                photFlux = (grid%JPEots(cellP,ifreq) + grid%Jste(cellP,ifreq))/(hcRyd*nuArray(ifreq))
-                photFlux =  grid%Jste(cellP,ifreq)/(hcRyd*nuArray(ifreq))
-             else
-!                photFlux = (grid%JPEots(cellP,ifreq) + grid%Jste(cellP,ifreq)+grid%Jdif(cellP,ifreq))/&
-!                     & (hcRyd*nuArray(ifreq))
-             end if
+!            photFlux = (grid%JPEots(cellP,ifreq) + grid%Jste(cellP,ifreq))/(hcRyd*nuArray(ifreq))
+             photFlux =  grid%Jste(cellP,ifreq)/(hcRyd*nuArray(ifreq))
 
              photFlux = photFlux*fourPi
 
@@ -695,18 +679,9 @@ module update_mod
 
                    Yhat = Yn*min(1., max(0.,1.-grainPot(ns,na)/(nuArray(ifreq)-grainVn(ns))))
 
-                   if (.not. lgDebug) then
 !                      photFlux = (grid%JPEots(cellP,ifreq) + &
 !                           & grid%Jste(cellP,ifreq))/(hcRyd*nuArray(ifreq))
-                      photFlux = grid%Jste(cellP,ifreq)/(hcRyd*nuArray(ifreq))
-                   else
-!                      photFlux = (grid%JPEots(cellP,ifreq) + grid%Jste(cellP,ifreq)+&
-!                           & grid%Jdif(cellP,ifreq))/(hcRyd*nuArray(ifreq))
-                      photFlux = (grid%Jste(cellP,ifreq)+grid%Jdif(cellP,ifreq))/(hcRyd*nuArray(ifreq))
-
-                   end if
-
-                   photFlux = photFLux
+                   photFlux = grid%Jste(cellP,ifreq)/(hcRyd*nuArray(ifreq))
 
                    Qa = XSecArray(dustAbsXsecP(ns,na)+ifreq-1)
 
@@ -1114,7 +1089,6 @@ module update_mod
 
              ! re-initialize heatSte and heatDif
              heatSte = 0.
-             if (lgDebug) heatDif = 0.
 !print*, 'heatste -photoionisation-'
              do elem = 1, nElements  ! begin element loop
 
@@ -3274,11 +3248,7 @@ module update_mod
             integer :: iT        ! pointer to dust temp in dust temp array
 
             ! radiation field at this location
-            if (lgDebug) then
-               radField = ((grid%Jste(cellP,:) + grid%Jdif(cellP,:)))/Pi
-            else
-               radField = grid%Jste(cellP,:)/Pi
-            end if
+            radField = grid%Jste(cellP,:)/Pi
 
             ! zero out dust temperature arrays
             grid%Tdust(:,:,cellP) = 0.
@@ -3599,15 +3569,6 @@ module update_mod
                                    & (nuArray(j)-nuArray(IPNuP)) / (nuArray(j))
 !print*, elem, ion, nshell, nPhotoSte(nshell,elem,ion) , phXSec, grid%Jste(cellP,j), (hcRyd*nuArray(j))
                            end if
-                           if ( lgDebug) then
-                              if (grid%JDif(cellP,j) >0.) then
-                                 nPhotoDif(nshell,elem,ion) = nPhotoDif(nshell,elem,ion) + &
-                                      & grid%JDif(cellP,j)*phXSec/(hcRyd*nuArray(j))
-                                 heatIonDif(nshell,elem,ion) = heatIonDif(nshell,elem,ion) + &
-                                      & phXSec*grid%JDif(cellP,j)*&
-                                      & (nuArray(j)-nuArray(IPNuP)) / (nuArray(j))
-                              end if
-                           end if
 
                         end do
 
@@ -3616,12 +3577,6 @@ module update_mod
                         radField = grid%JSte(cellP,:)
                         call getPhotoRates(nPhotoSte(nshell,elem,ion), heatIonSte(nshell,elem,ion),&
                              & elem, ion, nshell, IPnuP, highNuP, auger(elem,ion,nshell,1),radField, heatef)
-
-                        if (lgDebug) then
-                           radField = grid%JDif(cellP,:)
-                           call getPhotoRates(nPhotoDif(nshell,elem,ion), heatIonDif(nshell,elem,ion),&
-                                & elem, ion, nshell, IPnuP, highNuP, auger(elem,ion,nshell,1),radField, heatef)
-                        end if
 
                      end if
 
@@ -3633,10 +3588,7 @@ module update_mod
             end do ! end element loop
 
             photoIon(1, 1:10,1:30,1:nstages) = nPhotoSte
-
-            if (lgDebug) photoIon(1, 1:10,1:30,1:nstages) = nPhotoSte+nPhotoDif
             photoIon(2, 1:10,1:30,1:nstages) = heatIonSte
-            if (lgDebug) photoIon(2, 1:10,1:30,1:nstages) = heatIonSte+heatIonDif
 
             ! the set of charge exchange coeffs is not complete; the following might need
             ! to be changed when a more complete set is available
@@ -3768,7 +3720,6 @@ module update_mod
             do i=1,nbins
 
                radfield = grid%Jste(cellP,i)
-               if (lgDebug) radfield = radfield+grid%Jdif(cellP,i)
 
                s1 = s1+radField
                s2 = s2+radField/nuArray(i)
@@ -3833,7 +3784,6 @@ module update_mod
             do i=1,nbins
 
                radfield = grid%Jste(cellP,i)
-               if (lgDebug) radfield = radfield+grid%Jdif(cellP,i)
 
                ! Compton cooling
                ! comXSecC isTarter expression times nuArray(i)*3.858E-25

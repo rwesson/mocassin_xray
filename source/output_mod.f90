@@ -163,21 +163,6 @@ module output_mod
            stop
         end if
 
-        if (lgDebug) then
-           allocate(lineLuminosity(0:nAbComponents, 1:nLines), stat=err)
-           if (err /= 0) then
-              print*, "! output mod: can't allocate array lineLuminosity memory"
-              stop
-           end if
-           allocate(HbetaLuminosity(0:nAbComponents), stat=err)
-           if (err /= 0) then
-              print*, "! output mod: can't allocate array HbetaVol memory"
-              stop
-           end if
-           HbetaLuminosity = 0.
-           lineLuminosity  = 0.
-        end if
-
 
         denominatorIon  = 0.
         denominatorTe   = 0.
@@ -349,7 +334,6 @@ module output_mod
                        elemAbundanceUsed(:) = grid(iG)%elemAbun(grid(iG)%abFileIndex(cellPUsed), :)
                        HdenUsed        = grid(iG)%Hden(grid(iG)%active(i,j,k))
                        ionDenUsed      = grid(iG)%ionDen(grid(iG)%active(i,j,k), :, :)
-                       if (lgDebug) linePacketsUsed = grid(iG)%linePackets(grid(iG)%active(i,j,k), :)
                        NeUsed          = grid(iG)%Ne(grid(iG)%active(i,j,k))
                        TeUsed          = grid(iG)%Te(grid(iG)%active(i,j,k))
                        Te10000         = TeUsed/10000.
@@ -655,24 +639,6 @@ module output_mod
 
                        ! calculate line packets luminosities
                        ! first of all sum over all the cells
-                       if (lgDebug) then
-                          do l = 1, nLines
-                             lineLuminosity(abFileUsed,l) = lineLuminosity(abFileUsed,l) + linePacketsUsed(l)
-                             lineLuminosity(0,l) = lineLuminosity(0,l) + linePacketsUsed(l)
-                             totLinePackets    = totLinePackets + linePacketsUsed(l)
-                          end do
-
-                          ! calculate the total number of escaped packets
-                          do l = 1, nbins
-                             totEscapedPackets = totEscapedPackets + &
-                                  & grid(iG)%escapedPackets(grid(iG)%active(i,j,k),l,0)
-                          end do
-
-                          ! MC estimator of Hbeta luminosity
-                          HbetaLuminosity(abFileUsed) = lineLuminosity(abFileUsed,2)
-                          HbetaLuminosity(0) = lineLuminosity(0,2)
-
-                       end if
 
                        ! calculate mean temperatures for the ions
                        ! and the mean <ion>/<H+>
@@ -810,19 +776,6 @@ module output_mod
 
            end if
 
-
-           if (lgDebug) then
-              ! calculate relative MC line luminosities
-              if (lineLuminosity(iAb,2) <= 0. .and. nIterateMC>1) then
-                 print*, "! outputGas: MC luminosty of Hbeta negative or zero",&
-                      & lineLuminosity(iAb,2)
-              else
-                 do l = 1, nLines
-                    lineLuminosity(iAb,l) = lineLuminosity(iAb,l)/HbetaLuminosity(iAb)
-                 end do
-              end if
-           end if
-
         end do
 
         do iAb = 0, nAbComponents
@@ -838,8 +791,6 @@ module output_mod
               HbetaVol(iAb)        = 8.*HbetaVol(iAb)
            end if
 
-           ! calculate Hbeta in units of [E36 erg/sec]
-           if (lgDebug) HbetaLuminosity(iAb) = HbetaLuminosity(iAb)
         end do
 
         ! write the lineFlux.out file
@@ -984,18 +935,7 @@ module output_mod
                     do ilow = 1, min(8,iup-1)
                        wave = real(iz*iz)*109677.576*((1./(ilow*ilow))-(1./(iup*iup)))
                        wave = 1.e8/wave
-                       if (lgDebug) then
-                          if (lineLuminosity(iAb,iLine) > 0. ) then
-                             write(10, *) iz, iup, ilow, wave, hydroVol(iAb,iz, iup,ilow), lineLuminosity(iAb,iLine), &
-                                  & hydroVol(iAb,iz,iup,ilow)/lineLuminosity(iAb,iLine), iLine
-                             sumAn = sumAn + hydroVol(iAb,iz,iup,ilow)
-                             sumMC = sumMC + lineLuminosity(iAb,iLine)
-                          else
-                             write(10, *) iz, iup, ilow, wave, hydroVol(iAb,iz,iup,ilow), iLine
-                          end if
-                       else
-                          write(10, *) iz, iup, ilow, wave, hydroVol(iAb,iz,iup,ilow), iLine
-                       end if
+                       write(10, *) iz, iup, ilow, wave, hydroVol(iAb,iz,iup,ilow), iLine
                        iLine = iLine + 1
                     end do
                  end do
@@ -1007,18 +947,7 @@ module output_mod
            write(10, *) "  lambda [A]   I/I(Hbeta)  "
 
            do l = 1, 34
-              if (lgDebug) then
-                 if (lineLuminosity(iAb,iLine) > 0. ) then
-                    write(10, *) l,"            ",  HeIVol(iAb,l),  lineLuminosity(iAb,iLine), &
-                         & HeIVol(iAb,l)/lineLuminosity(iAb,iLine), iLine
-                    sumAn = sumAn + HeIVol(iAb,l)
-                    sumMC = sumMC + lineLuminosity(iAb,iLine)
-                 else
-                    write(10, *) HeIrecLineCoeff(l,1,4), HeIVol(iAb,l), iLine
-                 end if
-              else
-                 write(10, *) HeIrecLineCoeff(l,1,4), HeIVol(iAb,l), iLine
-              end if
+              write(10, *) HeIrecLineCoeff(l,1,4), HeIVol(iAb,l), iLine
               iLine = iLine + 1
            end do
 
@@ -1035,21 +964,8 @@ module output_mod
                        do ilow = 1, nForLevels
 
                           if (forbVol(iAb,elem,ion, iup, ilow) > 0.) then
-                             if (lgDebug) then
-                                if (lineLuminosity(iAb,iLine) > 0. ) then
-                                   write(10, *) elem, ion, iup, ilow, wav(elem,ion, iup, ilow), &
-                                        & forbVol(iAb,elem,ion, iup, ilow), lineLuminosity(iAb,iLine), &
-                                        & forbVol(iAb,elem, ion, iup, ilow)/lineLuminosity(iAb,iLine), iLine
-                                   sumAn = sumAn + forbVol(iAb,elem,ion,iup,ilow)
-                                   sumMC = sumMC + lineLuminosity(iAb,iLine)
-                                else
-                                   write(10, '(4(i5,2x),f12.2,2x,g12.2,2x,i5)') elem, ion, iup, ilow, wav(elem,ion, iup, ilow), &
-                                        & forbVol(iAb,elem,ion,iup,ilow), iLine
-                                end if
-                             else
-                                write(10, '(4(i5,2x),f12.2,2x,g12.2,2x,i5)') elem, ion, iup, ilow, wav(elem,ion, iup, ilow), &
-                                     & forbVol(iAb,elem,ion,iup,ilow), iLine
-                             end if
+                             write(10, '(4(i5,2x),f12.2,2x,g12.2,2x,i5)') elem, ion, iup, ilow, wav(elem,ion, iup, ilow), &
+                                  & forbVol(iAb,elem,ion,iup,ilow), iLine
                           end if
 
                           iLine = iLine + 1
@@ -1109,7 +1025,6 @@ module output_mod
            end if
 
            LtotAn = HbetaVol(iAb)*sumAn
-           if(lgDebug) LtotMC = HbetaLuminosity(iAb)*sumMC
 
         end do
 
@@ -1135,16 +1050,6 @@ module output_mod
         if (ios /= 0) then
            print*, "! outputGas: can't open file for writing: output/ionratio.out"
            stop
-        end if
-
-        if (lgDebug) then
-
-           open(unit=60, status='unknown', position='rewind', file='output/ionDen.out', action="write",iostat=ios)
-           if (ios /= 0) then
-              print*, "! outputGas: can't open file for writing: output/ionDen.out"
-              stop
-           end if
-
         end if
 
 
@@ -1194,29 +1099,6 @@ module output_mod
                  write(30, *) elem, ion, ionDenVol(iAb,elem, ion)
               end do
            end do
-
-           if (lgDebug) then
-
-              write(60, *)
-              do iG = 1, nGrids
-                 print*, 'Grid : ', iG
-                 do i = 1 , grid(iG)%nx
-                    do j = 1, grid(iG)%ny
-                       do k = 1, grid(iG)%nz
-                          do elem = 1, nElements
-                             do ion = 1, min(nstages,elem+1)
-                                if (grid(iG)%active(i,j,k)<=0) exit
-                                if (.not.lgElementOn(elem)) exit
-                                write(60, *) i,j,k, elem, ion, grid(iG)%ionDen(grid(iG)%active(i,j,k),elementXref(elem), ion)
-                             end do
-                          end do
-                       end do
-                    end do
-                 end do
-              end do
-
-              close(60)
-           end if
 
         end do
 
@@ -1412,9 +1294,6 @@ module output_mod
         if (allocated(HeIVol)) deallocate(HeIVol)
 !        if (allocated(HeIIVol)) deallocate(HeIIVol)
         if (allocated(ionDenVol)) deallocate(ionDenVol)
-        if (lgDebug) then
-           if (allocated(lineLuminosity)) deallocate(lineLuminosity)
-        end if
         if (allocated(forbVol)) deallocate(forbVol)
         if (allocated(TeVol)) deallocate(TeVol)
         if (allocated(recLinesFlux)) deallocate(recLinesFlux)

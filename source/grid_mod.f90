@@ -1558,37 +1558,6 @@ module grid_mod
 
           end if
 
-          if (lgDebug) then
-             allocate(grid%Jdif(0:grid%nCells, 1:nbins), stat = err)
-             if (err /= 0) then
-                print*, "! grid: can't allocate grid memory"
-                stop
-             end if
-
-             grid%Jdif = 0.
-
-             ! allocate pointers depending on nLines
-             if (nLines > 0) then
-
-                allocate(grid%linePackets(0:grid%nCells, 1:nLines), stat = err)
-                if (err /= 0) then
-                   print*, "! initCartesianGrid: can't allocate grid%linePackets memory"
-                   stop
-                end if
-
-                allocate(grid%linePDF(0:grid%nCells, 1:nLines), stat = err)
-                if (err /= 0) then
-                   print*, "! initCartesianGrid: can't allocate grid%linePDF memory"
-                   stop
-                end if
-
-                grid%linePackets = 0.
-                grid%linePDF     = 0.
-
-             end if
-
-          end if
-
           allocate(grid%lgConverged(0:grid%nCells), stat = err)
           if (err /= 0) then
              print*, "Can't allocate memory to lgConverged array"
@@ -2421,37 +2390,6 @@ module grid_mod
 
               end if
 
-              if (lgDebug) then
-                 allocate(grid(iG)%Jdif(0:grid(iG)%nCells, 1:nbins), stat = err)
-                 if (err /= 0) then
-                    print*, "! grid: can't allocate grid memory"
-                    stop
-                 end if
-
-                 grid(iG)%Jdif = 0.
-
-                 ! allocate pointers depending on nLines
-                 if (nLines > 0) then
-
-                    allocate(grid(iG)%linePackets(0:grid(iG)%nCells, 1:nLines), stat = err)
-                    if (err /= 0) then
-                       print*, "! initCartesianGrid: can't allocate grid(iG)%linePackets memory"
-                       stop
-                    end if
-
-                    allocate(grid(iG)%linePDF(0:grid(iG)%nCells, 1:nLines), stat = err)
-                    if (err /= 0) then
-                       print*, "! initCartesianGrid: can't allocate grid(iG)%linePDF memory"
-                       stop
-                    end if
-
-                    grid(iG)%linePackets = 0.
-                    grid(iG)%linePDF     = 0.
-
-                 end if
-
-              end if
-
               allocate(grid(iG)%lgConverged(0:grid(iG)%nCells), stat = err)
               if (err /= 0) then
                  print*, "Can't allocate memory to lgConverged array"
@@ -2708,11 +2646,6 @@ module grid_mod
            if (allocated(grid%opacity)) deallocate(grid%opacity)
            if (allocated(grid%Jste)) deallocate(grid%Jste)
            if (allocated(grid%H)) deallocate(grid%H)
-           if (lgDebug) then
-              if (allocated(grid%Jdif)) deallocate(grid%Jdif)
-              if (allocated(grid%linePackets)) deallocate(grid%linePackets)
-              if (allocated(grid%linePDF)) deallocate(grid%linePDF)
-           end if
            if (lgNeInput) then
                if (allocated(grid%NeInput)) deallocate(grid%NeInput)
            end if
@@ -2921,7 +2854,6 @@ module grid_mod
            write(40, *) R_in, ' R_in'
            write(40, *) XHIlimit, ' XHIlimit'
            write(40, *) maxIterateMC, minConvergence, ' maxIterateMC'
-           write(40, *) lgDebug, ' lgDebug'
            write(40, *) lgPlaneIonization, meanFieldin, nu0, nu0Add, ' lgPlaneIonization'
            write(40, *) nAbComponents, ' nAbComponents'
            do i=1,nAbComponents
@@ -3216,7 +3148,6 @@ module grid_mod
       read(77, *) R_in
       read(77, *) XHIlimit
       read(77, *) maxIterateMC, minConvergence
-      read(77, *) lgDebug
       read(77, *) lgPlaneIonization,meanFieldin, nu0, nu0Add
       read(77, *) nAbComponents
       allocate(abundanceFile(nAbComponents))
@@ -3289,7 +3220,6 @@ module grid_mod
          print*,  R_in, ' R_in'
          print*,  XHIlimit, ' XHIlimit'
          print*,  maxIterateMC, minConvergence, ' maxIterateMC, minConvergence'
-         print*,  lgDebug,  ' lgDebug'
          print*,  lgPlaneIonization,meanFieldin, nu0, nu0Add, ' lgPlaneIonization, meanFieldin, nu0, nu0Add'
          print*,  nAbComponents, ' nAbComponents'
          print*,  lgMultiChemistry, ' ',abundanceFile, ' lgMultiChemistry, abundanceFile'
@@ -3513,37 +3443,6 @@ module grid_mod
          if (err /= 0) then
             print*, "! resetGrid: can't allocate H grid memory"
             stop
-         end if
-
-         if (lgDebug) then
-            allocate(grid(iG)%Jdif(0:grid(iG)%nCells, 1:nbins), stat = err)
-            if (err /= 0) then
-               print*, "! grid: can't allocate grid memory"
-               stop
-            end if
-
-            ! allocate pointers depending on nLines
-            if (nLines > 0) then
-
-               allocate(grid(iG)%linePackets(0:grid(iG)%nCells, 1:nLines), stat = err)
-               if (err /= 0) then
-                  print*, "! resetGrid: can't allocate grid(iG)%linePackets memory"
-                  stop
-               end if
-
-               allocate(grid(iG)%linePDF(0:grid(iG)%nCells, 1:nLines), stat = err)
-               if (err /= 0) then
-                  print*, "! resetGrid: can't allocate grid(iG)%linePDF memory"
-                  stop
-               end if
-
-               grid(iG)%linePackets = 0.
-               grid(iG)%linePDF     = 0.
-
-            end if
-
-            grid(iG)%Jdif = 0.
-
          end if
 
          allocate(grid(iG)%lgConverged(0:grid(iG)%nCells), stat = err)

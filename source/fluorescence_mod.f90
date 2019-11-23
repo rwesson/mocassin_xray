@@ -776,13 +776,8 @@ module fluorescence_mod
                       grid(gP)%Jste(grid(gP)%active(xP,yP,zP),enPacket%nuP) = &
                            grid(gP)%Jste(grid(gP)%active(xP,yP,zP),enPacket%nuP) + dlLoc*deltaEUsed / dV
                    else ! if the energy packet is diffuse
-                      if (lgDebug) then
-                         grid(gP)%Jdif(grid(gP)%active(xP,yP,zP),enPacket%nuP) = &
-                              & grid(gP)%Jdif(grid(gP)%active(xP,yP,zP),enPacket%nuP) + dlLoc*deltaEUsed / dV
-                      else
-                         grid(gP)%Jste(grid(gP)%active(xP,yP,zP),enPacket%nuP) = &
-                              & grid(gP)%Jste(grid(gP)%active(xP,yP,zP),enPacket%nuP) + dlLoc*deltaEUsed / dV
-                      end if
+                      grid(gP)%Jste(grid(gP)%active(xP,yP,zP),enPacket%nuP) = &
+                           & grid(gP)%Jste(grid(gP)%active(xP,yP,zP),enPacket%nuP) + dlLoc*deltaEUsed / dV
                    end if
 
                    ! check if the position within the cell is still within the outer radius
@@ -918,13 +913,8 @@ module fluorescence_mod
                       grid(gP)%Jste(grid(gP)%active(xP,yP,zP),enPacket%nuP) = &
                            grid(gP)%Jste(grid(gP)%active(xP,yP,zP),enPacket%nuP) + dS*deltaEUsed / dV
                    else ! if the energy packet is diffuse
-                      if (lgDebug) then
-                         grid(gP)%Jdif(grid(gP)%active(xP,yP,zP),enPacket%nuP) = &
-                              & grid(gP)%Jdif(grid(gP)%active(xP,yP,zP),enPacket%nuP) + dS*deltaEUsed / dV
-                      else
-                         grid(gP)%Jste(grid(gP)%active(xP,yP,zP),enPacket%nuP) = &
-                              & grid(gP)%Jste(grid(gP)%active(xP,yP,zP),enPacket%nuP) + dS*deltaEUsed / dV
-                      end if
+                      grid(gP)%Jste(grid(gP)%active(xP,yP,zP),enPacket%nuP) = &
+                           & grid(gP)%Jste(grid(gP)%active(xP,yP,zP),enPacket%nuP) + dS*deltaEUsed / dV
                    end if
 
                    ! update absTau

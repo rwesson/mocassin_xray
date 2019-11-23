@@ -39,7 +39,6 @@ module set_input_mod
         lgTalk        = .false.
         lgHdenConstant= .false.
         lgDfile       = .false.
-        lgDebug       = .false.
         lgDlaw        = .false.
         lgDust        = .false.
         lgDustConstant= .false.
@@ -312,11 +311,6 @@ module set_input_mod
                  backspace 10
                  read(unit=10, fmt=*, iostat=ios) keyword, dustFile(1), dustFile(2)
                  !print*, keyword, dustFile(1), dustFile(2)
-             case ("debug")
-                 backspace 10
-                 read(unit=10, fmt=*, iostat=ios) keyword
-                 lgDebug = .true.
-                 !print*, keyword
             case ("nbins")
                 backspace 10
                 read(unit=10, fmt=*, iostat=ios) keyword, nbins
@@ -645,10 +639,6 @@ module set_input_mod
            print*, "! readInput: the grid is completely empty. no gas or dust present.",  &
                 lgGas,lgDust
            stop
-        else if ( lgDebug .and. .not.(lgGas) ) then
-           print*, "! readInput: debugging mode can only be used when a gas component is present. &
-                & debugging mode will be turned off."
-           lgDebug = .false.
         else if (fillingFactor > 1.) then
            print*, "! readInput: filling factor, epsilon, specified is greater than unity.", &
                 & fillingFactor

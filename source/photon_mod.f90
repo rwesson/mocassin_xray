@@ -717,12 +717,7 @@ module photon_mod
             else ! if the packet is a line packet
                 ! add to respective line packet bin
 
-               if (lgDebug) &
-                    & grid(gP)%linePackets(grid(gP)%active(enPacket%xP(igpr), &
-                    & enPacket%yP(igpr), enPacket%zP(igpr)), enPacket%nuP) = &
-                    & grid(gP)%linePackets(grid(gP)%active(enPacket%xP(igpr), &
-                    & enPacket%yP(igpr), enPacket%zP(igpr)), enPacket%nuP) +deltaEUsed
-
+! todo: there was only an if lgDebug statement here. something needs to be done?
 
             end if
 
@@ -1599,20 +1594,7 @@ module photon_mod
                 if (random <= grid(gP)%totalLines(grid(gP)%active(xP(igPn),yP(igPn),zP(igPn)))) then
                    ! line photon
                    ! line photons escape so don't care which one it is unless debugging
-                   if (lgDebug) then
-                      call getNu2( grid(gP)%linePDF(grid(gP)%active(xP(igPn),yP(igPn),zP(igPn)),:), nuP )
-
-                      if (nuP < 1) then
-                         print*, "! newPhotonPacket: insanity occurred in line photon &
-                              & nuP assignment"
-                         stop
-                      end if
-
-                   else
-
-                      nuP = 0
-
-                   end if
+                   nuP = 0
 
                    ! initialize the new photon packet
                    if (grid(gP)%active(xP(igpn), yp(igpn), zp(igpn)) < 0.) then
@@ -2265,19 +2247,11 @@ module photon_mod
                         &(dlLoc*deltaEUsed)*costheta / dV
 
                 else ! if the energy packet is diffuse
-                   if (lgDebug) then
-                      grid(gP)%Jdif(grid(gP)%active(xP,yP,zP),enPacket%nuP) = &
-                           & grid(gP)%Jdif(grid(gP)%active(xP,yP,zP),enPacket%nuP) + dlLoc*deltaEUsed / dV
-                      grid(gP)%H(grid(gP)%active(xP,yP,zP),enPacket%nuP) = &
-                           grid(gP)%H(grid(gP)%active(xP,yP,zP),enPacket%nuP) + &
-                           &(dlLoc*deltaEUsed)*costheta / dV
-                   else
-                      grid(gP)%Jste(grid(gP)%active(xP,yP,zP),enPacket%nuP) = &
-                           & grid(gP)%Jste(grid(gP)%active(xP,yP,zP),enPacket%nuP) + dlLoc*deltaEUsed / dV
-                      grid(gP)%H(grid(gP)%active(xP,yP,zP),enPacket%nuP) = &
-                           grid(gP)%H(grid(gP)%active(xP,yP,zP),enPacket%nuP) + &
-                           & (dlLoc*deltaEUsed)*costheta / dV
-                   end if
+                   grid(gP)%Jste(grid(gP)%active(xP,yP,zP),enPacket%nuP) = &
+                        & grid(gP)%Jste(grid(gP)%active(xP,yP,zP),enPacket%nuP) + dlLoc*deltaEUsed / dV
+                   grid(gP)%H(grid(gP)%active(xP,yP,zP),enPacket%nuP) = &
+                        grid(gP)%H(grid(gP)%active(xP,yP,zP),enPacket%nuP) + &
+                        & (dlLoc*deltaEUsed)*costheta / dV
                 end if
 
                 ! check if the position within the cell is still within the outer radius
@@ -2706,21 +2680,12 @@ module photon_mod
                         &(dS*deltaEUsed)*costheta / dV
 
                 else ! if the energy packet is diffuse
-                   if (lgDebug) then
-                      grid(gP)%Jdif(grid(gP)%active(xP,yP,zP),enPacket%nuP) = &
-                           & grid(gP)%Jdif(grid(gP)%active(xP,yP,zP),enPacket%nuP) + dS*deltaEUsed / dV
+                   grid(gP)%Jste(grid(gP)%active(xP,yP,zP),enPacket%nuP) = &
+                        & grid(gP)%Jste(grid(gP)%active(xP,yP,zP),enPacket%nuP) + dS*deltaEUsed / dV
 
-                      grid(gP)%H(grid(gP)%active(xP,yP,zP),enPacket%nuP) = &
-                           grid(gP)%H(grid(gP)%active(xP,yP,zP),enPacket%nuP) + &
-                           &(dS*deltaEUsed)*costheta / dV
-                   else
-                      grid(gP)%Jste(grid(gP)%active(xP,yP,zP),enPacket%nuP) = &
-                           & grid(gP)%Jste(grid(gP)%active(xP,yP,zP),enPacket%nuP) + dS*deltaEUsed / dV
-
-                      grid(gP)%H(grid(gP)%active(xP,yP,zP),enPacket%nuP) = &
-                           grid(gP)%H(grid(gP)%active(xP,yP,zP),enPacket%nuP) + &
-                           & (dS*deltaEUsed)*costheta / dV
-                   end if
+                   grid(gP)%H(grid(gP)%active(xP,yP,zP),enPacket%nuP) = &
+                        grid(gP)%H(grid(gP)%active(xP,yP,zP),enPacket%nuP) + &
+                        & (dS*deltaEUsed)*costheta / dV
                 end if
 
                 ! update absTau
@@ -5412,13 +5377,8 @@ module photon_mod
                       grid(gP)%Jste(grid(gP)%active(xP,yP,zP),enPacket%nuP) = &
                            grid(gP)%Jste(grid(gP)%active(xP,yP,zP),enPacket%nuP) + dlLoc*deltaEUsed / dV
                    else ! if the energy packet is diffuse
-                      if (lgDebug) then
-                         grid(gP)%Jdif(grid(gP)%active(xP,yP,zP),enPacket%nuP) = &
-                              & grid(gP)%Jdif(grid(gP)%active(xP,yP,zP),enPacket%nuP) + dlLoc*deltaEUsed / dV
-                      else
-                         grid(gP)%Jste(grid(gP)%active(xP,yP,zP),enPacket%nuP) = &
-                              & grid(gP)%Jste(grid(gP)%active(xP,yP,zP),enPacket%nuP) + dlLoc*deltaEUsed / dV
-                      end if
+                      grid(gP)%Jste(grid(gP)%active(xP,yP,zP),enPacket%nuP) = &
+                           & grid(gP)%Jste(grid(gP)%active(xP,yP,zP),enPacket%nuP) + dlLoc*deltaEUsed / dV
                    end if
 
                    ! check if the position within the cell is still within the outer radius
@@ -5589,13 +5549,8 @@ module photon_mod
                       grid(gP)%Jste(grid(gP)%active(xP,yP,zP),enPacket%nuP) = &
                            grid(gP)%Jste(grid(gP)%active(xP,yP,zP),enPacket%nuP) + dS*deltaEUsed / dV
                    else ! if the energy packet is diffuse
-                      if (lgDebug) then
-                         grid(gP)%Jdif(grid(gP)%active(xP,yP,zP),enPacket%nuP) = &
-                              & grid(gP)%Jdif(grid(gP)%active(xP,yP,zP),enPacket%nuP) + dS*deltaEUsed / dV
-                      else
-                         grid(gP)%Jste(grid(gP)%active(xP,yP,zP),enPacket%nuP) = &
-                              & grid(gP)%Jste(grid(gP)%active(xP,yP,zP),enPacket%nuP) + dS*deltaEUsed / dV
-                      end if
+                      grid(gP)%Jste(grid(gP)%active(xP,yP,zP),enPacket%nuP) = &
+                           & grid(gP)%Jste(grid(gP)%active(xP,yP,zP),enPacket%nuP) + dS*deltaEUsed / dV
                    end if
 
                    ! update absTau

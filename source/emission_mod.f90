@@ -1633,66 +1633,6 @@ module emission_mod
 
         grids(iG)%recPDF(cellPUsed, nbins) = 1.
 
-! todo: this block is not in the voronoi code:
-        ! calculate the PDF for recombination and forbidden lines
-        if (lgDebug) then
-           i = 1
-           ! HI recombination lines
-           do izp = 1, 8
-              do iup = 3, 15
-                 do ilow = 2, min(8, iup-1)
-                    if (i == 1) then
-
-                       grids(iG)%linePDF(cellPUsed, i) = hydroLines(izp,iup, ilow) / &
-                            & grids(iG)%totalLines(cellPUsed)
-
-                    else
-
-                       grids(iG)%linePDF(cellPUsed, i) = grids(iG)%linePDF(cellPUsed, i-1) + &
-                            & hydroLines(izp,iup, ilow) / grids(iG)%totalLines(cellPUsed)
-
-                    end if
-                    i = i+1
-
-                 end do
-              end do
-           end do
-
-           ! HeI singlet recombination lines
-           do j = 1, 34
-              grids(iG)%linePDF(cellPUsed, i) = grids(iG)%linePDF(cellPUsed, i-1) + &
-&                           HeIRecLines(j) / grids(iG)%totalLines(cellPUsed)
-              i = i+1
-           end do
-
-           ! heavy elements forbidden lines
-           do elem = 3, nElements
-              do ion = 1, min(elem+1, nstages)
-
-                 if (.not.lgElementOn(elem)) exit
-                 if (lgDataAvailable(elem, ion)) then
-                    do iup = 1, nForLevels
-                       do ilow = 1, nForLevels
-                          if (forbiddenLines(elem, ion, iup, ilow)> 1.e-35) then
-                             grids(iG)%linePDF(cellPUsed, i) = grids(iG)%linePDF(cellPUsed, i-1) + forbiddenLines(elem, ion, iup, ilow)&
-                                  & / grids(iG)%totalLines(cellPUsed)
-                          end if
-                          if (grids(iG)%linePDF(cellPUsed, i) > 1. ) grids(iG)%linePDF(cellPUsed, i) = 1.
-                          i = i+1
-
-                       end do
-                    end do
-                 end if
-
-              end do
-           end do
-           grids(iG)%linePDF(cellPUsed, nLines) = 1.
-
-           ! calculate the probability of Hbeta
-           HbetaProb = hydroLines(1,4,2) / (grids(iG)%totalLines(cellPUsed)+normalize)
-
-        end if ! debug condition
-
         ! now compute the fraction of non-ionizing photons
 
         normalize = normalize + grids(iG)%totalLines(cellPUsed)
@@ -1808,11 +1748,7 @@ module emission_mod
       character(len=1)    :: sorc
 
       ! radiation field at this location in Flambdas
-      if (lgDebug) then
-         radField = grids(iG)%Jste(cellPUsed,:) + grids(iG)%Jdif(cellPUsed,:)
-      else
-         radField = grids(iG)%Jste(cellPUsed,:)
-      end if
+      radField = grids(iG)%Jste(cellPUsed,:)
 
       do ifreq = 1, nbins
          radField(ifreq) = radField(ifreq)/(widflx(ifreq)*fr1ryd)
@@ -2080,11 +2016,7 @@ module emission_mod
       end if
 
       ! radiation field at this location
-      if (lgDebug) then
-         radField = grids(iG)%Jste(cellPUsed,:) + grids(iG)%Jdif(cellPUsed,:)
-      else
-         radField = grids(iG)%Jste(cellPUsed,:)
-      end if
+      radField = grids(iG)%Jste(cellPUsed,:)
 
       do ifreq = 1, cutoffP
          radField(ifreq)=0.

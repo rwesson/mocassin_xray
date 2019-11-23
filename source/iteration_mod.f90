@@ -272,7 +272,6 @@ module iteration_mod
                  if (lgGas) then
                     do i = 0, grid(iG)%nCells
                        grid(iG)%recPDF(i,:) = grid(iG)%recPDF(1,:)
-                       if (lgDebug) grid(iG)%linePDF(i,:) = grid(iG)%linePDF(1,:)
                        grid(iG)%totalLines(i) = grid(iG)%totalLines(1)
                        grid(iG)%totalEmission(i) = grid(iG)%totalEmission(1)
                     end do
@@ -332,7 +331,6 @@ module iteration_mod
                                       if (lgGas) then
                                          ! zero out PDF arrays
                                          grid(iG)%recPDF(grid(iG)%active(i,j,k), 1:nbins) = 0.
-                                         if (lgDebug) grid(iG)%linePDF(grid(iG)%active(i,j,k), 1:nLines) = 0.
                                          grid(iG)%totalLines(grid(iG)%active(i,j,k)) = 0.
                                       end if
 
@@ -368,7 +366,6 @@ module iteration_mod
                                 if (lgGas) then
                                    ! zero out PDF arrays
                                    grid(iG)%recPDF(grid(iG)%active(i,j,k), 1:nbins) = 0.
-                                   if (lgDebug) grid(iG)%linePDF(grid(iG)%active(i,j,k), 1:nLines) = 0.
                                    grid(iG)%totalLines(grid(iG)%active(i,j,k)) = 0.
                                 end if
 
@@ -448,29 +445,12 @@ module iteration_mod
 
                  end if
 
-                 if (lgDebug) then
-                    allocate(linePDFTemp(0:grid(iG)%nCells, nLines),&
-                         & stat = err)
-                    if (err /= 0) then
-                       print*, "! iterateMC: can't allocate array memory:&
-                            & opacityTemp "
-                       stop
-                    end if
-                    linePDFTemp = 0.
-                 end if
-
                  size =  (grid(iG)%nCells+1)*nbins
 
                  if (lgGas) then
                     call mpi_allreduce(grid(iG)%recPDF, recPDFTemp, size, mpi_real&
                          &, mpi_sum, mpi_comm_world, ierr)
 
-                    if (lgDebug) then
-                       size =  (grid(iG)%nCells+1)*nLines
-
-                       call mpi_allreduce(grid(iG)%linePDF, linePDFTemp, size,&
-                            & mpi_real, mpi_sum, mpi_comm_world, ierr)
-                    end if
                  end if
 
                  if (lgDust .and. .not.lgGas) then
@@ -506,11 +486,6 @@ module iteration_mod
                       do freq = 1, nbins
                          grid(iG)%recPDF(i,freq) = recPDFTemp(i ,freq)
                       end do
-                      if (lgDebug) then
-                         do freq = 1, nLines
-                            grid(iG)%linePDF(i,freq) = linePDFTemp(i,freq)
-                         end do
-                      end if
                     end do
 
                     call mpi_barrier(mpi_comm_world, ierr)
@@ -522,9 +497,6 @@ module iteration_mod
                             & deallocate(totalEmissionTemp)
                     end if
 
-                    if (lgDebug) then
-                       if ( allocated(linePDFTemp) ) deallocate(linePDFTemp)
-                    end if
                     if ( allocated(recPDFTemp) ) deallocate(recPDFTemp)
                  end if
 
@@ -584,12 +556,7 @@ module iteration_mod
            do iG = 1, nGrids
 
               grid(iG)%Jste(0:grid(iG)%nCells, 1:nbins)    = 0.
-              if (lgDebug) then
 
-                 grid(iG)%Jdif(0:grid(iG)%nCells, 1:nbins) = 0.
-                 grid(iG)%linePackets(0:grid(iG)%nCells, 1:nLines) = 0.
-
-              end if
            end do
 
 
@@ -880,22 +847,6 @@ module iteration_mod
               end if
               JSteTemp           = 0.
 
-              if (lgDebug) then
-                 allocate(JDifTemp(0:grid(iG)%nCells, nbins), stat = err)
-                 if (err /= 0) then
-                    print*, "! iterateMC: can't allocate array memory: JdifTemp "
-                    stop
-                 end if
-                 allocate(linePacketsTemp(0:grid(iG)%nCells, nLines), stat = err)
-                 if (err /= 0) then
-                    print*, "! iterateMC: can't allocate array memory: linePacketsTemp "
-                    stop
-                 end if
-
-                 JDifTemp           = 0.
-                 linePacketsTemp    = 0.
-              end if
-
               size =  (grid(iG)%nCells+1)*(1+nbins)*(nAngleBins+1)
 
               call mpi_allreduce(grid(iG)%escapedPackets, escapedPacketsTemp, size, &
@@ -959,26 +910,13 @@ module iteration_mod
 
               size =  (grid(iG)%nCells+1)*nbins
 
-              if (lgDebug) then
-                 call mpi_allreduce(grid(iG)%JDif, JDifTemp, size, &
-                      & mpi_real, mpi_sum, mpi_comm_world, ierr)
-              end if
-
               call mpi_allreduce(grid(iG)%JSte, JSteTemp, size, &
                    & mpi_real, mpi_sum, mpi_comm_world, ierr)
 
               size =  (grid(iG)%nCells+1)*nLines
 
-              if (lgDebug) then
-                 call mpi_allreduce(grid(iG)%linePackets, linePacketsTemp, size, &
-                      & mpi_real, mpi_sum, mpi_comm_world, ierr)
-              end if
-
               do i = 1, grid(iG)%nCells
                  do freq = 1, nbins
-                    if (lgDebug) then
-                       grid(iG)%JDif(i,freq) = JDifTemp(i,freq)
-                    end if
                     grid(iG)%JSte(i,freq) = JSteTemp(i,freq)
                     if (lg2D .and. .not.lgVoronoi) grid(iG)%JSte(i,freq) = grid(iG)%JSte(i,freq)/TwoDscaleJ(i)
                  end do
@@ -989,25 +927,12 @@ module iteration_mod
                     do k = 1, grid(iG)%nz
                        if (grid(iG)%active(i,j,k)>0) then
                           do freq = 1, nbins
-                             if (lgDebug) then
-                                grid(iG)%JDif(grid(iG)%active(i,j,k),freq) = &
-                                     & JDifTemp(grid(iG)%active(i,j,k),freq)
-                             end if
                              grid(iG)%JSte(grid(iG)%active(i,j,k),freq) = &
                                   & JSteTemp(grid(iG)%active(i,j,k),freq)
                              if (lg2D) grid(iG)%JSte(grid(iG)%active(i,j,k),freq) = &
                                   & grid(iG)%JSte(grid(iG)%active(i,j,k),freq)/&
                                   & TwoDscaleJ(grid(iG)%active(i,j,k))
                           end do
-                          if (lgDebug) then
-                             do freq = 1, nLines
-                                grid(iG)%linePackets(grid(iG)%active(i,j,k),freq) &
-                                     & = linePacketsTemp(grid(iG)%active(i,j,k),freq)
-                                if (lg2D) grid(iG)%JDif(grid(iG)%active(i,j,k),freq) = &
-                                     & grid(iG)%JDif(grid(iG)%active(i,j,k),freq)/&
-                                     & TwoDscaleJ(grid(iG)%active(i,j,k))
-                             end do
-                          end if
                        end if
                     end do
                  end do
@@ -1016,21 +941,12 @@ module iteration_mod
               call mpi_barrier(mpi_comm_world, ierr)
 
 
-              if (lgDebug) then
-                 if ( allocated(linePacketsTemp) )    deallocate(linePacketsTemp)
-                 if ( allocated(JDifTemp) )           deallocate(JDifTemp)
-              end if
               if ( allocated(JSteTemp) )           deallocate(JSteTemp)
 
               do i = 0, grid(iG)%nCells
                  grid(iG)%Jste(i,:) = grid(iG)%Jste(i,:) * 1.e-9
 !                 grid(iG)%Jste(i,:) = grid(iG)%Jste(i,:) * 1.e-20
 !                 grid(iG)%Jste(i,:) = grid(iG)%Jste(i,:) * 1.e-25
-
-                 if (lgDebug) grid(iG)%Jdif(i,:) = grid(iG)%Jdif(i,:) * 1.e-9
-!                 if (lgDebug) grid(iG)%Jdif(i,:) = grid(iG)%Jdif(i,:) * 1.e-20
-!                 if (lgDebug) grid(iG)%Jdif(i,:) = grid(iG)%Jdif(i,:) * 1.e-25
-
 
                  do ifreq = 1, nbins
                     totalEscaped = totalEscaped+&
@@ -1050,7 +966,6 @@ module iteration_mod
                             &grid(iG)%escapedPacketsComponents(i,:,:,:)/8.
                     end if
 
-                    if (lgDebug) grid(iG)%Jdif(i,:) = grid(iG)%Jdif(i,:)/8.
                  end if
 
              end do

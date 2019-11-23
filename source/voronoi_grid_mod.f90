@@ -1199,16 +1199,6 @@ module voronoi_grid_mod
 
           end if
 
-          if (lgDebug) then
-             allocate(grid%Jdif(0:grid%nCells, 1:nbins), stat = err)
-             if (err /= 0) then
-                print*, "! grid: can't allocate grid memory"
-                stop
-             end if
-
-             grid%Jdif = 0.
-          end if
-
           ! allocate pointers depending on nLines
           if (nLines > 0) then
 
@@ -1557,10 +1547,6 @@ print*, i, totalMass, grid%voronoi(grid%activeV(i))%density, dV
            end if
            if (allocated(grid%opacity)) deallocate(grid%opacity)
            if (allocated(grid%Jste)) deallocate(grid%Jste)
-           if (lgDebug) then
-              if (allocated(grid%Jdif)) deallocate(grid%Jdif)
-           end if
-
            if (allocated(grid%linePackets)) deallocate(grid%linePackets)
            if (allocated(grid%linePDF)) deallocate(grid%linePDF)
 
@@ -1731,7 +1717,6 @@ print*, i, totalMass, grid%voronoi(grid%activeV(i))%density, dV
               write(40, *) R_in, ' R_in'
               write(40, *) XHIlimit, ' XHIlimit'
               write(40, *) maxIterateMC, minConvergence, ' maxIterateMC'
-              write(40, *) lgDebug, ' lgDebug'
               write(40, *) lgPlaneIonization, ' lgPlaneIonization'
               write(40, *) nAbComponents, ' nAbComponents'
               do i=1,nAbComponents
@@ -1874,7 +1859,6 @@ print*, i, totalMass, grid%voronoi(grid%activeV(i))%density, dV
               read(77, *) R_in
               read(77, *) XHIlimit
               read(77, *) maxIterateMC, minConvergence
-              read(77, *) lgDebug
               read(77, *) lgPlaneIonization
 !todo: reimplement
 !              read(77, *) nAbComponents
@@ -1956,7 +1940,6 @@ print*, i, totalMass, grid%voronoi(grid%activeV(i))%density, dV
                  print*,  R_in, ' R_in'
                  print*,  XHIlimit, ' XHIlimit'
                  print*,  maxIterateMC, minConvergence, ' maxIterateMC, minConvergence'
-                 print*,  lgDebug,  ' lgDebug'
                  print*,  lgPlaneIonization, ' lgPlaneIonization'
                  print*,  nAbComponents, ' nAbComponents'
                  print*,  lgMultiChemistry, ' ',abundanceFile, ' lgMultiChemistry, abundanceFile'
@@ -2171,15 +2154,6 @@ print*, i, totalMass, grid%voronoi(grid%activeV(i))%density, dV
                  if (err /= 0) then
                     print*, "! resetGridV: can't allocate Jste grid memory"
                     stop
-                 end if
-
-                 if (lgDebug) then
-                    allocate(grid(iG)%Jdif(0:grid(iG)%nCells, 1:nbins), stat = err)
-                    if (err /= 0) then
-                       print*, "! grid: can't allocate grid memory"
-                       stop
-                    end if
-                    grid(iG)%Jdif = 0.
                  end if
 
                  ! allocate pointers depending on nLines
