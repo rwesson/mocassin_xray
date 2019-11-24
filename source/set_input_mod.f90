@@ -22,9 +22,10 @@ module set_input_mod
         character(len=50)   :: cValue           ! character value corresponding to keyword
         character(len=50)   :: in_file          ! input file
         character(len=50)   :: keyword          ! input parameter keyword
-        character(len=50)   :: multiPhotoSources ! stars file
+        character(len=50)   :: multiPhotoSources! stars file
 
-        logical :: lgOutputExists ! to check for existence of output directory
+        logical             :: lgOutputExists   ! to check for existence of output directory
+        real                :: nphotonsin       ! to allow scientific notation in input
 
         ! set default values and set non oprional values to 0 or 0. or "zero"
 
@@ -288,7 +289,8 @@ module set_input_mod
                Lstar=0.
             case ("autoPackets")
                backspace 10
-               read(unit=10, fmt=*, iostat=ios) keyword, convIncPercent, nPhotIncrease, maxPhotons
+               read(unit=10, fmt=*, iostat=ios) keyword, convIncPercent, nPhotIncrease, nphotonsin
+               maxPhotons=int(nphotonsin,int64)
                lgAutoPackets = .true.
                !print*, keyword, convIncPercent, nPhotIncrease, maxPhotons
                if (maxPhotons .eq. 0) then
@@ -370,7 +372,8 @@ module set_input_mod
                 !if (taskid==0) print*, keyword, maxIterateMC, minConvergence
             case ("nPhotons")
                 backspace 10
-                read(unit=10, fmt=*, iostat=ios) keyword, nPhotonsTot
+                read(unit=10, fmt=*, iostat=ios) keyword, nphotonsin
+                nPhotonsTot=int(nphotonsin,int64)
                 !print*, keyword, nPhotonsTot
             case ("nx")
                 backspace 10

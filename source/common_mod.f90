@@ -4,6 +4,7 @@
 module common_mod
     use constants_mod
     use vector_mod
+    use iso_fortran_env
     implicit none
 
 
@@ -277,13 +278,13 @@ module common_mod
     integer            :: TotAngleBinsPhi=20 ! total # of phi angle bins for SED
     integer            :: nGrids           ! total number of grids to be used in the simulation
     integer            :: maxIterateMC     ! limit on number of MC iterations
-    integer            :: maxPhotons       ! limit to packets to be used
+    integer(kind=int64):: maxPhotons       ! limit to packets to be used
     integer            :: nAbComponents=1  ! number of abundance components
     integer, allocatable   :: dustComPoint(:)  !
     integer            :: nBins            ! number of energy bins
     integer            :: nElementsUsed    ! actual number of elements used
-    integer, allocatable   :: nPhotons(:)      ! # of packets to be used in the sim
-    integer            :: nPhotonsTot      ! # of packets to be used in the sim
+    integer(kind=int64), allocatable   :: nPhotons(:)      ! # of packets to be used in the sim
+    integer(kind=int64):: nPhotonsTot      ! # of packets to be used in the sim
     integer            :: nPhotonsDiffuse  ! # of packets to be used by the diffuse ionisation source
     integer            :: nPhotonsDiffuseLoc! # of packets to be used by the diffuse ionisation source
     integer            :: nPacketsFluo     ! # of packets to be used for each fluorescent transition
