@@ -52,7 +52,7 @@ module continuum_mod
         integer,dimension(nbins) :: lamCount
 
         character(len=50) :: filein          ! input file name
-
+        character(len=1) :: junk             ! for file reading
 
         print*, 'in setContinuum', contShape
 
@@ -230,12 +230,13 @@ module continuum_mod
                     !       the first containing the lambda points (A)
                     !       and the second containing the input spectrum points
                     !       (erg/cm^2/s/A/sr). The file must be in ascending
-                    !       wavenegth order. See e.g. Thomas Rauch's tables
+                    !       wavelength order. See e.g. Thomas Rauch's tables
                     !       http://astro.uni-tuebingen.de/~rauch/
 
                     ! check if the end of the file has been reached
-                    read(unit=12, fmt=*, iostat=ios)
+                    read(unit=12, fmt=*, iostat=ios) junk
                     if (ios < 0) exit ! end of file reached
+                    if (junk.eq."*" .or. junk.eq."#") cycle
 
                     backspace(12)
                     read(12, *) enArray(j), Hflux(j)
