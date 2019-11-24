@@ -1053,47 +1053,47 @@ module output_mod
         end if
 
 
-        write(20, *)
-        write(20, *) "Mean ionic temperatures Te(ion)"
-        write(20, *)
-        write(20, *) "Total, integrated over all nebular components"
+        write(20, *) "#"
+        write(20, *) "# Mean ionic temperatures Te(ion)"
+        write(20, *) "# "
+        write(20, *) "# Total, integrated over all nebular components"
 
-        write(30, *)
-        write(30, *) "Mean ionic ratio <ion>/<H+>"
-        write(30, *)
-        write(30, *) "Total, integrated over all nebular components"
-        write(30, *)
+        write(30, *) "#"
+        write(30, *) "# Mean ionic ratio <ion>/<H+>"
+        write(30, *) "#"
+        write(30, *) "# Total, integrated over all nebular components"
+        write(30, *) "#"
 
         do iAb = 0, nAbComponents
 
            if (iAb>0) then
 
               write(20, *)
-              write(20, *) "Mean ionic temperatures Te(ion)"
-              write(20, *)
-              write(20, *) "Component : ", iAb
-              write(20, *)
+              write(20, *) "# Mean ionic temperatures Te(ion)"
+              write(20, *) "#"
+              write(20, *) "# Component : ", iAb
+              write(20, *) "#"
 
-              write(30, *)
-              write(30, *) "Mean ionic ratio <ion>/<H+>"
-              write(30, *)
-              write(30, *) "Component : ", iAb
-              write(30, *)
+              write(30, *) "#"
+              write(30, *) "# Mean ionic ratio <ion>/<H+>"
+              write(30, *) "#"
+              write(30, *) "# Component : ", iAb
+              write(30, *) "#"
 
            end if
 
-           write(20, *) "Element      Ion        Te(Element,ion)"
-           write(20, *)
+           write(20, *) "# Element      Ion        Te(Element,ion)"
+           write(20, *) "#"
            do elem = 1, nElements
               do ion = 1, min(nstages,elem+1)
                  write(20, *) elem, ion,  TeVol(iAb,elem, ion)
               end do
            end do
 
-           write(27,*) 'T(H+) ', TeVol(iAb,1,2), ' component ', iAb
+           write(27,*) '# T(H+) ', TeVol(iAb,1,2), ' component ', iAb
 
-           write(30, *) "Element      Ion        <ion>/<H+>I     <ion>/<H+>II"
-           write(30, *)
+           write(30, *) "# Element      Ion        <ion>/<H+>I     <ion>/<H+>II"
+           write(30, *) "#"
            do elem = 1, nElements
               do ion = 1, min(nstages,elem+1)
                  write(30, *) elem, ion, ionDenVol(iAb,elem, ion)
@@ -2818,12 +2818,12 @@ module output_mod
 
       SED=0.
 
-      write(16,*) 'Spectral energy distribution at the surface of the nebula: '
-      write(16,*) '  viewPoints = ', (viewPointTheta(i), viewPointPhi(i), ' , ', i = 1, nAngleBins)
-      write(16,*) '   nu [Ryd]        lambda [um]        nu*F(nu)            '
+      write(16,*) '# Spectral energy distribution at the surface of the nebula: '
+      write(16,*) '#   viewPoints = ', (viewPointTheta(i), viewPointPhi(i), ' , ', i = 1, nAngleBins)
+      write(16,*) '#    nu [Ryd]        lambda [um]        nu*F(nu)            '
 
 
-      write(16,*) ' to obtain [E36 erg/sec/cm^2/str] divide column 3 by 4*Pi*D^2 or column 4 and higher by the emitting surface'
+      write(16,*) '# to obtain [E36 erg/sec/cm^2/str] divide column 3 by 4*Pi*D^2 or column 4 and higher by the emitting surface'
 
       totalE=0.
 
@@ -2883,17 +2883,17 @@ module output_mod
       end if
 
 
-      write(16,*) ' '
-      write(16,*) 'Total energy radiated out of the nebula [e36 erg/s]:', totalE
+      write(16,*) '#'
+      write(16,*) '# Total energy radiated out of the nebula [e36 erg/s]:', totalE
       print*, 'Total energy radiated out of the nebula [e36 erg/s]:', totalE, Lstar, nphotons
 
 
 
-      write(16,*) ' '
+      write(16,*) '#'
       if (nuArray(1)<radio4p9GHzP) then
-         write(16,*) 'Flux at 4.9GHz (must multiply by 1./(4 Pi D[cm]^2 to obtain units of [Jy]) :', &
+         write(16,*) '# Flux at 4.9GHz (must multiply by 1./(4 Pi D[cm]^2 to obtain units of [Jy]) :', &
               & SED(radio4p9GHzP,0)*Pi*1.e23/(nuArray(radio4p9GHzP)*fr1Ryd)
-         print*, 'Flux at 4.9GHz (must multiply by 1./(4 Pi D[cm]^2 to obtain units of [Jy]) :', &
+         print*, '# Flux at 4.9GHz (must multiply by 1./(4 Pi D[cm]^2 to obtain units of [Jy]) :', &
               & SED(radio4p9GHzP,0)*Pi*1.e23/(nuArray(radio4p9GHzP)*fr1Ryd)
       end if
 
