@@ -1107,6 +1107,11 @@ module voronoi_grid_mod
                 print*, "! setMotherGridV: can't allocate grid memory"
                 stop
              end if
+             allocate(grid%NeOld(0:grid%nCells), stat = err)
+             if (err /= 0) then
+                print*, "! setMotherGridV: can't allocate grid memory"
+                stop
+             end if
              allocate(grid%Hden(0:grid%nCells), stat = err)
              if (err /= 0) then
                 print*, "! setMotherGridV: can't allocate grid memory"
@@ -1117,10 +1122,17 @@ module voronoi_grid_mod
                 print*, "! setMotherGridV:can't allocate grid memory"
                 stop
              end if
+             allocate(grid%TeOld(0:grid%nCells), stat = err)
+             if (err /= 0) then
+                print*, "! setMotherGridV:can't allocate grid memory"
+                stop
+             end if
 
              grid%Hden = 0.
              grid%Ne = 0.
              grid%Te = 0.
+             grid%NeOld = 0.
+             grid%TeOld = 0.
              grid%ionDen = 0.
              grid%recPDF = 0.
              grid%totalLines = 0.
@@ -1540,6 +1552,8 @@ print*, i, totalMass, grid%voronoi(grid%activeV(i))%density, dV
               if (allocated(grid%abFileIndex)) deallocate(grid%abFileIndex)
               if (allocated(grid%Te)) deallocate(grid%Te)
               if (allocated(grid%Ne)) deallocate(grid%Ne)
+              if (allocated(grid%TeOld)) deallocate(grid%TeOld)
+              if (allocated(grid%NeOld)) deallocate(grid%NeOld)
               if (allocated(grid%ionDen)) deallocate(grid%ionDen)
               if (allocated(ionDenUsed)) deallocate(ionDenUsed)
               if (allocated(grid%recPDF)) deallocate(grid%recPDF)
@@ -2087,6 +2101,18 @@ print*, i, totalMass, grid%voronoi(grid%activeV(i))%density, dV
                        stop
                     end if
 
+                    allocate(grid(iG)%TeOld(0:grid(iG)%nCells), stat = err)
+                    if (err /= 0) then
+                       print*, "! setSubGrid:can't allocate grid memory"
+                       stop
+                    end if
+
+                    allocate(grid(iG)%NeOld(0:grid(iG)%nCells), stat = err)
+                    if (err /= 0) then
+                       print*, "! setSubGrid:can't allocate grid memory"
+                       stop
+                    end if
+
                     allocate(grid(iG)%Hden(0:grid(iG)%nCells), stat = err)
                     if (err /= 0) then
                        print*, "! resetGridV:can't allocate grid memory"
@@ -2119,6 +2145,8 @@ print*, i, totalMass, grid%voronoi(grid%activeV(i))%density, dV
 
                     grid(iG)%Ne = 0.
                     grid(iG)%Te = 0.
+                    grid(iG)%NeOld = 0.
+                    grid(iG)%TeOld = 0.
                     grid(iG)%Hden = 0.
                     grid(iG)%ionDen = 0.
                     grid(iG)%recPDF = 0.
