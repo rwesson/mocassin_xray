@@ -559,10 +559,12 @@ module set_input_mod
 
 
         if (lgMultiStars) then
-           call setMultiPhotoSources(multiPhotoSources)
-        else if (lgMultiStars .and. nStars==1) then
-           print*, '! readInput: multiPhotoSources keyword and Lstar, Tstellar, ContShape are mutually exclusive'
-           stop
+           if (allocated(TStellar) .or. (lgMultiStars .and. nStars==1)) then
+             print*, '! readInput: multiPhotoSources keyword and Lstar, Tstellar, ContShape are mutually exclusive'
+             stop
+           else
+             call setMultiPhotoSources(multiPhotoSources)
+           endif
         else
            allocate(nPhotons(1))
 !           allocate(deltaE(0:1))
