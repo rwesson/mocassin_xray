@@ -473,7 +473,7 @@ module voronoi_grid_mod
             open (unit= 77,  action="read", file=densityFile, status = "old", position = "rewind", &
                  & iostat = ios)
             if (ios /= 0) then
-               print*, "! initVoronoiGrid: can't open density file"
+               print*, "! initVoronoiGrid: can't open density file ",densityFile
                stop
             end if
             read(77,*)keyword
