@@ -4,14 +4,14 @@
 module grid_mod
 
     use common_mod             ! common variablesesca
-    use composition_mod        ! cemical abundances
+    use composition_mod        ! chemical abundances
     use constants_mod          ! physical constants
     use continuum_mod          ! ionising field
     use elements_mod           ! hydrogen data
     use interpolation_mod      ! interpolation maths
     use pathIntegration_mod    ! path integration
     use set_input_mod          ! model inputs
-    use vector_mod             ! vectyor maths
+    use vector_mod             ! vector maths
     use xSec_mod               ! x Section data
 
 
