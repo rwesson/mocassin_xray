@@ -45,12 +45,14 @@ program MoCaSSiN
 
     type(grid_type) :: grid3D(maxGrids)       ! the 3D Cartesian  grid
 
-    real            :: test                   ! test
-    integer         :: i, iGrid               ! allocation error status
+    real               :: test                ! test
+    integer            :: i, iGrid            ! allocation error status
+    character(len=10)  :: time                ! time in text format
     real, dimension(2) :: timing              ! cputimer
-    integer         :: nhours, nminutes, nseconds
+    integer            :: nhours, nminutes, nseconds
 
     call cpu_time(timing(1))
+    call date_and_time(TIME=time)
     call mpi_init(ierr)
     call mpi_comm_rank(MPI_COMM_WORLD, taskid, ierr)
     call mpi_comm_size(MPI_COMM_WORLD, numtasks, ierr)
@@ -60,6 +62,7 @@ program MoCaSSiN
         print*, "compiled with ",COMPILER
         print *,"data directory: ",PREFIX,"/share/mocassinX"
         if (CO.ne."co") print *,"CO=",CO
+        print *,"started running at ",time(1:2),":",time(3:4),":",time(5:6)
         print*, " "
     endif
 
