@@ -59,7 +59,6 @@ contains
     type(vector)     :: posDiff           ! initial position vector for diff ext
     type(vector)     :: posVector         ! initial position vector for dust emi
 
-
     ! Diffuse source
     if (iStar == 0) then
        deltaEUsed = grid(gpLoc)%LdiffuseLoc(grid(gpLoc)%activeV&
@@ -955,7 +954,7 @@ contains
       type(photon_packet),intent(inout) :: enPacket   ! energy packet
 
       type(vector)         :: rVec2,vHat2             ! position vector
-      type(Vertex), pointer:: v                       ! pointer to current voronoi cell
+      type(Vertex)         :: v                       ! pointer to current voronoi cell
       character(len=7)     :: packetType              ! photon packet type
       logical              :: lgScattered             ! is the packet scattering with dust?
       logical              :: lgReturn                ! flag to return from routine
@@ -999,7 +998,7 @@ contains
       vHat(3) = enPacket%direction%z
       iVoronoi = enPacket%iVoronoi
       gp = 1  !enPacket%iG
-!      v => grid(gp)%voronoi(iVoronoi)
+      v = grid(gp)%voronoi(iVoronoi)
       iprev = iVoronoi
 
 
@@ -1112,10 +1111,9 @@ contains
          ! calculate the optical depth to the next cell wall
          tauCell = dS*grid(gP)%opacity(grid(gP)%activeV(iVoronoi), enPacket%nuP)
 
-         ! check if photon packet interacets within this cell
+         ! check if photon packet interacts within this cell
          !---------------------------------------------------------------------
          if ((absTau + tauCell > totTau) .and. grid(gP)%activeV(iVoronoi) > 0) then
-
             ! calculate where within this cell the packet is absorbed
             dlLoc = (totTau - absTau)/&
                  &grid(gP)%opacity(grid(gP)%activeV(iVoronoi),enPacket%nuP)
@@ -1292,7 +1290,6 @@ contains
          ! add contribution of the packet to the radiation field
          !---------------------------------------------------------------------
          else
-
             grid(gP)%Jste(grid(gP)%activeV(iVoronoi),enPacket%nuP) = &
                  & grid(gP)%Jste(grid(gP)%activeV(iVoronoi),enPacket%nuP) + &
                  & dS*deltaEUsed / dV
@@ -1309,7 +1306,7 @@ contains
             iprev = iVoronoi
             iVoronoi = inext
             if (iVoronoi /= -1) then
-!               v => grid(gp)%voronoi(iVoronoi)
+               v = grid(gp)%voronoi(iVoronoi)
             end if
 
 
