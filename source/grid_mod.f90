@@ -48,58 +48,6 @@ module grid_mod
 
         print*, "in initCartesianGrid"
 
-        close(19)
-        open(file=PREFIX//"/share/mocassinX/data/hydroLinesFiles.dat", unit=19)
-        do i = 1, 9
-           do j = 1, 12
-              read(19,*) hydroLinesFile(i,j)
-           end do
-        end do
-        close(19)
-
-        close(21)
-        open(file=PREFIX//"/share/mocassinX/data/gaussfitHb.dat", unit=21)
-        do i = 1, 9
-           read(21,*) (reader(j), j = 1, 8)
-           HbACoeff(i,1:4) = reader(1:4)
-           HbBCoeff(i,1:4) = reader(5:8)
-        end do
-        close(21)
-
-        hydroLinesTemps = (/0.05, 0.10, 0.30, 0.50, 0.75, 1.0, &
-             &1.25, 1.50, 2.0, 3.0, 5.0, 10.0/)
-
-        close(22)
-        open(file=PREFIX//"/share/mocassinX/data/r1bEdge.dat", unit=22)
-        do i = 1, 26
-           read(22,*) rbEdge(1,1,i), rbEdge(1,2,i), rbEdge(1,3,i)
-        end do
-        close(22)
-
-        close(23)
-        open(file=PREFIX//"/share/mocassinX/data/r2bEdge.dat", unit=23)
-        do i = 1, 26
-           read(23,*) rbEdge(2,1,i), rbEdge(2,2,i), rbEdge(2,3,i)
-        end do
-        close(23)
-
-        close(23)
-        open(file=PREFIX//"/share/mocassinX/data/r2aEdge.dat", unit=23)
-        do i = 1, 18
-           read(23,*) r2aEdge(1,i), r2aEdge(2,i), r2aEdge(3,i)
-        end do
-        close(23)
-
-        elemLabel = (/'*H','He','Li','Be','*B','*C','*N','*O','*F','Ne','Na','Mg',&
-             &'Al','Si','*P','*S','Cl','Ar','*K','Ca','Sc','Ti','*V','Cr','Mn','Fe',&
-             &'Co','Ni','Cu','Zn'/)
-
-       ! set up atomic weight array
-       aWeight = (/1.0080, 4.0026, 6.941, 9.0122, 10.811, 12.0111, 14.0067, 15.9994, &
-            & 18.9984, 20.179, 22.9898, 24.305, 26.9815, 28.086, 30.9738, 32.06, 35.453, &
-            & 39.948, 39.102, 40.08, 44.956, 47.90, 50.9414, 51.996, 54.9380, 55.847, 58.9332, &
-            & 58.71, 63.546, 65.37 /)
-
         ! only calculate the frequency/energy grid and assign the abundances if this is the
         ! first time that
         ! this procedure is called - the grid will be constant throughout the execution
@@ -206,17 +154,9 @@ module grid_mod
             if (nuMax <= 25.) then
 
                if ( (lgDust) .and. (.not.lgGas) ) then
-                  close(72)
-                  open (unit= 72,  action="read", file=PREFIX//"/share/mocassinX/dustData/nuDustRyd.dat", status = "old", position = "rewind", &
-                       & iostat = ios)
-                  if (ios /= 0) then
-                     print*, "! initCartesianGrid: can't open dust nu grid file - ",PREFIX,"/share/mocassinX/dustData/nuDustRyd.dat"
-                     stop
-                  end if
 
                   do i = 1, 10000000
                      if (i<=nbins+1) then
-                        read(unit=72,fmt=*,iostat=ios) nuArray(i)
                         if (nuArray(i)>nuMax) exit ! nuMax reached
                         if (ios < 0) exit ! end of file reached
                      else
@@ -227,8 +167,6 @@ module grid_mod
 
                   nbins = i-1
                   print*, "! initCartesianGrid: nbins reset to ", nbins
-
-                  close(72)
 
                   allocate (nuTemp(1:nbins))
                   nuTemp = nuArray(1:nbins)
@@ -325,18 +263,8 @@ module grid_mod
                      end if
                   end do
 
-                  ! dust data points
-                  close(72)
-                  open (unit= 72,  action="read", file=PREFIX//"/share/mocassinX/dustData/nuDustRyd.dat", status = "old", position = "rewind", &
-                       & iostat = ios)
-                  if (ios /= 0) then
-                     print*, "! initCartesianGrid: can't open dust nu grid file - ",PREFIX,"/share/mocassinX/dustData/nuDustGrid.dat"
-                     stop
-                  end if
-
                   do i = 1, 10000000
                      if (i<=nbins) then
-                        read(unit=72,fmt=*,iostat=ios) nuArray(nuCount)
                         nuCount = nuCount+1
                         if (ios < 0) exit ! end of file reached
                         if (nuArray(i)>= seriesEdge(1)) exit
@@ -345,8 +273,6 @@ module grid_mod
                         stop
                      end if
                   end do
-
-                  close(72)
 
                   ! build the log energy mesh
                   iCount = nbins-nuCount+1
