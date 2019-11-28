@@ -293,91 +293,81 @@ module iteration_mod
 
                  if (taskid==0) print*, '! iterateMC: emissionDriver in',iG
                  iCell = 0
-                 do i = 1, grid(iG)%nx
-                    do j = 1, yTop
-                       do k = 1, grid(iG)%nz
+                 do i = 1, grid(iG)%ncells
+                    if (mod(i-(taskid+1),numtasks)==0) then
+                       if (lgGas) then
+                          if (nIterateMC>1 .and. &
+                               &((abs(grid(iG)%Te(i)-&
+                               & grid(iG)%TeOld(i))/&
+                               & grid(iG)%TeOld(i)) < 0.005)&
+                               & .and. ((abs(grid(iG)%Ne(i)-&
+                               & grid(iG)%NeOld(i))/&
+                               & grid(iG)%NeOld(i)) < 0.005) .and. &
+                               & (.not. (lgGas.and.convPercent>=resLinesTransfer .and. (lgResLinesFirstTwo) &
+                               & .and. (.not.nIterateMC==1)))) then
 
-                          if (grid(iG)%active(i, j, k)>0) then
+                             emiSkipped = emiSkipped+1
+                             if (lgVerbose2 .and. i > 0) print*, 'skipped emission',&
+                                  &  i,j,k, grid(iG)%Te(i), &
+                                  & grid(iG)%TeOld(i),  &
+                                  & grid(iG)%Ne(i), grid(iG)%NeOld(i), &
+                                  &i
 
-                             iCell = iCell+1
-                             if (mod(iCell-(taskid+1),numtasks)==0) then
+                          else
 
-                                if (lgGas) then
-                                   if (nIterateMC>1 .and. &
-                                        &((abs(grid(iG)%Te(grid(iG)%active(i,j,k))-&
-                                        & grid(iG)%TeOld(grid(iG)%active(i,j,k)))/&
-                                        & grid(iG)%TeOld(grid(iG)%active(i,j,k))) < 0.005)&
-                                        & .and. ((abs(grid(iG)%Ne(grid(iG)%active(i,j,k))-&
-                                        & grid(iG)%NeOld(grid(iG)%active(i,j,k)))/&
-                                        & grid(iG)%NeOld(grid(iG)%active(i,j,k))) < 0.005) .and. &
-                                        & (.not. (lgGas.and.convPercent>=resLinesTransfer .and. (lgResLinesFirstTwo) &
-                                        & .and. (.not.nIterateMC==1)))) then
-
-                                      emiSkipped = emiSkipped+1
-                                      if (lgVerbose2 .and. grid(iG)%active(i,j,k) > 0) print*, 'skipped emission',&
-                                           &  i,j,k, grid(iG)%Te(grid(iG)%active(i,j,k)), &
-                                           & grid(iG)%TeOld(grid(iG)%active(i,j,k)),  &
-                                           & grid(iG)%Ne(grid(iG)%active(i,j,k)), grid(iG)%NeOld(grid(iG)%active(i,j,k)), &
-                                           &grid(iG)%active(i,j,k)
-
-                                   else
-
-                                      if (lgGas.and.convPercent>=resLinesTransfer .and. (.not.lgResLinesFirst) &
-                                           & .and. (.not.nIterateMC==1))  then
-                                         grid(iG)%fEscapeResPhotons(grid(iG)%active(i,j,k), :) = 0.
-                                         grid(iG)%resLinePackets(grid(iG)%active(i,j,k)) = 0
-                                      end if
-
-                                      if (lgGas) then
-                                         ! zero out PDF arrays
-                                         grid(iG)%recPDF(grid(iG)%active(i,j,k), 1:nbins) = 0.
-                                         grid(iG)%totalLines(grid(iG)%active(i,j,k)) = 0.
-                                      end if
-
-                                      if (lgDust .and. .not.lgGas) then
-                                         ! zero out dust PDF arrays
-                                         grid(iG)%dustPDF(grid(iG)%active(i,j,k), 1:nbins) = 0.
-                                      end if
-
-                                      call emissionDriver(grid,grid(iG)%active(i,j,k),iG)
-
-                                   end if
-
-                                else
-
-                                   if (lgDust .and. .not.lgGas) then
-                                      ! zero out dust PDF arrays
-                                      grid(iG)%dustPDF(grid(iG)%active(i,j,k), 1:nbins) = 0.
-                                   end if
-
-                                   call emissionDriver(grid,grid(iG)%active(i,j,k),iG)
-
-
-                                end if
-
-                             else
-
-                                if (lgGas.and.convPercent>=resLinesTransfer .and. (.not.lgResLinesFirst) &
-                                     & .and. (.not.nIterateMC==1))  then
-                                   grid(iG)%fEscapeResPhotons(grid(iG)%active(i,j,k), :) = 0.
-                                   grid(iG)%resLinePackets(grid(iG)%active(i,j,k)) = 0
-                                end if
-
-                                if (lgGas) then
-                                   ! zero out PDF arrays
-                                   grid(iG)%recPDF(grid(iG)%active(i,j,k), 1:nbins) = 0.
-                                   grid(iG)%totalLines(grid(iG)%active(i,j,k)) = 0.
-                                end if
-
-                                if (lgDust .and. .not.lgGas) then
-                                   ! zero out dust PDF arrays
-                                   grid(iG)%dustPDF(grid(iG)%active(i,j,k), 1:nbins) = 0.
-                                end if
-
+                             if (lgGas.and.convPercent>=resLinesTransfer .and. (.not.lgResLinesFirst) &
+                                  & .and. (.not.nIterateMC==1))  then
+                                grid(iG)%fEscapeResPhotons(i, :) = 0.
+                                grid(iG)%resLinePackets(i) = 0
                              end if
+
+                             if (lgGas) then
+                                ! zero out PDF arrays
+                                grid(iG)%recPDF(i, 1:nbins) = 0.
+                                grid(iG)%totalLines(i) = 0.
+                             end if
+
+                             if (lgDust .and. .not.lgGas) then
+                                ! zero out dust PDF arrays
+                                grid(iG)%dustPDF(i, 1:nbins) = 0.
+                             end if
+
+                             call emissionDriver(grid,i,iG)
+
                           end if
-                       end do
-                    end do
+
+                       else
+
+                          if (lgDust .and. .not.lgGas) then
+                             ! zero out dust PDF arrays
+                             grid(iG)%dustPDF(i, 1:nbins) = 0.
+                          end if
+
+                          call emissionDriver(grid,i,iG)
+
+
+                       end if
+
+                    else
+
+                       if (lgGas.and.convPercent>=resLinesTransfer .and. (.not.lgResLinesFirst) &
+                            & .and. (.not.nIterateMC==1))  then
+                          grid(iG)%fEscapeResPhotons(i, :) = 0.
+                          grid(iG)%resLinePackets(i) = 0
+                       end if
+
+                       if (lgGas) then
+                          ! zero out PDF arrays
+                          grid(iG)%recPDF(i, 1:nbins) = 0.
+                          grid(iG)%totalLines(i) = 0.
+                       end if
+
+                       if (lgDust .and. .not.lgGas) then
+                          ! zero out dust PDF arrays
+                          grid(iG)%dustPDF(i, 1:nbins) = 0.
+                       end if
+
+                    end if
                  end do
 
                  print*, '! iterationMC: emission skipped ', emiSkipped
