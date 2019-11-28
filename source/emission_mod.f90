@@ -48,7 +48,6 @@ module emission_mod
         real (kind=8) :: emissionHeII(nbins)             ! HeII continuum emission coefficient
 
         type(grid_type), intent(inout) :: grids(*) ! the grid
-        type(grid_type)                :: grid ! this line present in previous versions. todo: needed?
 
         real    :: dV                        ! volume element
 
@@ -82,7 +81,7 @@ module emission_mod
 
         ! check that the cell is ionised if not use neutral cell approx
         if (NeUsed/HdenUsed < 1.e-3 .or. TeUsed < 500.) then
-           grid%totalLines(cellPUsed) = 1.
+           grids(iG)%totalLines(cellPUsed) = 1.
            return
         end if
 
@@ -129,7 +128,7 @@ module emission_mod
           dV = getVolume(grids(iG),1,1,1)
 !          dV = getVolume(grids(iG),cellPUsed)
         else
-          dV = grid%voronoi(grid%activeRV(cellPUsed))%volume
+          dV = grids(iG)%voronoi(grids(iG)%activeRV(cellPUsed))%volume
         end if
 
         ! add contribution of this cell to the integrated balmer jump
