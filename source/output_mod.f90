@@ -310,376 +310,376 @@ module output_mod
                     else
                        lgInSlit = .true.
                     end if
+                 end if
 
-                    cellPUsed = iCellCount
+                 cellPUsed = iCellCount
 
-                    ! do not use edge cells in plane parallel models
-!                    if (lgPlaneIonization .and. (i==1 .or. i==grid(iG)%nx .or. &
-!                         & k==1 .or. k==grid(iG)%nz)) lgInSlit = .false.
+                 ! do not use edge cells in plane parallel models
+!                 if (lgPlaneIonization .and. (i==1 .or. i==grid(iG)%nx .or. &
+!                      & k==1 .or. k==grid(iG)%nz)) lgInSlit = .false.
 
-                    ! check this cell is in the ionized region
-                    if (lgInSlit ) then
+                 ! check this cell is in the ionized region
+                 if (lgInSlit ) then
 
-!                    if ((.not.grid(iG)%lgBlack(cellPUsed)<1) .and. lgInSlit ) then
-                    if (grid(iG)%lgBlack(cellPUsed)==1 ) then
+!                 if ((.not.grid(iG)%lgBlack(cellPUsed)<1) .and. lgInSlit ) then
+                 if (grid(iG)%lgBlack(cellPUsed)==1 ) then
 
-!                       print*, 'BLACK CELL: ', CellPUsed
-!                       print*, grid(iG)%ionDen(cellPUsed, 1, 2), grid(iG)%Ne(cellPUsed),  grid(iG)%Te(cellPUsed)
+!                    print*, 'BLACK CELL: ', CellPUsed
+!                    print*, grid(iG)%ionDen(cellPUsed, 1, 2), grid(iG)%Ne(cellPUsed),  grid(iG)%Te(cellPUsed)
 
-                    elseif (grid(iG)%lgBlack(cellPUsed)==0 ) then
+                 elseif (grid(iG)%lgBlack(cellPUsed)==0 ) then
 
-                       ! find the physical properties of this cell
-!                       cellPUsed       = grid(iG)%active(i,j,k)
-                       abFileUsed      = grid(iG)%abFileIndex(cellPUsed)
-                       elemAbundanceUsed(:) = grid(iG)%elemAbun(grid(iG)%abFileIndex(cellPUsed), :)
-                       HdenUsed        = grid(iG)%Hden(grid(iG)%active(i,j,k))
-                       ionDenUsed      = grid(iG)%ionDen(grid(iG)%active(i,j,k), :, :)
-                       NeUsed          = grid(iG)%Ne(grid(iG)%active(i,j,k))
-                       TeUsed          = grid(iG)%Te(grid(iG)%active(i,j,k))
-                       Te10000         = TeUsed/10000.
-                       log10Te         = log10(TeUsed)
-                       log10Ne         = log10(NeUsed)
-                       sqrTeUsed = sqrt(TeUsed)
+                 ! find the physical properties of this cell
+!                    cellPUsed       = grid(iG)%active(i,j,k)
+                    abFileUsed      = grid(iG)%abFileIndex(cellPUsed)
+                    elemAbundanceUsed(:) = grid(iG)%elemAbun(grid(iG)%abFileIndex(cellPUsed), :)
+                    HdenUsed        = grid(iG)%Hden(grid(iG)%active(i,j,k))
+                    ionDenUsed      = grid(iG)%ionDen(grid(iG)%active(i,j,k), :, :)
+                    NeUsed          = grid(iG)%Ne(grid(iG)%active(i,j,k))
+                    TeUsed          = grid(iG)%Te(grid(iG)%active(i,j,k))
+                    Te10000         = TeUsed/10000.
+                    log10Te         = log10(TeUsed)
+                    log10Ne         = log10(NeUsed)
+                    sqrTeUsed = sqrt(TeUsed)
 
-                       ! recalculate line emissivities at this cell
+                    ! recalculate line emissivities at this cell
 
-                       ! calculate the emission due to HI and HeI rec lines
-                       call RecLinesEmission()
+                    ! calculate the emission due to HI and HeI rec lines
+                    call RecLinesEmission()
 
-                       ! calculate the emission due to the heavy elements
-                       ! forbidden lines
-                       call forLines()
+                    ! calculate the emission due to the heavy elements
+                    ! forbidden lines
+                    call forLines()
 
 
-                       ! apply extinction correction according to extinction map
-                       if (present(extMap) .and. .not. lgVoronoi) then
+                    ! apply extinction correction according to extinction map
+                    if (present(extMap) .and. .not. lgVoronoi) then
 
-                          if (ngrids>1) then
-                             print*, '! outputGas: no multiple grids are allowed with extinction maps (yet)'
-                             print*, 'if this is needed please contact be@star.ucl.ac.uk'
-                             stop
-                          end if
+                       if (ngrids>1) then
+                          print*, '! outputGas: no multiple grids are allowed with extinction maps (yet)'
+                          print*, 'if this is needed please contact be@star.ucl.ac.uk'
+                          stop
+                       end if
 
-                          iCount = 1
+                       iCount = 1
 
-                          ! H recombination lines
-                          do iz = 1, 30
-                             do iup = 2,15, -1
-                                do ilow = 1, min(8, iup-1)
-                                   hydroLines(iz,iup, ilow) = &
-                                        & hydroLines(iz,iup, ilow)*&
-                                        & 10.**(-(cMap(grid(1)%active(i,j,k))*flam(iCount)&
-                                        & +cMap(grid(1)%active(i,j,k))))
-                                   iCount = iCount + 1
-
-                                end do
-                             end do
-                          end do
-
-                          ! He I recombination lines
-                          do l = 1, 34
-                             HeIRecLines(l) = HeIRecLines(l)*10.**&
-                                  & (-(cMap(grid(1)%active(i,j,k))*flam(iCount)+&
-                                  & cMap(grid(1)%active(i,j,k))))
-                             iCount = iCount + 1
-                          end do
-
-                          ! collisionally exited lines
-                          do elem = 3, nElements
-                             do ion = 1, min(elem+1, nstages)
-                                if (.not.lgElementOn(elem)) exit
-
-                                if (lgDataAvailable(elem, ion)) then
-                                   do iup = 1,nForLevels
-                                      do ilow = 1, nForLevels
-                                         forbiddenLines(elem,ion,iup,ilow) = &
-                                              & forbiddenLines(elem,ion,iup,ilow)*10.**&
-                                              & (-(cMap(grid(1)%active(i,j,k))*flam(iCount)+&
-                                              & cMap(grid(1)%active(i,j,k))))
-                                         iCount = iCount+1
-                                      end do
-                                   end do
-                                end if
+                       ! H recombination lines
+                       do iz = 1, 30
+                          do iup = 2,15, -1
+                             do ilow = 1, min(8, iup-1)
+                                hydroLines(iz,iup, ilow) = &
+                                     & hydroLines(iz,iup, ilow)*&
+                                     & 10.**(-(cMap(grid(1)%active(i,j,k))*flam(iCount)&
+                                     & +cMap(grid(1)%active(i,j,k))))
+                                iCount = iCount + 1
 
                              end do
                           end do
-
-                       end if
-
-                       if (.not. lgVoronoi) then
-                         dV = getVolume(grid(iG), i,j,k)
-! todo: original and voronoi have checks here for lg2D and lgSymmetricXYZ. needed?
-                       else
-                          dV = grid(iG)%voronoi(grid(iG)%activeRV(cellPUsed))%volume
-                       end if
-
-                       ! Hbeta
-                       if ( hydroLines(1,4,2)*HdenUsed*dV > 1.e-35) then
-                          HbetaVol(abFileUsed) = HbetaVol(abFileUsed) + hydroLines(1,4,2)*HdenUsed*dV
-                          HbetaVol(0) = HbetaVol(0) + hydroLines(1,4,2)*HdenUsed*dV
-                       end if
-
-                       ! HI rec lines
-                       do iz = 1, nElements
-                          if (lgElementOn(iz) .and. nstages>iz) then
-                             hydroVol(abFileUsed,iz,:,:) = hydroVol(abFileUsed,iz,:,:) + &
-                                  & hydroLines(iz,:,:)*HdenUsed*dV
-                             hydroVol(0,iz,:,:) = hydroVol(0,iz,:,:) + &
-                                  & hydroLines(iz,:,:)*HdenUsed*dV
-                          end if
                        end do
 
-                       ! HeI recombination lines
-                       HeIVol(abFileUsed,:) = HeIVol(abFileUsed,:) + HeIRecLines(:)*HdenUsed*dV
-                       HeIVol(0,:) = HeIVol(0,:) + HeIRecLines(:)*HdenUsed*dV
+                       ! He I recombination lines
+                       do l = 1, 34
+                          HeIRecLines(l) = HeIRecLines(l)*10.**&
+                               & (-(cMap(grid(1)%active(i,j,k))*flam(iCount)+&
+                               & cMap(grid(1)%active(i,j,k))))
+                          iCount = iCount + 1
+                       end do
 
-
-                       ! Heavy elements forbidden lines
+                       ! collisionally exited lines
                        do elem = 3, nElements
                           do ion = 1, min(elem+1, nstages)
-
                              if (.not.lgElementOn(elem)) exit
+
                              if (lgDataAvailable(elem, ion)) then
-
-                                do iup = 1, nForLevels
+                                do iup = 1,nForLevels
                                    do ilow = 1, nForLevels
-
-                                         forbVol(abFileUsed,elem,ion,iup,ilow) = &
-                                              & forbVol(abFileUsed,elem,ion,iup,ilow) + &
-                                              & forbiddenLines(elem,ion,iup,ilow)*HdenUsed*dV
-                                         forbVol(0,elem,ion,iup,ilow) = &
-                                              & forbVol(0,elem,ion,iup,ilow) + &
-                                              & forbiddenLines(elem,ion,iup,ilow)*HdenUsed*dV
-
+                                      forbiddenLines(elem,ion,iup,ilow) = &
+                                           & forbiddenLines(elem,ion,iup,ilow)*10.**&
+                                           & (-(cMap(grid(1)%active(i,j,k))*flam(iCount)+&
+                                           & cMap(grid(1)%active(i,j,k))))
+                                      iCount = iCount+1
                                    end do
                                 end do
                              end if
-                          end do
-                       end do
-
-                       if (lgGas .and. convPercent>=resLinesTransfer .and. (.not.lgResLinesFirst)) then
-
-                          do iRes =1, nResLines
-
-                             do imul = 1, resLine(iRes)%nmul
-
-                                if ( resLine(iRes)%elem == resLine(iRes)%ion) then
-
-                                   resLinesVol(abFileUsed, iRes) = resLinesVol(abFileUsed, iRes)+&
-                                        &hydroLines(resLine(iRes)%elem,&
-                                        & resLine(iRes)%mochigh(imul),resLine(iRes)%moclow(imul))*HdenUsed*dV
-                                   resLinesVolCorr(abFileUsed, iRes) = resLinesVolCorr(abFileUsed, iRes)+&
-                                        & hydroLines(resLine(iRes)%elem,&
-                                        & resLine(iRes)%mochigh(imul),resLine(iRes)%moclow(imul))*&
-                                        & HdenUsed*dV*(grid(iG)%fEscapeResPhotons(cellPUsed, iRes))
-                                   resLinesVol(0, iRes) = resLinesVol(0, iRes)+&
-                                        &hydroLines(resLine(iRes)%elem,&
-                                        &resLine(iRes)%mochigh(imul),resLine(iRes)%moclow(imul))*HdenUsed*dV
-                                   resLinesVolCorr(0, iRes) = resLinesVolCorr(0, iRes)+&
-                                        & hydroLines(resLine(iRes)%elem,&
-                                        & resLine(iRes)%mochigh(imul),resLine(iRes)%moclow(imul))*&
-                                        & HdenUsed*dV*(grid(iG)%fEscapeResPhotons(cellPUsed, iRes))
-                                else if (resLine(iRes)%elem>2 .and. resLine(iRes)%elem &
-                                     &/= resLine(iRes)%ion)  then
-
-
-                                   resLinesVol(abFileUsed, iRes) = resLinesVol(abFileUsed, iRes)+&
-                                        &forbiddenLines(resLine(iRes)%elem,resLine(iRes)%ion,&
-                                        & resLine(iRes)%moclow(imul),resLine(iRes)%mochigh(imul))*HdenUsed*dV
-                                   resLinesVolCorr(abFileUsed, iRes) = resLinesVolCorr(abFileUsed, iRes)+&
-                                        &forbiddenLines(resLine(iRes)%elem,resLine(iRes)%ion,&
-                                        & resLine(iRes)%moclow(imul),resLine(iRes)%mochigh(imul))*&
-                                        & HdenUsed*dV*(grid(iG)%fEscapeResPhotons(cellPUsed, iRes))
-                                   resLinesVol(0, iRes) = resLinesVol(0, iRes)+&
-                                        &forbiddenLines(resLine(iRes)%elem,resLine(iRes)%ion,&
-                                        &resLine(iRes)%moclow(imul),resLine(iRes)%mochigh(imul))*HdenUsed*dV
-                                   resLinesVolCorr(0, iRes) = resLinesVolCorr(0, iRes)+&
-                                        &forbiddenLines(resLine(iRes)%elem,resLine(iRes)%ion,&
-                                        & resLine(iRes)%moclow(imul),resLine(iRes)%mochigh(imul))*&
-                                        & HdenUsed*dV*(grid(iG)%fEscapeResPhotons(cellPUsed, iRes))
-
-
-                                else
-
-                                   print*, "! outputGas: [warning] only dust heating from H Lyman &
-                                        &alpha and resonance lines from heavy"
-                                   print*, "elements is implemented in this version. please &
-                                        &contact author B. Ercolano -2-", ires
-
-                                end if
-
-                             end do
-
-                          end do
-                       end if
-
-                       if (lgRecombination) then
-
-                          if (lgElementOn(8)) then
-                             denIon = ionDenUsed(elementXref(8),3)*&
-                                  & grid(iG)%elemAbun(abFileUsed,8)*HdenUsed
-
-                             recFlux = 0.
-                             recLinesLambda = 0.
-                             ! rec lines for OII
-                             call roii(recLinesLambda, recFlux,TeUsed, NeUsed)
-
-                             do nrec = 1, 500
-                                recLinesFlux(abFileUsed,1,nrec) = recLinesFlux(abFileUsed,1,nrec) + &
-                                     &recFlux(nrec)*hydrolines(1,4,2)*&
-                                     & HdenUsed*dV*&
-                                     &ionDenUsed(elementXref(8),3)*&
-                                     &grid(iG)%elemAbun(abFileUsed,8)/ionDenUsed(elementXref(1),2)
-                                recLinesFlux(0,1,nrec) = recLinesFlux(0,1,nrec) + &
-                                     &recFlux(nrec)*hydroLines(1,4,2)*&
-                                     & HdenUsed*dV*&
-                                     &ionDenUsed(elementXref(8),3)*&
-                                     &grid(iG)%elemAbun(abFileUsed,8)/ionDenUsed(elementXref(1),2)
-                             end do
-                             recLambdaOII = recLinesLambda
-                          end if
-
-                          if (lgElementOn(12)) then
-                             recFlux = 0.
-                             recLinesLambda = 0.
-                             ! rec lines for MgII 4481
-                             call rmgii(recFlux, recLinesLambda, TeUsed)
-
-                             recLinesFlux(abFileUsed,2,:) = recLinesFlux(abFileUsed,2,:) + recFlux*&
-                                  &hydroLines(1,4,2)*HdenUsed*dV*&
-                                  &ionDenUsed(elementXref(12),3)*&
-                                  &grid(iG)%elemAbun(abFileUsed,12)/ionDenUsed(elementXref(1),2)
-
-                             recLinesFlux(0,2,:) = recLinesFlux(0,2,:) + recFlux*&
-                                  &hydroLines(1,4,2)*HdenUsed*dV*&
-                                  &ionDenUsed(elementXref(12),3)*&
-                                  &grid(iG)%elemAbun(abFileUsed,12)/ionDenUsed(elementXref(1),2)
-
-                             recLambdaMgII = recLinesLambda
-                          end if
-
-                          if (lgElementOn(10)) then
-                             recFlux = 0.
-                             recLinesLambda = 0.
-                             ! rec lines for NeII
-                             call rneii(recLinesLambda, recFlux, TeUsed)
-
-                             do nrec = 1, 500
-                                recLinesFlux(abFileUsed,3,nrec) = recLinesFlux(abFileUsed,3,nrec) + recFlux(nrec)*&
-                                     &hydroLines(1,4,2)*HdenUsed*dV*&
-                                     &ionDenUsed(elementXref(10),3)*&
-                                     &grid(iG)%elemAbun(abFileUsed,10)/ionDenUsed(elementXref(1),2)
-                                recLinesFlux(0,3,nrec) = recLinesFlux(0,3,nrec) + recFlux(nrec)*&
-                                     &hydroLines(1,4,2)*HdenUsed*dV*&
-                                     &ionDenUsed(elementXref(10),3)*&
-                                     &grid(iG)%elemAbun(abFileUsed,10)/ionDenUsed(elementXref(1),2)
-                             end do
-                             recLambdaNeII = recLinesLambda
-                          end if
-
-                          if (lgElementOn(6)) then
-                             recFlux = 0.
-                             recLinesLambda = 0.
-                             ! rec lines for CII
-                             call rcii(recLinesLambda, recFlux, TeUsed)
-
-                             do nrec = 1, 500
-                                recLinesFlux(abFileUsed,4,nrec) = recLinesFlux(abFileUsed,4,nrec) + recFlux(nrec)*&
-                                     &hydroLines(1,4,2)*HdenUsed*dV*&
-                                     &ionDenUsed(elementXref(6),3)*&
-                                     &grid(iG)%elemAbun(abFileUsed,6)/ionDenUsed(elementXref(1),2)
-                                recLinesFlux(0,4,nrec) = recLinesFlux(0,4,nrec) + recFlux(nrec)*&
-                                     &hydroLines(1,4,2)*HdenUsed*dV*&
-                                     &ionDenUsed(elementXref(6),3)*&
-                                     &grid(iG)%elemAbun(abFileUsed,6)/ionDenUsed(elementXref(1),2)
-                             end do
-                             recLambdaCII = recLinesLambda
-                          end if
-
-                          if (lgElementOn(7)) then
-                             recFlux = 0.
-                             recLinesLambda = 0.
-                             denIon = ionDenUsed(elementXref(7),3)*&
-                                  & grid(iG)%elemAbun(abFileUsed,7)*HdenUsed
-
-                             ! rec lines for NII 3-3
-                             call rnii(recLinesLambda, recFlux, TeUsed, NeUsed)
-
-                             do nrec = 1, 500
-                                recLinesFlux(abFileUsed,5,nrec) = recLinesFlux(abFileUsed,5,nrec) + recFlux(nrec)*&
-                                     &hydroLines(1,4,2)*HdenUsed*dV*&
-                                     &ionDenUsed(elementXref(7),3)*&
-                                     &grid(iG)%elemAbun(abFileUsed,7)/ionDenUsed(elementXref(1),2)
-                                recLinesFlux(0,5,nrec) = recLinesFlux(0,5,nrec) + recFlux(nrec)*&
-                                     &hydroLines(1,4,2)*HdenUsed*dV*&
-                                     &ionDenUsed(elementXref(7),3)*&
-                                     &grid(iG)%elemAbun(abFileUsed,7)/ionDenUsed(elementXref(1),2)
-                             end do
-                             recLambdaN33II = recLinesLambda
-
-
-                             recFlux = 0.
-                             recLinesLambda = 0.
-
-                             ! rec lines for NII 3d-4f
-                             call rnii4f(recLinesLambda, recFlux, TeUsed)
-
-                             do nrec = 1, 500
-                                recLinesFlux(0,6,nrec) = recLinesFlux(0,6,nrec) + recFlux(nrec)*&
-                                     &hydroLines(1,4,2)*HdenUsed*dV*&
-                                     &ionDenUsed(elementXref(7),3)*&
-                                     &grid(iG)%elemAbun(abFileUsed,7)/ionDenUsed(elementXref(1),2)
-                             end do
-                             recLambdaN34II = recLinesLambda
-                          end if
-
-                       end if
-
-
-                       ! calculate line packets luminosities
-                       ! first of all sum over all the cells
-
-                       ! calculate mean temperatures for the ions
-                       ! and the mean <ion>/<H+>
-                       factor1 = TeUsed*NeUsed*HdenUsed*dV
-                       factor2 = NeUsed*HdenUsed*dV
-
-                       do elem = 1, nElements
-                          do ion = 1, min(elem+1,nstages)
-                             if (.not.lgElementOn(elem)) exit
-
-                             TeVol(abFileUsed,elem,ion) = TeVol(abFileUsed,elem,ion) + &
-                                  & ionDenUsed(elementXref(elem),ion)*factor1
-
-                             denominatorTe(abFileUsed,elem,ion) = denominatorTe(abFileUsed,elem,ion) + &
-                                  & ionDenUsed(elementXref(elem),ion)*factor2
-
-
-                             ionDenVol(abFileUsed,elem,ion) = ionDenVol(abFileUsed,elem,ion)+ &
-                                  & ionDenUsed(elementXref(elem),ion)*factor2
-
-
-                             ! this is the definition used in the lexington benchmark
-!                                denominatorIon(abFileUsed,elem,ion) = denominatorIon(abFileUsed,elem,ion) + &
-!                                     & ionDenUsed(elementXref(1),2)*factor2
-
-                             TeVol(0,elem,ion) = TeVol(0,elem,ion) + &
-                                  & ionDenUsed(elementXref(elem),ion)*factor1
-
-                             denominatorTe(0,elem,ion) = denominatorTe(0,elem,ion) + &
-                                  & ionDenUsed(elementXref(elem),ion)*factor2
-
-
-                             ionDenVol(0,elem,ion) = ionDenVol(0,elem,ion)+ &
-                                  & ionDenUsed(elementXref(elem),ion)*factor2
-
-
 
                           end do
                        end do
 
                     end if
+
+                    if (.not. lgVoronoi) then
+                      dV = getVolume(grid(iG), i,j,k)
+! todo: original and voronoi have checks here for lg2D and lgSymmetricXYZ. needed?
+                    else
+                       dV = grid(iG)%voronoi(grid(iG)%activeRV(cellPUsed))%volume
                     end if
+
+                    ! Hbeta
+                    if ( hydroLines(1,4,2)*HdenUsed*dV > 1.e-35) then
+                       HbetaVol(abFileUsed) = HbetaVol(abFileUsed) + hydroLines(1,4,2)*HdenUsed*dV
+                       HbetaVol(0) = HbetaVol(0) + hydroLines(1,4,2)*HdenUsed*dV
+                    end if
+
+                    ! HI rec lines
+                    do iz = 1, nElements
+                       if (lgElementOn(iz) .and. nstages>iz) then
+                          hydroVol(abFileUsed,iz,:,:) = hydroVol(abFileUsed,iz,:,:) + &
+                               & hydroLines(iz,:,:)*HdenUsed*dV
+                          hydroVol(0,iz,:,:) = hydroVol(0,iz,:,:) + &
+                               & hydroLines(iz,:,:)*HdenUsed*dV
+                       end if
+                    end do
+
+                    ! HeI recombination lines
+                    HeIVol(abFileUsed,:) = HeIVol(abFileUsed,:) + HeIRecLines(:)*HdenUsed*dV
+                    HeIVol(0,:) = HeIVol(0,:) + HeIRecLines(:)*HdenUsed*dV
+
+
+                    ! Heavy elements forbidden lines
+                    do elem = 3, nElements
+                       do ion = 1, min(elem+1, nstages)
+
+                          if (.not.lgElementOn(elem)) exit
+                          if (lgDataAvailable(elem, ion)) then
+
+                             do iup = 1, nForLevels
+                                do ilow = 1, nForLevels
+
+                                      forbVol(abFileUsed,elem,ion,iup,ilow) = &
+                                           & forbVol(abFileUsed,elem,ion,iup,ilow) + &
+                                           & forbiddenLines(elem,ion,iup,ilow)*HdenUsed*dV
+                                      forbVol(0,elem,ion,iup,ilow) = &
+                                           & forbVol(0,elem,ion,iup,ilow) + &
+                                           & forbiddenLines(elem,ion,iup,ilow)*HdenUsed*dV
+
+                                end do
+                             end do
+                          end if
+                       end do
+                    end do
+
+                    if (lgGas .and. convPercent>=resLinesTransfer .and. (.not.lgResLinesFirst)) then
+
+                       do iRes =1, nResLines
+
+                          do imul = 1, resLine(iRes)%nmul
+
+                             if ( resLine(iRes)%elem == resLine(iRes)%ion) then
+
+                                resLinesVol(abFileUsed, iRes) = resLinesVol(abFileUsed, iRes)+&
+                                     &hydroLines(resLine(iRes)%elem,&
+                                     & resLine(iRes)%mochigh(imul),resLine(iRes)%moclow(imul))*HdenUsed*dV
+                                resLinesVolCorr(abFileUsed, iRes) = resLinesVolCorr(abFileUsed, iRes)+&
+                                     & hydroLines(resLine(iRes)%elem,&
+                                     & resLine(iRes)%mochigh(imul),resLine(iRes)%moclow(imul))*&
+                                     & HdenUsed*dV*(grid(iG)%fEscapeResPhotons(cellPUsed, iRes))
+                                resLinesVol(0, iRes) = resLinesVol(0, iRes)+&
+                                     &hydroLines(resLine(iRes)%elem,&
+                                     &resLine(iRes)%mochigh(imul),resLine(iRes)%moclow(imul))*HdenUsed*dV
+                                resLinesVolCorr(0, iRes) = resLinesVolCorr(0, iRes)+&
+                                     & hydroLines(resLine(iRes)%elem,&
+                                     & resLine(iRes)%mochigh(imul),resLine(iRes)%moclow(imul))*&
+                                     & HdenUsed*dV*(grid(iG)%fEscapeResPhotons(cellPUsed, iRes))
+                             else if (resLine(iRes)%elem>2 .and. resLine(iRes)%elem &
+                                  &/= resLine(iRes)%ion)  then
+
+
+                                resLinesVol(abFileUsed, iRes) = resLinesVol(abFileUsed, iRes)+&
+                                     &forbiddenLines(resLine(iRes)%elem,resLine(iRes)%ion,&
+                                     & resLine(iRes)%moclow(imul),resLine(iRes)%mochigh(imul))*HdenUsed*dV
+                                resLinesVolCorr(abFileUsed, iRes) = resLinesVolCorr(abFileUsed, iRes)+&
+                                     &forbiddenLines(resLine(iRes)%elem,resLine(iRes)%ion,&
+                                     & resLine(iRes)%moclow(imul),resLine(iRes)%mochigh(imul))*&
+                                     & HdenUsed*dV*(grid(iG)%fEscapeResPhotons(cellPUsed, iRes))
+                                resLinesVol(0, iRes) = resLinesVol(0, iRes)+&
+                                     &forbiddenLines(resLine(iRes)%elem,resLine(iRes)%ion,&
+                                     &resLine(iRes)%moclow(imul),resLine(iRes)%mochigh(imul))*HdenUsed*dV
+                                resLinesVolCorr(0, iRes) = resLinesVolCorr(0, iRes)+&
+                                     &forbiddenLines(resLine(iRes)%elem,resLine(iRes)%ion,&
+                                     & resLine(iRes)%moclow(imul),resLine(iRes)%mochigh(imul))*&
+                                     & HdenUsed*dV*(grid(iG)%fEscapeResPhotons(cellPUsed, iRes))
+
+
+                             else
+
+                                print*, "! outputGas: [warning] only dust heating from H Lyman &
+                                     &alpha and resonance lines from heavy"
+                                print*, "elements is implemented in this version. please &
+                                     &contact author B. Ercolano -2-", ires
+
+                             end if
+
+                          end do
+
+                       end do
+                    end if
+
+                    if (lgRecombination) then
+
+                       if (lgElementOn(8)) then
+                          denIon = ionDenUsed(elementXref(8),3)*&
+                               & grid(iG)%elemAbun(abFileUsed,8)*HdenUsed
+
+                          recFlux = 0.
+                          recLinesLambda = 0.
+                          ! rec lines for OII
+                          call roii(recLinesLambda, recFlux,TeUsed, NeUsed)
+
+                          do nrec = 1, 500
+                             recLinesFlux(abFileUsed,1,nrec) = recLinesFlux(abFileUsed,1,nrec) + &
+                                  &recFlux(nrec)*hydrolines(1,4,2)*&
+                                  & HdenUsed*dV*&
+                                  &ionDenUsed(elementXref(8),3)*&
+                                  &grid(iG)%elemAbun(abFileUsed,8)/ionDenUsed(elementXref(1),2)
+                             recLinesFlux(0,1,nrec) = recLinesFlux(0,1,nrec) + &
+                                  &recFlux(nrec)*hydroLines(1,4,2)*&
+                                  & HdenUsed*dV*&
+                                  &ionDenUsed(elementXref(8),3)*&
+                                  &grid(iG)%elemAbun(abFileUsed,8)/ionDenUsed(elementXref(1),2)
+                          end do
+                          recLambdaOII = recLinesLambda
+                       end if
+
+                       if (lgElementOn(12)) then
+                          recFlux = 0.
+                          recLinesLambda = 0.
+                          ! rec lines for MgII 4481
+                          call rmgii(recFlux, recLinesLambda, TeUsed)
+
+                          recLinesFlux(abFileUsed,2,:) = recLinesFlux(abFileUsed,2,:) + recFlux*&
+                               &hydroLines(1,4,2)*HdenUsed*dV*&
+                               &ionDenUsed(elementXref(12),3)*&
+                               &grid(iG)%elemAbun(abFileUsed,12)/ionDenUsed(elementXref(1),2)
+
+                          recLinesFlux(0,2,:) = recLinesFlux(0,2,:) + recFlux*&
+                               &hydroLines(1,4,2)*HdenUsed*dV*&
+                               &ionDenUsed(elementXref(12),3)*&
+                               &grid(iG)%elemAbun(abFileUsed,12)/ionDenUsed(elementXref(1),2)
+
+                          recLambdaMgII = recLinesLambda
+                       end if
+
+                       if (lgElementOn(10)) then
+                          recFlux = 0.
+                          recLinesLambda = 0.
+                          ! rec lines for NeII
+                          call rneii(recLinesLambda, recFlux, TeUsed)
+
+                          do nrec = 1, 500
+                             recLinesFlux(abFileUsed,3,nrec) = recLinesFlux(abFileUsed,3,nrec) + recFlux(nrec)*&
+                                  &hydroLines(1,4,2)*HdenUsed*dV*&
+                                  &ionDenUsed(elementXref(10),3)*&
+                                  &grid(iG)%elemAbun(abFileUsed,10)/ionDenUsed(elementXref(1),2)
+                             recLinesFlux(0,3,nrec) = recLinesFlux(0,3,nrec) + recFlux(nrec)*&
+                                  &hydroLines(1,4,2)*HdenUsed*dV*&
+                                  &ionDenUsed(elementXref(10),3)*&
+                                  &grid(iG)%elemAbun(abFileUsed,10)/ionDenUsed(elementXref(1),2)
+                          end do
+                          recLambdaNeII = recLinesLambda
+                       end if
+
+                       if (lgElementOn(6)) then
+                          recFlux = 0.
+                          recLinesLambda = 0.
+                          ! rec lines for CII
+                          call rcii(recLinesLambda, recFlux, TeUsed)
+
+                          do nrec = 1, 500
+                             recLinesFlux(abFileUsed,4,nrec) = recLinesFlux(abFileUsed,4,nrec) + recFlux(nrec)*&
+                                  &hydroLines(1,4,2)*HdenUsed*dV*&
+                                  &ionDenUsed(elementXref(6),3)*&
+                                  &grid(iG)%elemAbun(abFileUsed,6)/ionDenUsed(elementXref(1),2)
+                             recLinesFlux(0,4,nrec) = recLinesFlux(0,4,nrec) + recFlux(nrec)*&
+                                  &hydroLines(1,4,2)*HdenUsed*dV*&
+                                  &ionDenUsed(elementXref(6),3)*&
+                                  &grid(iG)%elemAbun(abFileUsed,6)/ionDenUsed(elementXref(1),2)
+                          end do
+                          recLambdaCII = recLinesLambda
+                       end if
+
+                       if (lgElementOn(7)) then
+                          recFlux = 0.
+                          recLinesLambda = 0.
+                          denIon = ionDenUsed(elementXref(7),3)*&
+                               & grid(iG)%elemAbun(abFileUsed,7)*HdenUsed
+
+                          ! rec lines for NII 3-3
+                          call rnii(recLinesLambda, recFlux, TeUsed, NeUsed)
+
+                          do nrec = 1, 500
+                             recLinesFlux(abFileUsed,5,nrec) = recLinesFlux(abFileUsed,5,nrec) + recFlux(nrec)*&
+                                  &hydroLines(1,4,2)*HdenUsed*dV*&
+                                  &ionDenUsed(elementXref(7),3)*&
+                                  &grid(iG)%elemAbun(abFileUsed,7)/ionDenUsed(elementXref(1),2)
+                             recLinesFlux(0,5,nrec) = recLinesFlux(0,5,nrec) + recFlux(nrec)*&
+                                  &hydroLines(1,4,2)*HdenUsed*dV*&
+                                  &ionDenUsed(elementXref(7),3)*&
+                                  &grid(iG)%elemAbun(abFileUsed,7)/ionDenUsed(elementXref(1),2)
+                          end do
+                          recLambdaN33II = recLinesLambda
+
+
+                          recFlux = 0.
+                          recLinesLambda = 0.
+
+                          ! rec lines for NII 3d-4f
+                          call rnii4f(recLinesLambda, recFlux, TeUsed)
+
+                          do nrec = 1, 500
+                             recLinesFlux(0,6,nrec) = recLinesFlux(0,6,nrec) + recFlux(nrec)*&
+                                  &hydroLines(1,4,2)*HdenUsed*dV*&
+                                  &ionDenUsed(elementXref(7),3)*&
+                                  &grid(iG)%elemAbun(abFileUsed,7)/ionDenUsed(elementXref(1),2)
+                          end do
+                          recLambdaN34II = recLinesLambda
+                       end if
+
+                    end if
+
+
+                    ! calculate line packets luminosities
+                    ! first of all sum over all the cells
+
+                    ! calculate mean temperatures for the ions
+                    ! and the mean <ion>/<H+>
+                    factor1 = TeUsed*NeUsed*HdenUsed*dV
+                    factor2 = NeUsed*HdenUsed*dV
+
+                    do elem = 1, nElements
+                       do ion = 1, min(elem+1,nstages)
+                          if (.not.lgElementOn(elem)) exit
+
+                          TeVol(abFileUsed,elem,ion) = TeVol(abFileUsed,elem,ion) + &
+                               & ionDenUsed(elementXref(elem),ion)*factor1
+
+                          denominatorTe(abFileUsed,elem,ion) = denominatorTe(abFileUsed,elem,ion) + &
+                               & ionDenUsed(elementXref(elem),ion)*factor2
+
+
+                          ionDenVol(abFileUsed,elem,ion) = ionDenVol(abFileUsed,elem,ion)+ &
+                               & ionDenUsed(elementXref(elem),ion)*factor2
+
+
+                          ! this is the definition used in the lexington benchmark
+!                             denominatorIon(abFileUsed,elem,ion) = denominatorIon(abFileUsed,elem,ion) + &
+!                                  & ionDenUsed(elementXref(1),2)*factor2
+
+                          TeVol(0,elem,ion) = TeVol(0,elem,ion) + &
+                               & ionDenUsed(elementXref(elem),ion)*factor1
+
+                          denominatorTe(0,elem,ion) = denominatorTe(0,elem,ion) + &
+                               & ionDenUsed(elementXref(elem),ion)*factor2
+
+
+                          ionDenVol(0,elem,ion) = ionDenVol(0,elem,ion)+ &
+                               & ionDenUsed(elementXref(elem),ion)*factor2
+
+
+
+                       end do
+                    end do
+
+                 end if
 
                  end if
               end if
