@@ -1553,6 +1553,7 @@ module emission_mod
 
         ! Sum  up energy in recombination lines
 !todo: voronoi code contains checks for negative line fluxes
+!todo: these loops can be replaced with array operations
         normRec = 0.
         ! hydrogenic rec lines
         do izp = 1, 30
