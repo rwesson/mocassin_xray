@@ -409,7 +409,6 @@ module output_mod
                        if (.not. lgVoronoi) then
                          dV = getVolume(grid(iG), i,j,k)
 ! todo: original and voronoi have checks here for lg2D and lgSymmetricXYZ. needed?
-! todo: this next block might be out of sequence
                        else
                           dV = grid(iG)%voronoi(grid(iG)%activeRV(cellPUsed))%volume
                        end if
