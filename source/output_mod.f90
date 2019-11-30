@@ -288,7 +288,7 @@ module output_mod
 
                  ! temporary arrangement
                  if (lg1D ) then
-                    if (grid(iG)%ionDen(grid(iG)%active(i,j,k),elementXref(1),1) > 0.95) then
+                    if (grid(iG)%ionDen(cellPUsed,elementXref(1),1) > 0.95) then
                        print*, 'R_out = ', grid(iG)%xAxis(i-1), ' (',i-1,')'
                        exit! todo: check this behaviour
                     end if
@@ -334,10 +334,10 @@ module output_mod
 !                 cellPUsed       = grid(iG)%active(i,j,k)
                  abFileUsed      = grid(iG)%abFileIndex(cellPUsed)
                  elemAbundanceUsed(:) = grid(iG)%elemAbun(grid(iG)%abFileIndex(cellPUsed), :)
-                 HdenUsed        = grid(iG)%Hden(grid(iG)%active(i,j,k))
-                 ionDenUsed      = grid(iG)%ionDen(grid(iG)%active(i,j,k), :, :)
-                 NeUsed          = grid(iG)%Ne(grid(iG)%active(i,j,k))
-                 TeUsed          = grid(iG)%Te(grid(iG)%active(i,j,k))
+                 HdenUsed        = grid(iG)%Hden(cellPUsed)
+                 ionDenUsed      = grid(iG)%ionDen(cellPUsed, :, :)
+                 NeUsed          = grid(iG)%Ne(cellPUsed)
+                 TeUsed          = grid(iG)%Te(cellPUsed)
                  Te10000         = TeUsed/10000.
                  log10Te         = log10(TeUsed)
                  log10Ne         = log10(NeUsed)
