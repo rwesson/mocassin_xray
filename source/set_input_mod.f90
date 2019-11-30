@@ -576,7 +576,7 @@ module set_input_mod
                  if(.not.allocated(spID)) allocate(spID(0:0))
                  if(.not.allocated(LStar)) allocate(LStar(0:0))
               end if
-!              deltaE(0) = Ldiffuse/nPhotonsDiffuse
+              deltaEUsed = Ldiffuse/nPhotonsDiffuse
               contShape(0) = shapeDiffuse
               if (contShape(0) == 'blackbody' .or. contShape(0) == 'powerlaw') then
                  spID(0) = contShape(0)
@@ -835,12 +835,12 @@ module set_input_mod
         print*, 'i, Tstellar(i), Lstar(i), contShape(i), Nphotons(i), starPosition(i)'
         do i = 1, nStars
            nPhotons(i) = NphotonsTot/nStars
-!           deltaE(i) = Lstar(i)/nPhotons(i)
+           deltaEUsed = Lstar(i)/nPhotons(i)
            print*, i, Tstellar(i), Lstar(i), contShape(i), Nphotons(i), starPosition(i)
         end do
 
         if (Ldiffuse>0. .and. nPhotonsDiffuse>0) then
-!           deltaE(0) = Ldiffuse/nPhotonsDiffuse
+           deltaEUsed = Ldiffuse/nPhotonsDiffuse
            contShape(0) = shapeDiffuse
            if (contShape(0) == 'blackbody' .or. contShape(0) == 'powerlaw') then
               spID(0) = contShape(0)
