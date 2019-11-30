@@ -61,8 +61,7 @@ contains
 
     ! Diffuse source
     if (iStar == 0) then
-       deltaEUsed = grid(gpLoc)%LdiffuseLoc(grid(gpLoc)%activeV&
-            &(cellLoc))/NphotonsDiffuseLoc
+       deltaEUsed = grid(gpLoc)%LdiffuseLoc(grid(gpLoc)%activeV(cellLoc))/NphotonsDiffuseLoc
     end if
 
     ! Obtain timing information (used to generate 'true' random number)
