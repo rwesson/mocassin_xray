@@ -1,0 +1,37 @@
+densityFile "input/RUNI180_particle_dump.out"
+multiPhotoSources "input/RUNI180_stars.in"
+autoPackets 0.20 2. 10000000
+Voronoi 642954 -4.62857e+19 4.62857e+19 -4.62857e+19 4.62857e+19 -4.62857e+19 4.62857e+19
+output 
+TeStart 8000.
+nebComposition "input/abunHII40.in"
+maxIterateMC  20 95.
+nPhotons 1000000
+nbins 600
+nuMax 15.
+nuMin 1.001e-5
+convLimit 0.05
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
