@@ -82,7 +82,7 @@ mocassinXFluorescence: $(SOURCES) source/mocassinXFluorescence.o
 clean:
 	/bin/rm -f source/*.o *~ source/*.mod mocassinX mocassinXWarm mocassinXOutput mocassinXPlot mocassinXFluorescence
 
-install: mocassinX mocassinXWarm mocassinXOutput mocassinXPlot
+install: mocassinX mocassinXWarm mocassinXOutput mocassinXPlot mocassinXFluorescence
 	test -e $(DESTDIR)$(PREFIX)/share/mocassinX || mkdir -p $(DESTDIR)$(PREFIX)/share/mocassinX
 	test -e $(DESTDIR)$(PREFIX)/bin || mkdir -p $(DESTDIR)$(PREFIX)/bin
 	test -e $(MANDIR) || mkdir -p $(MANDIR)
