@@ -168,15 +168,6 @@ contains
             & 39.948, 39.102, 40.08, 44.956, 47.90, 50.9414, 51.996, 54.9380, 55.847, 58.9332, &
             & 58.71, 63.546, 65.37 /)
 
-        close(72)
-        open (unit= 72,  action="read", file=PREFIX//"/share/mocassinX/dustData/nuDustRyd.dat", status = "old", position = "rewind", &
-             & iostat = ios)
-        if (ios /= 0) then
-           print*, "! initCartesianGrid: can't open dust nu grid file - ",PREFIX,"/share/mocassinX/dustData/nuDustRyd.dat"
-           stop
-        end if
-        close(72)
-
     end subroutine readdata
 
 end module readdata_mod

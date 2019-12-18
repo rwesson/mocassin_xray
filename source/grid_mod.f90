@@ -155,8 +155,15 @@ module grid_mod
 
                if ( (lgDust) .and. (.not.lgGas) ) then
 
+                  open (unit= 72,  action="read", file=PREFIX//"/share/mocassin/dustData/nuDustRyd.dat", status = "old", position = "rewind", iostat = ios)
+                  if (ios /= 0) then
+                     print*, "! initCartesianGrid: can't open dust nu grid file - ",PREFIX,"/share/mocassin/dustData/nuDustRyd.dat"
+                     stop
+                  end if
+
                   do i = 1, 10000000
                      if (i<=nbins+1) then
+                        read(unit=72,fmt=*,iostat=ios) nuArray(i)
                         if (nuArray(i)>nuMax) exit ! nuMax reached
                         if (ios < 0) exit ! end of file reached
                      else
