@@ -936,18 +936,18 @@ module grid_mod
         ! this is the mother grid
         grid%motherP = 0
 
+        tot=grid%nx*grid%ny*grid%nz
+!           print*, tot
+        allocate(activeRTemp(3,tot),stat=err)
+        if (err /= 0) then
+           print*, "! setMotherGrid: can't allocate grid memory,activeRTemp"
+           stop
+        end if
+        activeRTemp = 0
+
         if (lgGas) then
 
-           tot=grid%nx*grid%ny*grid%nz
-!           print*, tot
-           allocate(activeRTemp(3,tot),stat=err)
-           if (err /= 0) then
-              print*, "! setMotherGrid: can't allocate grid memory,activeRTemp"
-              stop
-           end if
-           activeRTemp = 0
-
-           ! allocate space for HdenTemp
+          ! allocate space for HdenTemp
            allocate(HdenTemp(1:grid%nx, 1:grid%ny, 1:grid%nz), stat = err)
            if (err /= 0) then
               print*, "! setMotherGrid: can't allocate grid memory"
