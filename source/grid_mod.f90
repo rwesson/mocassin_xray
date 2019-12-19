@@ -155,9 +155,9 @@ module grid_mod
 
                if ( (lgDust) .and. (.not.lgGas) ) then
 
-                  open (unit= 72,  action="read", file=PREFIX//"/share/mocassin/dustData/nuDustRyd.dat", status = "old", position = "rewind", iostat = ios)
+                  open (unit= 72,  action="read", file=PREFIX//"/share/mocassinX/dustData/nuDustRyd.dat", status = "old", position = "rewind", iostat = ios)
                   if (ios /= 0) then
-                     print*, "! initCartesianGrid: can't open dust nu grid file - ",PREFIX,"/share/mocassin/dustData/nuDustRyd.dat"
+                     print*, "! initCartesianGrid: can't open dust nu grid file - ",PREFIX,"/share/mocassinX/dustData/nuDustRyd.dat"
                      stop
                   end if
 
