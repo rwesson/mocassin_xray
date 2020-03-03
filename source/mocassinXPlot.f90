@@ -14,6 +14,7 @@ program MoCaSSiNplot
     use output_mod
     use set_input_mod
     use xSec_mod
+    use readdata_mod
 
     implicit none
 
@@ -95,6 +96,7 @@ program MoCaSSiNplot
     end if
 
     ! prepare atomic data stuff
+    call readdata()
     call makeElements()
 
     elemAbundanceUsed = 0.

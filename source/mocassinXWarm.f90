@@ -15,6 +15,7 @@ program MoCaSSiNwarm
     use output_mod
     use set_input_mod
     use xSec_mod
+    use readdata_mod
 
     implicit none
 
@@ -71,6 +72,7 @@ program MoCaSSiNwarm
     call setContinuum()
 
     ! prepare atomica data stuff
+    call readdata()
     call makeElements()
 
     if (.not.lgVoronoi) then
