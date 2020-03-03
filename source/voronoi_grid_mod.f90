@@ -1739,14 +1739,17 @@ print*, i, totalMass, grid%voronoi(grid%activeV(i))%density, dV
               write(40, *) lgOutput, ' lgOutput'
               write(40, *) dxSlit,dySlit,' dxSlit,dySlit'
               write(40, *) lgDust, lgDustConstant, ' lgDust, lgDustConstant'
-!             write(40, *) lgMultiDustChemistry, nDustCOmponents, ' lgMultiDustChemistry, nDustComponents'
+!todo: check here
+!              write(40, *) lgMultiDustChemistry, nDustCOmponents, ' lgMultiDustChemistry, nDustComponents'
               if (lgDust) then
+!todo: and here
 !                 do i = 1, nDustComponents
 !                    write(40, *) '"',trim(dustSpeciesFile(i)),'"', ' dustFile'
 !                 end do
+!--
                  write(40, *) '"',trim(dustFile(1)),'"', ' dustFile'
-              else
-                 write(40, *) 'none', ' dustFile'
+!              else
+!                 write(40, *) 'none', ' dustFile'
               end if
               write(40, *) '"',trim(dustFile(2)),'"', ' dustFile'
               write(40, *) lgGas, ' lgGas'
@@ -1875,16 +1878,18 @@ print*, i, totalMass, grid%voronoi(grid%activeV(i))%density, dV
               read(77, *) maxIterateMC, minConvergence
               read(77, *) lgPlaneIonization
 !todo: reimplement
-!              read(77, *) nAbComponents
-!              allocate(abundanceFile(nAbComponents))
-!              if (nAbComponents>1) then
-!                 lgMultiChemistry = .true.
-!              else
-!                 lgMultiChemistry = .false.
-!              end if
-!              do i = 1, nAbComponents
-!                 read(77, *) abundanceFile(i)
-!              end do
+              read(77, *) nAbComponents
+!              read(77,*) abundanceFile(1)
+              allocate(abundanceFile(nAbComponents))
+              if (nAbComponents>1) then
+                 lgMultiChemistry = .true.
+              else
+                 lgMultiChemistry = .false.
+              end if
+              do i = 1, nAbComponents
+                 read(77, *) abundanceFile(i)
+              end do
+!--
               read(77, *) lgOutput
               read(77, *) dxSlit, dySlit
               read(77, *) lgDust, lgDustConstant
@@ -1894,6 +1899,10 @@ print*, i, totalMass, grid%voronoi(grid%activeV(i))%density, dV
 !              do i = 1, nDustComponents
 !                 read(77, *) dustSpeciesFile(i)
 !              end do
+!--
+              if (lgDust) then
+                 read(77,*) dustSpeciesFile(1)
+              endif
               read(77, *) dustFile(2)
               read(77, *) lgGas
               read(77, *) lgRecombination
@@ -1901,6 +1910,7 @@ print*, i, totalMass, grid%voronoi(grid%activeV(i))%density, dV
 !              read(77, *) nSpeciesMax,nSpecies, nSizes
 !              allocate(nSpeciesPart(1:nDustComponents))
 !              read(77, *) (nSpeciesPart(i), i = 1, nDustComponents)
+!--
               read(77, *) resLinesTransfer
               read(77, *) lgDustScattering
               read(77, *) nAngleBins
