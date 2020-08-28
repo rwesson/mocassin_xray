@@ -176,7 +176,7 @@ program MoCaSSiNplot
        if (lgVoronoi) then
           do iCell = 1, grid3D(iG)%nCellsV
              dV = grid3D(1)%voronoi(iCell)%volume
-             if (taskid == 0) write(29,*) grid3d(ig)%voronoi(icell)%r(1), grid3d(ig)%voronoi(icell)%r(1), grid3d(ig)%voronoi(icell)%r(2),grid3d(iG)%voronoi(icell)%r(3),dV
+             if (taskid == 0) write(29,*) grid3d(ig)%voronoi(icell)%r(1), grid3d(ig)%voronoi(icell)%r(2),grid3d(iG)%voronoi(icell)%r(3),dV
           end do
        else
          do i = 1, grid3D(iG)%nx
