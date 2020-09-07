@@ -200,9 +200,6 @@ program MoCaSSiNplot
              dV = grid3D(1)%voronoi(grid3D(1)%activeRV(iCell))%volume
           end if
 
-          ! find the volume of this cell
-          dV = getVolume(grid3D(iG), i,j,k)
-
 ! not on voronoi version:
 !         if (taskid ==0) write(29, *) grid3D(iG)%xAxis(i),grid3D(iG)%yAxis(j),grid3D(iG)%zAxis(k),dV
 
@@ -228,9 +225,6 @@ program MoCaSSiNplot
             ! calculate the emission due to the heavy elements
             ! forbidden lines
             call forLines()
-
-            ! find the volume of this cell
-            dV = getVolume(grid3D(iG), i,j,k)
 
             do plotNum = 1, plot%nPlots
 
