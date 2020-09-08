@@ -19,6 +19,8 @@ program MoCaSSiNoutput
     include 'mpif.h'
 
     type(grid_type) :: grid3D(maxGrids) ! the 3D Cartesian  grid
+
+    integer         :: err              ! allocation error status
     integer         :: iGrid
     character(len=10)  :: time                ! time in text format
     real, dimension(2) :: timing              ! cputimer
@@ -49,6 +51,19 @@ program MoCaSSiNoutput
     if (taskid == 0) then
         print*, " "
     end if
+
+    ! check if voronoi
+    close(77)
+    open(unit=77, file='output/grid3.out', action="read",position='rewind',  &
+         &          status='old', iostat = err)
+    if (err /= 0) then
+       print*, "! mocassinWarm: error opening file grid3.out"
+       stop
+    end if
+
+    read(77,*) lgVoronoi
+
+    close(77)
 
     if (.not. lgVoronoi) then
       ! reset the 3D cartesian grid
