@@ -62,15 +62,25 @@ program MoCaSSiNplot
 
     logical         :: lgContinuum    !
 
+    character(len=10)  :: time                ! time in text format
+    real, dimension(2) :: timing              ! cputimer
+
+    call cpu_time(timing(1))
+    call date_and_time(TIME=time)
+
     call mpi_init(ierr)
     call mpi_comm_rank(MPI_COMM_WORLD, taskid, ierr)
     call mpi_comm_size(MPI_COMM_WORLD, numtasks, ierr)
 
 
     if (taskid == 0) then
-        print*, "MOCASSIN 2007 plot Version 3"
+        print*, "mocassinXPlot: version ",VERSION
+        print*, "compiled with ",COMPILER
+        print *,"data directory: ",PREFIX,"/share/mocassinX"
+        if (CO.ne."co") print *,"CO=",CO
+        print *,"started running at ",time(1:2),":",time(3:4),":",time(5:6)
         print*, " "
-    end if
+    endif
 
     filename = 'input/plot.in'
     ! check if voronoi

@@ -19,8 +19,12 @@ program MoCaSSiNoutput
     include 'mpif.h'
 
     type(grid_type) :: grid3D(maxGrids) ! the 3D Cartesian  grid
-
     integer         :: iGrid
+    character(len=10)  :: time                ! time in text format
+    real, dimension(2) :: timing              ! cputimer
+
+    call cpu_time(timing(1))
+    call date_and_time(TIME=time)
 
     call mpi_init(ierr)
     call mpi_comm_rank(MPI_COMM_WORLD, taskid, ierr)
@@ -32,11 +36,15 @@ program MoCaSSiNoutput
     lgRecombination = .true.
 
     if (taskid == 0) then
-        print*, "MOCASSIN 2007 output Version 3"
+        print*, "mocassinXOutput: version ",VERSION
+        print*, "compiled with ",COMPILER
+        print *,"data directory: ",PREFIX,"/share/mocassinX"
+        if (CO.ne."co") print *,"CO=",CO
         print*, "Creating output files from current grid*.out files "
         print*, " stored in the output/ directory"
+        print *,"started running at ",time(1:2),":",time(3:4),":",time(5:6)
         print*, " "
-    end if
+    endif
 
     if (taskid == 0) then
         print*, " "

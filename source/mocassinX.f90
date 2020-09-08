@@ -53,12 +53,13 @@ program MoCaSSiN
 
     call cpu_time(timing(1))
     call date_and_time(TIME=time)
+
     call mpi_init(ierr)
     call mpi_comm_rank(MPI_COMM_WORLD, taskid, ierr)
     call mpi_comm_size(MPI_COMM_WORLD, numtasks, ierr)
 
     if (taskid == 0) then
-        print*, "MOCASSIN 2007 Version ",VERSION
+        print*, "mocassinX: version ",VERSION
         print*, "compiled with ",COMPILER
         print *,"data directory: ",PREFIX,"/share/mocassinX"
         if (CO.ne."co") print *,"CO=",CO
