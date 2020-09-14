@@ -13,6 +13,7 @@ program MoCaSSiNoutput
     use output_mod
     use set_input_mod
     use xSec_mod
+    use readdata_mod
 
     implicit none
 
@@ -74,14 +75,17 @@ program MoCaSSiNoutput
       call setStarPositionV(grid3D(1))
     end if
 
+    ! prepare atomic data stuff
+    if (lgGas) then
+      call readdata()
+      call makeElements()
+    endif
+
     ! initialize opacities x sections array
     call initXSecArray()
 
     ! set the ionzing continuum according to the contShape variable
     call setContinuum()
-
-    ! prepare atomica data stuff
-    call makeElements()
 
     if (taskid ==  0) then
         ! determine final statistics
