@@ -1846,6 +1846,7 @@ print*, i, totalMass, grid%voronoi(grid%activeV(i))%density, dV
                  print*, i, contShape(i), TStellar(i), LStar(i), nPhotons(i), starPosition(i)%x,starPosition(i)%y,&
                       &starPosition(i)%z, spID(i), tStep(i)
                  print*, pwlIndex
+                   deltaEUsed=Lstar(i)/nPhotons(i) ! RW: added 2020-09-15. todo: check
 !                 deltaE(i) = Lstar(i)/nPhotons(i)
 !                 print*, 'deltaE', deltaE(i), i
               end do
