@@ -1903,6 +1903,7 @@ print*, i, totalMass, grid%voronoi(grid%activeV(i))%density, dV
               if (lgDust) then
                  read(77,*) dustSpeciesFile(1)
               endif
+              dustFile=""
               read(77, *) dustFile(2)
               read(77, *) lgGas
               read(77, *) lgRecombination
