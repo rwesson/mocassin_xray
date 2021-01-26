@@ -435,14 +435,14 @@ module emission_mod
             ! add the free free contribution
             gammaHI(i) = gammaHI(i)+ffCoeff1(i)
             ! calculate gammaHeI
-            if (i >= HeINuEdgeP(nlimGammaHeI) ) then
+            if (i > HeINuEdgeP(nlimGammaHeI) ) then
                 expFactor = exp(dble( (-nuArray(i) + nuArray(HeIPnuP)) * hcRyd_k / TeUsed))
                 phXSecHeI = xSecArray(i-HeIPnuP+1+HeISingXSecP(1)-1)
 
                 gammaHeI(i) = fourPi * phXSecHeI * statW(2) * hcRyd * constant * factor * expFactor * 1.e20 *1.e20
                 ! add the free free contribution
                 gammaHeI(i) = gammaHeI(i) + ffCoeff1(i)
-                if (i >= HeIINuEdgeP(nlimGammaHeII)) then
+                if (i > HeIINuEdgeP(nlimGammaHeII)) then
                     expFactor  = exp(dble( (-nuArray(i) + nuArray(HeIIPnuP)) * hcRyd_k / TeUsed))
                     phXSecHeII = xSecArray(i-HeIIPnuP+1+HeIIXSecP(1)-1)
                     gammaHeII(i) = fourPi * phXSecHeII * statW(3) * hcRyd * constant * factor * expFactor * 1.e20 *1.e20
